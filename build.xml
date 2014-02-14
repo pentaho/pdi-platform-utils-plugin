@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<project name="BAServerUtils" default="dist" basedir=".">
+	<description>
+    BI server utils plugin build file
+  </description>
+
+	<!-- set global properties for this build -->
+	<property name="src" location="${basedir}/src" />
+  <property name="lib" location="${basedir}/lib" />
+  <property name="resources" location="${basedir}/resources" />
+	<property name="classes" location="${basedir}/bin/classes" />
+	<property name="dist" location="${basedir}/dist" />
+	<property name="pluginname" value="ba-server-utils-plugin" />
+	<property name="jarname" value="ba-server-utils.jar" />
+
+  <!-- import build properties -->
+  <property file="build.properties" />
+
+  <!-- define dependencies -->
+	<path id="compile.classpath">
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+  <!-- INIT -->
+	<target name="init" description="create timestamp">
+		<tstamp />
+	</target>
+
+  <!-- COMPILE -->
+	<target name="compile" depends="init" description="compile the source">
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src}" destdir="${classes}" debuglevel="lines,vars,source" debug="true">
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+
+  <!-- DIST -->
+	<target name="dist" depends="compile" description="generate the distribution">
+		<mkdir dir="${dist}" />
+		<!-- jar things up, also add the properties files (messages) and icons -->
+		<copy todir="${classes}">
+			<fileset dir="${src}" includes="**/*.properties" />
+		</copy>
+		<jar jarfile="${dist}/${jarname}">
+      <fileset dir="${classes}" />
+      <fileset dir="${resources}" includes="**/*.png" />
+    </jar>
+	</target>
+
+  <!-- INSTALL -->
+	<target name="install" depends="dist" description="compile and install into local PDI installation">
+		<echo message="Looking for local PDI installation in ${kettle-dir}"/>
+		
+		<!-- check PDI path -->
+		<available file="${kettle-dir}" type="dir" property="kettle-dir.present" />
+		<fail unless="kettle-dir.present" message="PDI installation not found. Please specify the path to your PDI installation in build.properties" />
+		
+		<!-- remove previous installations -->
+		<delete dir="${kettle-dir}/plugins/${pluginname}" />
+
+		<!-- put fresh files in place -->
+		<mkdir dir="${kettle-dir}/plugins/${pluginname}" />
+		<copy todir="${kettle-dir}/plugins/${pluginname}">
+			<fileset dir="${dist}" includes="**/*.*" />
+			<fileset dir="${dist}" includes="**" />
+		</copy>
+
+		<echo message="Installed the plugin in PDI. To test, please restart Spoon."/>
+	</target>
+
+  <!-- CLEAN -->
+	<target name="clean" description="clean up">
+		<delete dir="${classes}" />
+		<delete dir="${dist}" />
+	</target>
+</project>
+
+
