@@ -43,20 +43,26 @@
 		<copy todir="${classes}">
 			<fileset dir="${src}" includes="**/*.properties" />
 		</copy>
-		<jar jarfile="${dist}/${jarname}">
+    <!-- create jar  -->
+		<jar jarfile="${stage.dir}/${jarname}">
       <fileset dir="${classes}" />
       <fileset dir="${resources}" includes="**/*.png" />
     </jar>
+    <!-- create the version file -->
+    <tstamp/>
+    <property name="sequential.build.id" value="manual-${DSTAMP}"/>
+    <echo file="${stage.dir}/${plugin.name}/version.xml" message="&lt;version branch='${project.stage}' buildId='${sequential.build.id}'>${distribution.version}&lt;/version>"/>
+
 	</target>
 
   <!-- INSTALL -->
 	<target name="install" depends="dist" description="compile and install into local PDI installation">
 		<echo message="Looking for local PDI installation in ${kettle-dir}"/>
-		
+
 		<!-- check PDI path -->
 		<available file="${kettle-dir}" type="dir" property="kettle-dir.present" />
 		<fail unless="kettle-dir.present" message="PDI installation not found. Please specify the path to your PDI installation in build.properties" />
-		
+
 		<!-- remove previous installations -->
 		<delete dir="${kettle-dir}/plugins/${pluginname}" />
 
@@ -76,5 +82,3 @@
 		<delete dir="${dist}" />
 	</target>
 </project>
-
-
