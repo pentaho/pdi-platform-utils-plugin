@@ -28,7 +28,7 @@
   <target name="dist" depends="clean,resolve" description="creates a distribution">
 
     <!-- create dist folder -->
-    <!--<mkdir dir="${dist.dir}"/> -->
+    <mkdir dir="${dist.dir}"/>
 
     <!-- create the stage folder tree -->
     <mkdir dir="${stage.dir}"/>
