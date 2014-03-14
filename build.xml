@@ -1,84 +1,79 @@
-<?xml version="1.0"?>
-<project name="BAServerUtils" default="dist" basedir=".">
-	<description>
-    BI server utils plugin build file
+<project name="BA Server Utils" basedir="." default="jar" 
+	     xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <description>
+    This build file is used to create the kettle plugin BA Server Utils.
   </description>
 
-	<!-- set global properties for this build -->
-	<property name="src" location="${basedir}/src" />
-  <property name="lib" location="${basedir}/lib" />
-  <property name="resources" location="${basedir}/resources" />
-	<property name="classes" location="${basedir}/bin/classes" />
-	<property name="dist" location="${basedir}/dist" />
-	<property name="pluginname" value="ba-server-utils-plugin" />
-	<property name="jarname" value="ba-server-utils.jar" />
+  <echo>project.revision = ${project.revision}</echo>
 
-  <!-- import build properties -->
-  <property file="build.properties" />
+  <!-- import top level build properties -->
+  <property file="build.properties" description="top level properties"/>
 
-  <!-- define dependencies -->
-	<path id="compile.classpath">
-		<fileset dir="${lib}">
-			<include name="**/*.jar" />
-		</fileset>
-	</path>
+  <!-- import subfloor file which contains all the default tasks -->
+  <import file="build-res/subfloor-pkg.xml" id="subfloor"/>
+  
+  <!-- build plugin properties -->
+  <!-- <property name="plugin.name" value="${project.name}"/> -->
+  <property name="plugin.artifact.id" value="${ivy.artifact.id}"/>
+  <property name="plugin.jarfile" value="${plugin.artifact.id}-${project.revision}.jar"/>
+  <property name="plugin.zipfile" value="${plugin.artifact.id}-${project.revision}.zip"/>
+  <property name="stage.dir" value="${bin.dir}/stage" description="stage directory"/>
+  <property name="samples.dir" value="${basedir}/samples" description="samples directory"/>
 
-  <!-- INIT -->
-	<target name="init" description="create timestamp">
-		<tstamp />
-	</target>
+  <!--==========================================================================================
+      target: dist
+      creates a distribution of this project in a zip ready for marketplace (overrides subfloor dist)
+  ===========================================================================================-->
+  <target name="dist" depends="clean,resolve" description="creates a distribution">
 
-  <!-- COMPILE -->
-	<target name="compile" depends="init" description="compile the source">
-		<mkdir dir="${classes}" />
-		<javac srcdir="${src}" destdir="${classes}" debuglevel="lines,vars,source" debug="true">
-			<classpath refid="compile.classpath" />
-		</javac>
-	</target>
+    <!-- create dist folder -->
+    <!--<mkdir dir="${dist.dir}"/> -->
 
-  <!-- DIST -->
-	<target name="dist" depends="compile" description="generate the distribution">
-		<mkdir dir="${dist}" />
-		<!-- jar things up, also add the properties files (messages) and icons -->
-		<copy todir="${classes}">
-			<fileset dir="${src}" includes="**/*.properties" />
-		</copy>
-    <!-- create jar  -->
-		<jar jarfile="${stage.dir}/${jarname}">
-      <fileset dir="${classes}" />
-      <fileset dir="${resources}" includes="**/*.png" />
+    <!-- create the stage folder tree -->
+    <mkdir dir="${stage.dir}"/>
+    <mkdir dir="${stage.dir}/${project.id}"/>
+
+    <!-- jar things up, including properties files and icons, and copy to stage -->
+    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}" includes="**/*.properties" />
+    </copy>
+    <jar jarfile="${stage.dir}/${project.id}/${plugin.jarfile}">
+      <fileset dir="${classes.dir}" />
+      <fileset dir="${res.dir}" includes="**/*.png" />
     </jar>
+
+    <!-- copy samples to stage -->
+    <copy todir="${stage.dir}/${project.id}/samples" overwrite="true">
+      <fileset dir="${samples.dir}" />
+    </copy>
+
+    <!-- copy readme to stage -->
+    <copy todir="${stage.dir}/${project.id}" overwrite="true">
+      <fileset file="README.md" />
+    </copy>
+
     <!-- create the version file -->
     <tstamp/>
-    <property name="sequential.build.id" value="manual-${DSTAMP}"/>
-    <echo file="${stage.dir}/${plugin.name}/version.xml" message="&lt;version branch='${project.stage}' buildId='${sequential.build.id}'>${distribution.version}&lt;/version>"/>
+    <property name="build.id" value="manual-${DSTAMP}"/>
+    <echo file="${stage.dir}/${project.id}/version.xml"
+          message="&lt;version branch='${project.stage}' buildId='${build.id}'>${project.version}&lt;/version>"/>
 
-	</target>
+    <!-- create a zip file -->
+    <zip zipfile="${dist.dir}/${plugin.zipfile}" basedir="${stage.dir}/${project.id}"
+         includes="**/*"
+         excludes="**/Thumbs.db  **/.DS_Store"/>
 
-  <!-- INSTALL -->
-	<target name="install" depends="dist" description="compile and install into local PDI installation">
-		<echo message="Looking for local PDI installation in ${kettle-dir}"/>
+    <!-- create market_entry.xml file -->
+    <copy file="${basedir}/market_entry.xml" tofile="${dist.dir}/market_entry.xml" overwrite="true">
+      <filterset>
+        <filter token="project.stage" value="${project.stage}"/>
+        <filter token="project.version" value="${project.version}"/>
+        <filter token="project.revision" value="${project.revision}"/>
+        <filter token="project.package" value="${plugin.zipfile}"/>
+      </filterset>
+    </copy>
 
-		<!-- check PDI path -->
-		<available file="${kettle-dir}" type="dir" property="kettle-dir.present" />
-		<fail unless="kettle-dir.present" message="PDI installation not found. Please specify the path to your PDI installation in build.properties" />
+  </target>
 
-		<!-- remove previous installations -->
-		<delete dir="${kettle-dir}/plugins/${pluginname}" />
-
-		<!-- put fresh files in place -->
-		<mkdir dir="${kettle-dir}/plugins/${pluginname}" />
-		<copy todir="${kettle-dir}/plugins/${pluginname}">
-			<fileset dir="${dist}" includes="**/*.*" />
-			<fileset dir="${dist}" includes="**" />
-		</copy>
-
-		<echo message="Installed the plugin in PDI. To test, please restart Spoon."/>
-	</target>
-
-  <!-- CLEAN -->
-	<target name="clean" description="clean up">
-		<delete dir="${classes}" />
-		<delete dir="${dist}" />
-	</target>
 </project>
