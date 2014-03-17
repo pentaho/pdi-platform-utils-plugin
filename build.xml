@@ -1,5 +1,5 @@
-<project name="BA Server Utils" basedir="." default="jar" 
-	     xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="BA Server Utils" basedir="." default="jar"
+         xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <description>
     This build file is used to create the kettle plugin BA Server Utils.
@@ -12,12 +12,11 @@
 
   <!-- import subfloor file which contains all the default tasks -->
   <import file="build-res/subfloor-pkg.xml" id="subfloor"/>
-  
-  <!-- build plugin properties -->
-  <!-- <property name="plugin.name" value="${project.name}"/> -->
-  <property name="plugin.artifact.id" value="${ivy.artifact.id}"/>
-  <property name="plugin.jarfile" value="${plugin.artifact.id}-${project.revision}.jar"/>
-  <property name="plugin.zipfile" value="${plugin.artifact.id}-${project.revision}.zip"/>
+
+  <!-- add additional properties -->
+  <property name="project.artifact.id" value="${ivy.artifact.id}"/>
+  <property name="project.jarfile" value="${ivy.artifact.id}-${project.revision}.jar"/>
+  <property name="project.zipfile" value="${ivy.artifact.id}-${project.revision}.zip"/>
   <property name="stage.dir" value="${bin.dir}/stage" description="stage directory"/>
   <property name="samples.dir" value="${basedir}/samples" description="samples directory"/>
 
@@ -25,7 +24,7 @@
       target: dist
       creates a distribution of this project in a zip ready for marketplace (overrides subfloor dist)
   ===========================================================================================-->
-  <target name="dist" depends="clean,resolve" description="creates a distribution">
+  <target name="dist" depends="clean,resolve,compile.compile" description="creates a distribution">
 
     <!-- create dist folder -->
     <mkdir dir="${dist.dir}"/>
@@ -38,7 +37,7 @@
     <copy todir="${classes.dir}">
       <fileset dir="${src.dir}" includes="**/*.properties" />
     </copy>
-    <jar jarfile="${stage.dir}/${project.id}/${plugin.jarfile}">
+    <jar jarfile="${stage.dir}/${project.id}/${project.jarfile}">
       <fileset dir="${classes.dir}" />
       <fileset dir="${res.dir}" includes="**/*.png" />
     </jar>
@@ -60,7 +59,7 @@
           message="&lt;version branch='${project.stage}' buildId='${build.id}'>${project.version}&lt;/version>"/>
 
     <!-- create a zip file -->
-    <zip zipfile="${dist.dir}/${plugin.zipfile}" basedir="${stage.dir}/${project.id}"
+    <zip zipfile="${dist.dir}/${project.zipfile}" basedir="${stage.dir}"
          includes="**/*"
          excludes="**/Thumbs.db  **/.DS_Store"/>
 
@@ -70,7 +69,7 @@
         <filter token="project.stage" value="${project.stage}"/>
         <filter token="project.version" value="${project.version}"/>
         <filter token="project.revision" value="${project.revision}"/>
-        <filter token="project.package" value="${plugin.zipfile}"/>
+        <filter token="project.package" value="${project.zipfile}"/>
       </filterset>
     </copy>
 
