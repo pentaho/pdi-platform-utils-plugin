@@ -18,16 +18,15 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -42,8 +41,16 @@ import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.ui.core.widget.ColumnInfo;
 import org.pentaho.di.ui.core.widget.TableView;
+import org.pentaho.di.ui.core.widget.TextVar;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
+import pt.webdetails.di.baserver.utils.widgets.ButtonBuilder;
+import pt.webdetails.di.baserver.utils.widgets.CheckBoxBuilder;
+import pt.webdetails.di.baserver.utils.widgets.GroupBuilder;
+import pt.webdetails.di.baserver.utils.widgets.TableViewBuilder;
+import pt.webdetails.di.baserver.utils.widgets.TextBoxBuilder;
+import pt.webdetails.di.baserver.utils.widgets.TextVarBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,34 +58,43 @@ import java.util.List;
  * @author Marco Vala
  */
 public class CallEndpointDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = SetSessionVariableMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private SetSessionVariableMeta metaInfo;
+  private CallEndpointMeta metaInfo;
   private Text wStepName;
-  private Button wApplyFormatting;
-  private TableView wFields;
-  private ColumnInfo cFieldNames;
+  private TextVar wServerUrl;
+  private TextVar wUsername;
+  private TextVar wPassword;
+  private Button wBypassAuthCheck;
+  private TextVar wModule;
+  private TextVar wService;
+  private TableView wParameters;
+  private ColumnInfo cFieldName;
+
 
   public CallEndpointDialog( Shell parent, Object in, TransMeta transMeta, String name ) {
     super( parent, (BaseStepMeta) in, transMeta, name );
-    metaInfo = (SetSessionVariableMeta) in;
+    metaInfo = (CallEndpointMeta) in;
   }
+
 
   public String open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    // shell
+    // create shell
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
+    shell.setText( BaseMessages.getString( PKG, "CallEndpointDialog.DialogTitle" ) );
+
+    // create form layout
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = Const.FORM_MARGIN;
+    shell.setLayout( formLayout );
+
     props.setLook( shell );
     setShellImage( shell, metaInfo );
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
-    shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "SetSessionVariableDialog.DialogTitle" ) );
-    int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+
 
     // listener to detect changes
     ModifyListener lsMod = new ModifyListener() {
@@ -88,78 +104,154 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       }
     };
 
-    // step name text box
-    Label wlStepName = new Label( shell, SWT.RIGHT );
-    wlStepName.setText( BaseMessages.getString( PKG, "System.Label.StepName" ) );
-    props.setLook( wlStepName );
-    FormData fdlStepName = new FormData();
-    fdlStepName.left = new FormAttachment( 0, 0 );
-    fdlStepName.right = new FormAttachment( middle, -margin );
-    fdlStepName.top = new FormAttachment( 0, margin );
-    wlStepName.setLayoutData( fdlStepName );
-    wStepName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wStepName );
-    FormData fdStepName = new FormData();
-    fdStepName.left = new FormAttachment( middle, 0 );
-    fdStepName.top = new FormAttachment( 0, margin );
-    fdStepName.right = new FormAttachment( 100, 0 );
-    wStepName.setLayoutData( fdStepName );
-    wStepName.addModifyListener( lsMod );
 
-    // apply formatting checkbox
-    Label wlFormat = new Label( shell, SWT.RIGHT );
-    wlFormat.setText( BaseMessages.getString( PKG, "SetSessionVariableDialog.Label.ApplyFormatting" ) );
-    wlFormat.setToolTipText( BaseMessages.getString( PKG, "SetSessionVariableDialog.Label.ApplyFormatting.Tooltip" ) );
-    props.setLook( wlFormat );
-    FormData fdlFormat = new FormData();
-    fdlFormat.left = new FormAttachment( 0, 0 );
-    fdlFormat.right = new FormAttachment( middle, -margin );
-    fdlFormat.top = new FormAttachment( wStepName, margin );
-    wlFormat.setLayoutData( fdlFormat );
-    wApplyFormatting = new Button( shell, SWT.CHECK );
-    wApplyFormatting
-      .setToolTipText( BaseMessages.getString( PKG, "SetSessionVariableDialog.Label.ApplyFormatting.Tooltip" ) );
-    props.setLook( wApplyFormatting );
-    FormData fdFormat = new FormData();
-    fdFormat.left = new FormAttachment( middle, 0 );
-    fdFormat.top = new FormAttachment( wStepName, margin );
-    wApplyFormatting.setLayoutData( fdFormat );
+    /*
+    final Text wResult = new TextBoxBuilder( props, shell )
+      .setWidth( 200 )
+      .setLabelText( "STATUS" )
+      .setLabelWidth( 80 )
+      .build();
 
-    // fields
-    Label wlFields = new Label( shell, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "SetSessionVariableDialog.Label.Fields" ) );
-    props.setLook( wlFields );
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wApplyFormatting, margin );
-    wlFields.setLayoutData( fdlFields );
-    ColumnInfo[] columns = new ColumnInfo[] {
-      // field name
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.FieldName" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false ),
-      // variable name
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.VariableName" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false ),
-      // default value
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false )
+    SelectionListener lsTest = new SelectionListener() {
+
+      @Override
+      public void widgetSelected( SelectionEvent selectionEvent ) {
+        // TEST
+        wResult.setText( "" );
+        try {
+          // http://localhost:8080/pentaho/plugin/repositorySynchronizer/api/version
+
+          String module = wModule.getText();
+          if ( module.equals( "platform" ) ) {
+            module = "";
+          } else {
+            module = "/plugin/" + module;
+          }
+
+          String call = wServerUrl.getText() + "/pentaho" + module + "/api/" + wService.getText();
+          int status = HttpConnectionHelper.callHttp( call, wUsername.getText(), wPassword.getText() );
+
+          wResult.setText( String.valueOf( status ) );
+        } catch ( IOException ex ) {
+          logError( ex.toString() );
+        }
+      }
+
+      @Override
+      public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
+      }
     };
-    cFieldNames = columns[ 0 ];
-    columns[ 1 ].setUsingVariables( true );
-    columns[ 1 ].setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.VariableName.Tooltip" ) );
-    columns[ 2 ].setUsingVariables( true );
-    columns[ 2 ].setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
-    wFields = new TableView( transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columns,
-      metaInfo.getFieldName().length, lsMod, props );
-    FormData fdFields = new FormData();
-    fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
-    fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( 100, -50 );
-    wFields.setLayoutData( fdFields );
+
+    final Button wTest = new ButtonBuilder( props, shell )
+      .setLabelText( "TEST" )
+      .setLeft( wResult )
+      .onButtonPressed( lsTest )
+      .build();
+    */
+
+
+    // WIDGETS
+
+    // step name
+    this.wStepName = new TextBoxBuilder( props, shell )
+      .setWidth( 200 )
+      .setLabelText( "Step name" )
+      .setLabelWidth( 80 )
+      .setDefaultText( "1234" )
+      .setModifyListener( lsMod )
+      .build();
+
+    // BA server info group
+    Group serverInfo = new GroupBuilder( props, shell )
+      .setTop( this.wStepName )
+      .setLabelText( "BA Server Info" )
+      .build();
+
+    // server url
+    this.wServerUrl = new TextVarBuilder( props, serverInfo, transMeta )
+      .setWidth( 400 )
+      .setLabelText( "Server URL" )
+      .setLabelWidth( 80 )
+      .setDefaultText( "http://localhost:8080" )
+      .setModifyListener( lsMod )
+      .build();
+
+    // username
+    this.wUsername = new TextVarBuilder( props, serverInfo, transMeta )
+      .setWidth( 200 )
+      .setLabelText( "Username" )
+      .setLabelWidth( 80 )
+      .setDefaultText( "admin" )
+      .setTop( this.wServerUrl )
+      .setModifyListener( lsMod )
+      .build();
+
+    // password
+    this.wPassword = new TextVarBuilder( props, serverInfo, transMeta )
+      .setWidth( 200 )
+      .setLabelText( "Password" )
+      .setLabelWidth( 80 )
+      .setDefaultText( "password" )
+      .setEchoChar( '*' )
+      .setTop( this.wUsername )
+      .setModifyListener( lsMod )
+      .build();
+
+    // bypass authentication
+    this.wBypassAuthCheck = new CheckBoxBuilder( props, serverInfo )
+      .setLabelText( "Bypass authentication on local execution " )
+      .setLabelWidth( 260 )
+      .setTop( this.wPassword )
+      .build();
+
+    // endpoint info group
+    Group endpointInfo = new GroupBuilder( props, shell )
+      .setLabelText( "Endpoint Info" )
+      .setTop( serverInfo )
+      .build();
+
+    // module
+    this.wModule = new TextVarBuilder( props, endpointInfo, transMeta )
+      .setWidth( 200 )
+      .setLabelText( "Module" )
+      .setLabelWidth( 80 )
+      .setDefaultText( "platform" )
+      .setModifyListener( lsMod )
+      .build();
+
+    // service
+    this.wService = new TextVarBuilder( props, endpointInfo, transMeta )
+      .setWidth( 200 )
+      .setLabelText( "Service" )
+      .setLabelWidth( 80 )
+      .setDefaultText( "version/show" )
+      .setTop( this.wModule )
+      .setModifyListener( lsMod )
+      .build();
+
+
+    this.cFieldName = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.FieldName" ),
+      ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
+
+    ColumnInfo cParameter = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.Parameter" ),
+      ColumnInfo.COLUMN_TYPE_TEXT, false );
+    cParameter.setUsingVariables( true );
+
+    ColumnInfo cDefaultValue =  new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.DefaultValue" ),
+      ColumnInfo.COLUMN_TYPE_TEXT, false );
+    cDefaultValue.setUsingVariables( true );
+    cDefaultValue.setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
+
+    this.wParameters = new TableViewBuilder( props, shell )
+      .setTop( endpointInfo )
+      .setLabelText( "Parameters:" )
+      .setModifyListener( lsMod )
+      .setVariableSpace( transMeta )
+      .addColumnInfo( cFieldName )
+      .addColumnInfo( cParameter )
+      .addColumnInfo( cDefaultValue )
+      .setRowsCount( metaInfo.getFieldName().length )
+      .build();
 
     // background thread that updates field name combo box
     final Runnable runnable = new Runnable() {
@@ -186,7 +278,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       }
     };
     wCancel.addListener( SWT.Selection, lsCancel );
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, wFields );
+    setButtonPositions( new Button[] { wOK, wCancel }, Const.MARGIN, this.wParameters );
 
     // listener to add default action
     lsDef = new SelectionAdapter() {
@@ -242,7 +334,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
         // sort field names and add them to the combo box
         Const.sortStrings( fieldNames );
-        cFieldNames.setComboValues( fieldNames );
+        cFieldName.setComboValues( fieldNames );
       } catch ( KettleException e ) {
         logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
       }
@@ -261,40 +353,48 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     dispose();
   }
 
-  private void loadData( SetSessionVariableMeta meta ) {
+  private void loadData( CallEndpointMeta meta ) {
     // load step name
     wStepName.setText( stepname );
 
-    // load if is using formatting or not
-    wApplyFormatting.setSelection( meta.isUsingFormatting() );
+    wServerUrl.setText( meta.getServerURL() );
+    wUsername.setText( meta.getUsername() );
+    wPassword.setText( meta.getPassword() );
+    wBypassAuthCheck.setSelection( meta.isBypassingAuthCheck() );
+    wModule.setText( meta.getModule() );
+    wService.setText( meta.getService() );
 
     // load fields
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-      TableItem item = wFields.table.getItem( i );
+      TableItem item = wParameters.table.getItem( i );
       int index = 0;
       item.setText( ++index, Const.NVL( meta.getFieldName()[ i ], "" ) );
-      item.setText( ++index, Const.NVL( meta.getVariableName()[ i ], "" ) );
+      item.setText( ++index, Const.NVL( meta.getParameter()[ i ], "" ) );
       item.setText( ++index, Const.NVL( meta.getDefaultValue()[ i ], "" ) );
     }
-    wFields.setRowNums();
-    wFields.optWidth( true );
+    wParameters.setRowNums();
+    wParameters.optWidth( true );
   }
 
-  private void saveData( SetSessionVariableMeta meta ) {
+  private void saveData( CallEndpointMeta meta ) {
     // save step name
     stepname = wStepName.getText();
 
-    // save if is using formatting or not
-    meta.setUseFormatting( wApplyFormatting.getSelection() );
+    meta.setServerURL( wServerUrl.getText() );
+    meta.setUsername( wUsername.getText() );
+    meta.setPassword( wPassword.getText() );
+    meta.setBypassAuthCheck( wBypassAuthCheck.getSelection() );
+    meta.setModule( wModule.getText() );
+    meta.setService( wService.getText() );
 
     // save fields
-    int count = wFields.nrNonEmpty();
+    int count = wParameters.nrNonEmpty();
     meta.allocate( count );
     for ( int i = 0; i < count; i++ ) {
-      TableItem item = wFields.getNonEmpty( i );
+      TableItem item = wParameters.getNonEmpty( i );
       int index = 0;
       meta.getFieldName()[ i ] = item.getText( ++index );
-      meta.getVariableName()[ i ] = item.getText( ++index );
+      meta.getParameter()[ i ] = item.getText( ++index );
       meta.getDefaultValue()[ i ] = item.getText( ++index );
     }
   }

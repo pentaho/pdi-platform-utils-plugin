@@ -127,7 +127,7 @@
     <server_url>http&#x3a;&#x2f;&#x2f;localhost&#x3a;8080</server_url>
     <username>admin</username>
     <password>password</password>
-    <bypass_auth_check>Y</bypass_auth_check>
+    <bypass_auth_check>N</bypass_auth_check>
     <module>platform</module>
     <service>version&#x2f;show</service>
     <fields>

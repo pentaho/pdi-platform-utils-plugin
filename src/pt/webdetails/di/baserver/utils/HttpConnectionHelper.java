@@ -13,28 +13,61 @@
 
 package pt.webdetails.di.baserver.utils;
 
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.pentaho.di.cluster.SlaveConnectionManager;
+import org.pentaho.di.core.Const;
+import org.pentaho.di.core.exception.KettleStepException;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * @author Marco Vala
  */
 public final class HttpConnectionHelper {
 
-  public static final String SIMULATED_SESSION_PREFIX = "_FAKE_SESSION_";
+  public static String callHttp( String url, String user, String password ) throws IOException, KettleStepException {
+    HttpClient httpclient = SlaveConnectionManager.getInstance().createHttpClient();
+    HttpMethod method = new GetMethod( url );
+    httpclient.getParams().setAuthenticationPreemptive( true );
+    Credentials credentials = new UsernamePasswordCredentials( user, password );
+    httpclient.getState().setCredentials( AuthScope.ANY, credentials );
+    HostConfiguration hostConfiguration = new HostConfiguration();
+    int status = httpclient.executeMethod( hostConfiguration, method );
 
-  public static Object getSessionVariable( String varName ) {
-    IPentahoSession session = PentahoSessionHolder.getSession();
-    if ( session != null ) {
-      return session.getAttribute( varName );
+    if ( status == 401 ) {
+      throw new KettleStepException( "Authentication Error" );
     }
-    return null;
-  }
 
-  public static void setSessionVariable( String varName, Object varValue ) {
-    IPentahoSession session = PentahoSessionHolder.getSession();
-    if ( session != null ) {
-      session.setAttribute( varName, varValue );
+    String body = null;
+    if ( status != -1 ) {
+      String encoding = "";
+      String contentType = method.getResponseHeader( "Content-Type" ).getValue();
+      if ( contentType != null && contentType.contains( "charset" ) ) {
+        encoding = contentType.replaceFirst( "^.*;\\s*charset\\s*=\\s*", "" ).replace( "\"", "" ).trim();
+      }
+
+      // get the response
+      InputStreamReader inputStreamReader = null;
+      if ( !Const.isEmpty( encoding ) ) {
+        inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream(), encoding );
+      } else {
+        inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream() );
+      }
+      StringBuilder bodyBuffer = new StringBuilder();
+      int c;
+      while ( ( c = inputStreamReader.read() ) != -1 ) {
+        bodyBuffer.append( (char) c );
+      }
+      inputStreamReader.close();
+      body = bodyBuffer.toString();
     }
+    return body;
   }
 }

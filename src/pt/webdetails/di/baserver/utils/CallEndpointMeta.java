@@ -20,8 +20,11 @@ import org.pentaho.di.core.Const;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.i18n.BaseMessages;
@@ -43,20 +46,25 @@ import java.util.List;
 /**
  * @author Marco Vala
  */
-@Step( id = "SetSessionVariableStep",
-  name = "SetSessionVariableMeta.Name",
-  image = "icons/setsessionvariable.png",
-  description = "SetSessionVariableMeta.Description",
+@Step( id = "CallEndpointStep",
+  name = "CallEndpointMeta.Name",
+  image = "icons/callendpoint.png",
+  description = "CallEndpointMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
   categoryDescription = "BAServerUtils.Category",
   isSeparateClassLoaderNeeded = true )
 public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
 
+  private String serverURL = "";
+  private String username = "";
+  private String password = "";
+  private boolean bypassAuthCheck = false;
+  private String module = "";
+  private String service = "";
   private String[] fieldName;
-  private String[] variableName;
+  private String[] parameter;
   private String[] defaultValue;
-  private boolean useFormatting;
 
 
   public CallEndpointMeta() {
@@ -65,17 +73,65 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
                                 TransMeta transMeta, Trans trans ) {
-    return new SetSessionVariableStep( stepMeta, stepDataInterface, cnr, transMeta, trans );
+    return new CallEndpointStep( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
   public StepDataInterface getStepData() {
-    return new SetSessionVariableData();
+    return new CallEndpointData();
   }
 
   public StepDialogInterface getDialog( Shell shell, StepMetaInterface meta, TransMeta transMeta, String name ) {
-    return new SetSessionVariableDialog( shell, meta, transMeta, name );
+    return new CallEndpointDialog( shell, meta, transMeta, name );
   }
 
+
+  public String getServerURL() {
+    return this.serverURL;
+  }
+
+  public void setServerURL( String serverURL ) {
+    this.serverURL = serverURL;
+  }
+
+  public String getUsername() {
+    return this.username;
+  }
+
+  public void setUsername( String username ) {
+    this.username = username;
+  }
+
+  public String getPassword() {
+    return this.password;
+  }
+
+  public void setPassword( String password ) {
+    this.password = password;
+  }
+
+  public boolean isBypassingAuthCheck() {
+    return this.bypassAuthCheck;
+  }
+
+  public void setBypassAuthCheck( boolean bypassAuthCheck ) {
+    this.bypassAuthCheck = bypassAuthCheck;
+  }
+
+  public String getModule() {
+    return this.module;
+  }
+
+  public void setModule( String module ) {
+    this.module = module;
+  }
+
+  public String getService() {
+    return this.service;
+  }
+
+  public void setService( String service ) {
+    this.service = service;
+  }
 
   public String[] getFieldName() {
     return this.fieldName;
@@ -85,12 +141,12 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     this.fieldName = fieldName;
   }
 
-  public String[] getVariableName() {
-    return this.variableName;
+  public String[] getParameter() {
+    return this.parameter;
   }
 
-  public void setVariableName( String[] fieldValue ) {
-    this.variableName = fieldValue;
+  public void setParameter( String[] fieldValue ) {
+    this.parameter = fieldValue;
   }
 
   public String[] getDefaultValue() {
@@ -101,102 +157,124 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     this.defaultValue = defaultValue;
   }
 
-  public boolean isUsingFormatting() {
-    return this.useFormatting;
-  }
-
-  public void setUseFormatting( boolean useFormatting ) {
-    this.useFormatting = useFormatting;
-  }
-
 
   public void allocate( int count ) {
     this.fieldName = new String[ count ];
-    this.variableName = new String[ count ];
+    this.parameter = new String[ count ];
     this.defaultValue = new String[ count ];
   }
 
   public void setDefault() {
+    this.serverURL = "";
+    this.username = "";
+    this.password = "";
+    this.bypassAuthCheck = false;
+    this.module = "";
+    this.service = "";
     allocate( 0 );
-    this.useFormatting = true;
   }
 
   public Object clone() {
     CallEndpointMeta clone = (CallEndpointMeta) super.clone();
+    clone.serverURL = this.serverURL;
+    clone.username = this.username;
+    clone.password = this.password;
+    clone.bypassAuthCheck = this.bypassAuthCheck;
+    clone.module = this.module;
+    clone.service = this.service;
     int count = this.fieldName.length;
     clone.allocate( count );
     for ( int i = 0; i < count; i++ ) {
       clone.fieldName[ i ] = this.fieldName[ i ];
-      clone.variableName[ i ] = this.variableName[ i ];
+      clone.parameter[ i ] = this.parameter[ i ];
       clone.defaultValue[ i ] = this.defaultValue[ i ];
     }
-    clone.useFormatting = this.useFormatting;
     return clone;
   }
 
   public String getXML() {
-    StringBuffer xml = new StringBuffer( 150 );
+    StringBuffer xml = new StringBuffer( 300 );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "server_url", this.serverURL ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "username", this.username ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "password", this.password ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "bypass_auth_check", this.bypassAuthCheck ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "module", this.module ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "service", this.service ) );
     xml.append( "    <fields>" ).append( Const.CR );
-    for ( int i = 0; i < fieldName.length; i++ ) {
+    for ( int i = 0; i < this.fieldName.length; i++ ) {
       xml.append( "      <field>" ).append( Const.CR );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "variable", variableName[ i ] ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "default_value", defaultValue[ i ] ) );
+      xml.append( "        " ).append( XMLHandler.addTagValue( "name", this.fieldName[ i ] ) );
+      xml.append( "        " ).append( XMLHandler.addTagValue( "parameter", this.parameter[ i ] ) );
+      xml.append( "        " ).append( XMLHandler.addTagValue( "default_value", this.defaultValue[ i ] ) );
       xml.append( "        </field>" ).append( Const.CR );
     }
     xml.append( "      </fields>" ).append( Const.CR );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "use_formatting", useFormatting ) );
     return xml.toString();
   }
 
   public void loadXML( Node stepNode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
     try {
+      this.serverURL = XMLHandler.getTagValue( stepNode, "server_url" );
+      this.username = XMLHandler.getTagValue( stepNode, "username" );
+      this.password = XMLHandler.getTagValue( stepNode, "password" );
+      this.bypassAuthCheck = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "bypass_auth_check" ) );
+      this.module = XMLHandler.getTagValue( stepNode, "module" );
+      this.service = XMLHandler.getTagValue( stepNode, "service" );
       Node fields = XMLHandler.getSubNode( stepNode, "fields" );
       int count = XMLHandler.countNodes( fields, "field" );
       allocate( count );
       for ( int i = 0; i < count; i++ ) {
         Node fieldNode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        fieldName[ i ] = XMLHandler.getTagValue( fieldNode, "name" );
-        variableName[ i ] = XMLHandler.getTagValue( fieldNode, "variable" );
-        defaultValue[ i ] = XMLHandler.getTagValue( fieldNode, "default_value" );
+        this.fieldName[ i ] = XMLHandler.getTagValue( fieldNode, "name" );
+        this.parameter[ i ] = XMLHandler.getTagValue( fieldNode, "parameter" );
+        this.defaultValue[ i ] = XMLHandler.getTagValue( fieldNode, "default_value" );
       }
-      useFormatting = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "use_formatting" ) );
     } catch ( Exception e ) {
       throw new KettleXMLException(
-        BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.UnableToReadXML" ), e );
+        BaseMessages.getString( PKG, "BAServerUtils.RuntimeError.UnableToReadXML" ), e );
     }
   }
 
   public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
     throws KettleException {
     try {
+      this.serverURL = rep.getStepAttributeString( id_step, "server_url" );
+      this.username = rep.getStepAttributeString( id_step, "username" );
+      this.password = rep.getStepAttributeString( id_step, "password" );
+      this.bypassAuthCheck = rep.getStepAttributeBoolean( id_step, 0, "bypass_auth_check", false );
+      this.module = rep.getStepAttributeString( id_step, "module" );
+      this.service = rep.getStepAttributeString( id_step, "service" );
       int count = rep.countNrStepAttributes( id_step, "field_name" );
       allocate( count );
       for ( int i = 0; i < count; i++ ) {
-        fieldName[ i ] = rep.getStepAttributeString( id_step, i, "field_name" );
-        variableName[ i ] = rep.getStepAttributeString( id_step, i, "field_variable" );
-        defaultValue[ i ] = rep.getStepAttributeString( id_step, i, "field_default_value" );
+        this.fieldName[ i ] = rep.getStepAttributeString( id_step, i, "field_name" );
+        this.parameter[ i ] = rep.getStepAttributeString( id_step, i, "field_parameter" );
+        this.defaultValue[ i ] = rep.getStepAttributeString( id_step, i, "field_default_value" );
       }
-      useFormatting = rep.getStepAttributeBoolean( id_step, 0, "use_formatting", false );
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
-        PKG, "SetSessionVariable.RuntimeError.UnableToReadRepository" ), e );
+        PKG, "BAServerUtils.RuntimeError.UnableToReadRepository" ), e );
     }
   }
 
   public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
     throws KettleException {
     try {
+      rep.saveStepAttribute( id_transformation, id_step, "server_url", this.serverURL );
+      rep.saveStepAttribute( id_transformation, id_step, "username", this.username );
+      rep.saveStepAttribute( id_transformation, id_step, "password", this.password );
+      rep.saveStepAttribute( id_transformation, id_step, 0, "bypass_auth_check", this.bypassAuthCheck );
+      rep.saveStepAttribute( id_transformation, id_step, "module", this.module );
+      rep.saveStepAttribute( id_transformation, id_step, "service", this.service );
       for ( int i = 0; i < fieldName.length; i++ ) {
         rep.saveStepAttribute( id_transformation, id_step, i, "field_name",
           Const.isEmpty( fieldName[ i ] ) ? "" : fieldName[ i ] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_variable_name", variableName[ i ] );
+        rep.saveStepAttribute( id_transformation, id_step, i, "field_parameter", parameter[ i ] );
         rep.saveStepAttribute( id_transformation, id_step, i, "field_default_value", defaultValue[ i ] );
       }
-      rep.saveStepAttribute( id_transformation, id_step, 0, "use_formatting", useFormatting );
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
-        PKG, "SetSessionVariable.RuntimeError.UnableToSaveRepository", "" + id_step ), e );
+        PKG, "BAServerUtils.RuntimeError.UnableToSaveRepository", "" + id_step ), e );
     }
   }
 
@@ -207,22 +285,30 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     // see if we have fields from previous steps
     if ( prev == null || prev.size() == 0 ) {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING,
-        BaseMessages.getString( PKG, "SetSessionVariable.CheckResult.NotReceivingFieldsFromPreviousSteps" ),
+        BaseMessages.getString( PKG, "BAServerUtils.CheckResult.NotReceivingFieldsFromPreviousSteps" ),
         stepMeta ) );
     } else {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages
-        .getString( PKG, "SetSessionVariable.CheckResult.ReceivingFieldsFromPreviousSteps", "" + prev.size() ),
+        .getString( PKG, "BAServerUtils.CheckResult.ReceivingFieldsFromPreviousSteps", "" + prev.size() ),
         stepMeta ) );
     }
 
     // see if we have input streams leading to this step
     if ( input.length > 0 ) {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
-        BaseMessages.getString( PKG, "SetSessionVariable.CheckResult.ReceivingInfoFromOtherSteps" ), stepMeta ) );
+        BaseMessages.getString( PKG, "BAServerUtils.CheckResult.ReceivingInfoFromOtherSteps" ), stepMeta ) );
     } else {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
-        BaseMessages.getString( PKG, "SetSessionVariable.CheckResult.NotReceivingInfoFromOtherSteps" ),
+        BaseMessages.getString( PKG, "BAServerUtils.CheckResult.NotReceivingInfoFromOtherSteps" ),
         stepMeta ) );
     }
+  }
+
+  @Override
+  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
+                         VariableSpace space, Repository repository, IMetaStore metaStore ) throws KettleStepException {
+    ValueMetaInterface v = new ValueMeta( "RESULT", ValueMeta.TYPE_STRING );
+    v.setOrigin( name );
+    inputRowMeta.addValueMeta( v );
   }
 }

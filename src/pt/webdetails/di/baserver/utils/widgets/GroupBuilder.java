@@ -14,6 +14,7 @@
 package pt.webdetails.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -21,25 +22,25 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.pentaho.di.core.Const;
+import org.pentaho.di.ui.core.PropsUI;
 
 /**
  * @author Marco Vala
  */
-public final class GroupBuilder {
+public final class GroupBuilder extends WidgetBuilder {
 
-  private Composite parent;
   private String labelText = "";
   private Control top = null;
 
-  public GroupBuilder( Composite parent ) {
-    this.parent = parent;
+  public GroupBuilder( PropsUI props, Composite parent ) {
+    super( props, parent );
   }
 
   public Group build() {
-
     // create group
     Group group = new Group( this.parent, SWT.NONE );
     group.setText( this.labelText );
+    this.props.setLook( group );
 
     // create a new form layout for the group
     FormLayout layout = new FormLayout();

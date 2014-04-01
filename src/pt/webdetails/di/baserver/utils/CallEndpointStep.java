@@ -13,9 +13,25 @@
 
 package pt.webdetails.di.baserver.utils;
 
+
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.util.URIUtil;
+
+
+import org.pentaho.di.cluster.SlaveConnectionManager;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
+import org.pentaho.di.core.row.RowDataUtil;
+import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.Trans;
@@ -26,13 +42,17 @@ import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.UnknownHostException;
+
 /**
  * @author Marco Vala
  */
 public class CallEndpointStep extends BaseStep implements StepInterface {
-  private static Class<?> PKG = SetSessionVariableMeta.class; // for i18n purposes, needed by Translator2!!
-  private SetSessionVariableMeta meta;
-  private SetSessionVariableData data;
+  private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
+  private CallEndpointMeta meta;
+  private CallEndpointData data;
 
   public CallEndpointStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
                            TransMeta transMeta,
@@ -41,100 +61,69 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
   }
 
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
-    meta = (SetSessionVariableMeta) smi;
-    data = (SetSessionVariableData) sdi;
+    meta = (CallEndpointMeta) smi;
+    data = (CallEndpointData) sdi;
 
     return super.init( smi, sdi );
   }
 
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
-    meta = (SetSessionVariableMeta) smi;
-    data = (SetSessionVariableData) sdi;
+    meta = (CallEndpointMeta) smi;
+    data = (CallEndpointData) sdi;
 
-    // process row
+    // get next row
     Object[] rowData = getRow();
-    if (first) {
+
+    if ( rowData == null ) {
+      // no more input expected => end processing
+      setOutputDone();
+      return false;
+    }
+
+    if ( first ) {
+      data.outputRowMeta = getInputRowMeta().clone();
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
       first = false;
-      if ( rowData != null ) {
-        // set session variables with the data from the first row
-        data.outputRowMeta = getInputRowMeta().clone();
-        for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-          setValue( meta.getVariableName()[ i ], getRowValue( rowData, i ) );
-        }
-        putRow( data.outputRowMeta, rowData );
+    }
 
-        // continue
-        return true;
-
-      // did not get any input row
+    String urlParams = "";
+    for ( int i = 0; i < meta.getFieldName().length; i++ ) {
+      if ( i == 0 ) {
+        urlParams = urlParams + "?";
       } else {
-        // use default values for session variables
-        logBasic( BaseMessages.getString( PKG, "SetSessionVariable.Log.NoInputRowUseDefaults" ) );
-        for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-          setValue( meta.getVariableName()[ i ], getRowDefaultValue( i ) );
-        }
-
-        // end processing
-        setOutputDone();
-        return false;
+        urlParams = urlParams + "&";
       }
-
-    } else {
-      if ( rowData == null ) {
-        // end processing
-        setOutputDone();
-        return false;
-      }
-
-      // should not happen, received more than one row
-      throw new KettleStepException(
-        BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.MoreThanOneRowReceived" ) );
-    }
-  }
-
-  private void setValue( String varName, String value ) throws KettleException {
-    // should have a non-empty variable name
-    if ( Const.isEmpty( varName ) ) {
-      throw new KettleException(
-        BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.EmptyVariableName", value ) );
+      urlParams = urlParams + meta.getParameter()[ i ] + "=" + getRowValue( rowData, i );
     }
 
-    // set session variable
-    String sessionVarName = environmentSubstitute( varName );
-    try {
-      SessionHelper.setSessionVariable( sessionVarName, value );
+    logBasic( "PARAMS: " + urlParams );
+    String response = callHttp( urlParams );
+    logBasic( "RESPONSE: " + response );
 
-    // no session inside Spoon
-    } catch ( NoClassDefFoundError e ) {
+    int index = getInputRowMeta().size();
+    logBasic( "INDEX: " + index );
 
-      // set simulated session variable
-      sessionVarName = SessionHelper.SIMULATED_SESSION_PREFIX + sessionVarName;
-      setVariable( sessionVarName, value );
-      Trans trans = getTrans();
-      trans.setVariable( sessionVarName, value );
+    rowData = RowDataUtil.addValueData( rowData, index, response );
+    putRow( data.outputRowMeta, rowData );
 
-      // propagate to parent transformations
-      while ( trans.getParentTrans() != null ) {
-        trans = trans.getParentTrans();
-        trans.setVariable( sessionVarName, value );
-      }
-    }
-    logBasic( BaseMessages.getString( PKG, "SetSessionVariable.Log.SetVariable", sessionVarName, value ) );
+    // continue processing
+    return true;
   }
 
   private String getRowValue( Object[] rowData, int i ) throws KettleException {
+
     // find a matching field
     String fieldName = meta.getFieldName()[ i ];
-    int index = data.outputRowMeta.indexOfValue( fieldName );
+    int index = getInputRowMeta().indexOfValue( fieldName );
     if ( index >= 0 ) {
-      ValueMetaInterface valueMeta = data.outputRowMeta.getValueMeta( index );
+      ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( index );
       Object valueData = rowData[ index ];
-      return meta.isUsingFormatting() ? valueMeta.getString( valueData ) : valueMeta.getCompatibleString( valueData );
+      return valueMeta.getCompatibleString( valueData );
     }
 
     // otherwise, return default value
     logBasic( BaseMessages
-      .getString( PKG, "SetSessionVariable.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
+      .getString( PKG, "CallEndpoint.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
     return getRowDefaultValue( i );
   }
 
@@ -142,9 +131,35 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
     return environmentSubstitute( meta.getDefaultValue()[ i ] );
   }
 
+  private String callHttp( String params ) throws KettleStepException {
+    try {
+      String module = meta.getModule();
+      if ( module.equals( "platform" ) ) {
+        module = "";
+      } else {
+        module = "/plugin/" + module;
+      }
+
+      String url = meta.getServerURL() + "/pentaho" + module + "/api/" + meta.getService() + params;
+      logBasic( "CALL: " + url );
+      return HttpConnectionHelper.callHttp( url, meta.getUsername(), meta.getPassword() );
+
+    } catch ( IOException ex ) {
+      logError( ex.toString() );
+    }
+    return null;
+  }
+
+
+
+
+  private void processResult( int status ) {
+
+  }
+
   public void dispose( StepMetaInterface smi, StepDataInterface sdi ) {
-    meta = (SetSessionVariableMeta) smi;
-    data = (SetSessionVariableData) sdi;
+    meta = (CallEndpointMeta) smi;
+    data = (CallEndpointData) sdi;
 
     super.dispose( smi, sdi );
   }

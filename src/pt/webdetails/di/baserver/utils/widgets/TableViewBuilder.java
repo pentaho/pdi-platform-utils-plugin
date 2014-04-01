@@ -26,27 +26,24 @@ import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.ColumnInfo;
 import org.pentaho.di.ui.core.widget.TableView;
 
+import java.util.ArrayList;
+
 /**
  * @author Marco Vala
  */
-public final class TableViewBuilder {
+public final class TableViewBuilder extends WidgetBuilder {
 
-  private Composite parent;
-  private PropsUI props;
-  private ModifyListener listener;
   private VariableSpace variableSpace;
-  private ColumnInfo[] columnInfo = new ColumnInfo[] {};
-  private int nrRows = 0;
+  private ArrayList<ColumnInfo> columns = new ArrayList<ColumnInfo>();
+  private int rowsCount = 0;
   private int width = 0;
   private String labelText = "";
   private int labelWidth = 0;
   private Control top = null;
+  private ModifyListener modifyListener = null;
 
-  public TableViewBuilder( Composite parent, ModifyListener listener, PropsUI props, VariableSpace variableSpace) {
-    this.parent = parent;
-    this.variableSpace = variableSpace;
-    this.listener = listener;
-    this.props = props;
+  public TableViewBuilder( PropsUI props, Composite parent ) {
+    super( props, parent );
   }
 
   public TableView build() {
@@ -65,17 +62,19 @@ public final class TableViewBuilder {
     label.setLayoutData( data );
 
     // create table view
+    ColumnInfo[] columnsArray = columns.toArray( new ColumnInfo[ columns.size() ] );
     TableView tableView = new TableView( this.variableSpace, this.parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-      this.columnInfo, this.nrRows, this.listener, this.props );
+      columnsArray, this.rowsCount, this.modifyListener, this.props );
 
     // attach table view to label
     data = new FormData();
     if ( width > 0 ) {
       data.width = width;
     }
-    data.top = new FormAttachment( top, Const.MARGIN );
-    //data.right = new FormAttachment( 100, 0 );
-    //data.bottom = new FormAttachment( 100, -50 );
+    data.top = new FormAttachment( label, Const.MARGIN );
+    data.left = new FormAttachment( 0, Const.MARGIN );
+    data.right = new FormAttachment( 100, -Const.MARGIN );
+    data.bottom = new FormAttachment( 100, -50 );
     tableView.setLayoutData( data );
 
     return tableView;
@@ -96,8 +95,28 @@ public final class TableViewBuilder {
     return this;
   }
 
+  public TableViewBuilder setVariableSpace( VariableSpace variableSpace ) {
+    this.variableSpace = variableSpace;
+    return this;
+  }
+
+  public TableViewBuilder addColumnInfo( ColumnInfo columnInfo ) {
+    this.columns.add( columnInfo );
+    return this;
+  }
+
+  public TableViewBuilder setRowsCount( int rowsCount ) {
+    this.rowsCount = rowsCount;
+    return this;
+  }
+
   public TableViewBuilder setTop( Control top ) {
     this.top = top;
+    return this;
+  }
+
+  public TableViewBuilder setModifyListener( ModifyListener modifyListener ) {
+    this.modifyListener = modifyListener;
     return this;
   }
 }

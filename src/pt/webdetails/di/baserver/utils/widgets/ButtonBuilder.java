@@ -14,54 +14,48 @@
 package pt.webdetails.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.ui.core.PropsUI;
 
 /**
  * @author Marco Vala
  */
-public final class ButtonBuilder extends WidgetBuilder {
+public class ButtonBuilder extends WidgetBuilder {
 
   private String labelText = "";
-  private int labelWidth = 0;
   private Control top = null;
+  private Control left = null;
+  private SelectionListener onButtonPressed = null;
 
   public ButtonBuilder( PropsUI props, Composite parent ) {
     super( props, parent );
   }
 
   public Button build() {
-    // create label for check box
-    Label label = new Label( parent, SWT.NONE );
-    label.setText( labelText );
-    this.props.setLook( label );
+    // create button
+    Button button = new Button( this.parent, SWT.PUSH );
+    button.setText( this.labelText );
+    this.props.setLook( button );
 
-    // create check box
-    Button checkBox = new Button( parent, SWT.CHECK );
-    this.props.setLook( checkBox );
-
-    // place label
+    // place button
     FormData data;
     data = new FormData();
-    if ( labelWidth > 0 ) {
-      data.width = labelWidth;
+    data.top = new FormAttachment( this.top, Const.MARGIN );
+    data.left = new FormAttachment( this.left, Const.MARGIN );
+    button.setLayoutData( data );
+
+    // add listener
+    if ( this.onButtonPressed != null ) {
+      button.addSelectionListener( this.onButtonPressed );
     }
-    data.top = new FormAttachment( top, Const.MARGIN );
-    label.setLayoutData( data );
 
-    // place check box next to label
-    data = new FormData();
-    data.top = new FormAttachment( top, Const.MARGIN );
-    data.left = new FormAttachment( label, Const.MARGIN );
-    checkBox.setLayoutData( data );
-
-    return checkBox;
+    return button;
   }
 
   public ButtonBuilder setLabelText( String labelText ) {
@@ -69,13 +63,18 @@ public final class ButtonBuilder extends WidgetBuilder {
     return this;
   }
 
-  public ButtonBuilder setLabelWidth( int labelWidth ) {
-    this.labelWidth = labelWidth;
+  public ButtonBuilder setTop( Control top ) {
+    this.top = top;
     return this;
   }
 
-  public ButtonBuilder setTop( Control top ) {
-    this.top = top;
+  public ButtonBuilder setLeft( Control left ) {
+    this.left = left;
+    return this;
+  }
+
+  public ButtonBuilder onButtonPressed( SelectionListener selectionListener ) {
+    this.onButtonPressed = selectionListener;
     return this;
   }
 }

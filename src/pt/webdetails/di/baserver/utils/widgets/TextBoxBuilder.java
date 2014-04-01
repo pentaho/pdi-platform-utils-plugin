@@ -33,6 +33,7 @@ public final class TextBoxBuilder extends WidgetBuilder {
   private String labelText = "";
   private int labelWidth = 0;
   private String defaultText = "";
+  private char echoChar = 0;
   private Control top = null;
   private ModifyListener modifyListener = null;
 
@@ -49,6 +50,9 @@ public final class TextBoxBuilder extends WidgetBuilder {
     // create text box
     Text textBox = new Text( this.parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     textBox.setText( this.defaultText );
+    if ( this.echoChar != 0 ) {
+      textBox.setEchoChar( '*' );
+    }
     this.props.setLook( textBox );
 
     // place label
@@ -94,6 +98,11 @@ public final class TextBoxBuilder extends WidgetBuilder {
 
   public TextBoxBuilder setDefaultText( String defaultText ) {
     this.defaultText = defaultText;
+    return this;
+  }
+
+  public TextBoxBuilder setEchoChar( char echoChar ) {
+    this.echoChar = echoChar;
     return this;
   }
 

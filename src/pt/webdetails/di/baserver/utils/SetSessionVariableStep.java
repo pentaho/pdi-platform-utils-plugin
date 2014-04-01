@@ -53,7 +53,7 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
 
     // process row
     Object[] rowData = getRow();
-    if (first) {
+    if ( first ) {
       first = false;
       if ( rowData != null ) {
         // set session variables with the data from the first row
@@ -66,7 +66,7 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
         // continue
         return true;
 
-      // did not get any input row
+        // did not get any input row
       } else {
         // use default values for session variables
         logBasic( BaseMessages.getString( PKG, "SetSessionVariable.Log.NoInputRowUseDefaults" ) );
@@ -104,7 +104,7 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
     try {
       SessionHelper.setSessionVariable( sessionVarName, value );
 
-    // no session inside Spoon
+      // no session inside Spoon
     } catch ( NoClassDefFoundError e ) {
 
       // set simulated session variable

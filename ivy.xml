@@ -23,6 +23,9 @@
     <dependency org="pentaho-kettle" name="kettle-ui-swt" rev="${dependency.pentaho-kettle.revision}" transitive="false" changing="true"/>
     <dependency org="pentaho" name="metastore" rev="${dependency.pentaho-kettle.revision}" transitive="false" changing="true"/>
 
+    <!-- Http client -->
+    <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1"/>
+
     <!-- Linux dependency used just for compilation -->
     <dependency org="org.eclipse.swt" name="swt-linux-x86_64" rev="3.7"/>
   </dependencies>

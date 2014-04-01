@@ -22,7 +22,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.core.Const;
+import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.ui.core.PropsUI;
+import org.pentaho.di.ui.core.widget.TextVar;
 
 /**
  * @author Marco Vala
@@ -33,23 +35,29 @@ public final class TextVarBuilder extends WidgetBuilder {
   private String labelText = "";
   private int labelWidth = 0;
   private String defaultText = "";
+  private char echoChar = 0;
   private Control top = null;
   private ModifyListener modifyListener = null;
+  private VariableSpace variableSpace;
 
-  public TextVarBuilder( PropsUI props, Composite parent ) {
+  public TextVarBuilder( PropsUI props, Composite parent, VariableSpace variableSpace ) {
     super( props, parent );
+    this.variableSpace = variableSpace;
   }
 
-  public Text build() {
+  public TextVar build() {
     // create label for text box
     Label label = new Label( parent, SWT.RIGHT );
     label.setText( this.labelText );
     super.props.setLook( label );
 
     // create text box
-    Text textBox = new Text( this.parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    textBox.setText( this.defaultText );
-    this.props.setLook( textBox );
+    TextVar textVar = new TextVar( this.variableSpace, this.parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    textVar.setText( this.defaultText );
+    if ( this.echoChar != 0 ) {
+      textVar.setEchoChar( this.echoChar );
+    }
+    this.props.setLook( textVar );
 
     // place label
     FormData data;
@@ -67,14 +75,14 @@ public final class TextVarBuilder extends WidgetBuilder {
     }
     data.top = new FormAttachment( this.top, Const.MARGIN );
     data.left = new FormAttachment( label, Const.MARGIN );
-    textBox.setLayoutData( data );
+    textVar.setLayoutData( data );
 
     // add listener
     if ( this.modifyListener != null ) {
-      textBox.addModifyListener( this.modifyListener );
+      textVar.addModifyListener( this.modifyListener );
     }
 
-    return textBox;
+    return textVar;
   }
 
   public TextVarBuilder setWidth( int width ) {
@@ -94,6 +102,11 @@ public final class TextVarBuilder extends WidgetBuilder {
 
   public TextVarBuilder setDefaultText( String defaultText ) {
     this.defaultText = defaultText;
+    return this;
+  }
+
+  public TextVarBuilder setEchoChar( char echoChar ) {
+    this.echoChar = echoChar;
     return this;
   }
 

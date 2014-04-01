@@ -14,6 +14,7 @@
 package pt.webdetails.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -21,29 +22,33 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.core.Const;
+import org.pentaho.di.ui.core.PropsUI;
 
 /**
  * @author Marco Vala
  */
-public final class CheckBoxBuilder {
+public final class CheckBoxBuilder extends WidgetBuilder {
 
-  private Composite parent;
   private String labelText = "";
   private int labelWidth = 0;
   private Control top = null;
 
-  public CheckBoxBuilder( Composite parent ) {
-    this.parent = parent;
+  public CheckBoxBuilder( PropsUI props, Composite parent ) {
+    super( props, parent );
   }
 
   public Button build() {
-    FormData data;
-
     // create label for check box
     Label label = new Label( parent, SWT.NONE );
     label.setText( labelText );
+    this.props.setLook( label );
 
-    // place label below the previous control
+    // create check box
+    Button checkBox = new Button( parent, SWT.CHECK );
+    this.props.setLook( checkBox );
+
+    // place label
+    FormData data;
     data = new FormData();
     if ( labelWidth > 0 ) {
       data.width = labelWidth;
@@ -51,10 +56,7 @@ public final class CheckBoxBuilder {
     data.top = new FormAttachment( top, Const.MARGIN );
     label.setLayoutData( data );
 
-    // create check box
-    Button checkBox = new Button( parent, SWT.CHECK );
-
-    // attach text box to label
+    // place check box next to label
     data = new FormData();
     data.top = new FormAttachment( top, Const.MARGIN );
     data.left = new FormAttachment( label, Const.MARGIN );
