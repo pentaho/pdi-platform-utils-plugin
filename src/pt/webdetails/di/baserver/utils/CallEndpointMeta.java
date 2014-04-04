@@ -56,12 +56,17 @@ import java.util.List;
 public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private String serverURL = "";
-  private String username = "";
-  private String password = "";
-  private boolean bypassAuthCheck = false;
-  private String module = "";
-  private String service = "";
+  private String serverURL;
+  private String username;
+  private String password;
+  private boolean bypassAuthCheck;
+  private String module;
+  private boolean isModuleField = false;
+  private String service;
+  private boolean isServiceField = false;
+  private String resultField = "";
+  private String statusCodeField = "";
+  private String responseTimeField = "";
   private String[] fieldName;
   private String[] parameter;
   private String[] defaultValue;
@@ -69,6 +74,7 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
 
   public CallEndpointMeta() {
     super(); // allocate BaseStepMeta
+    setDefault();
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
@@ -125,12 +131,52 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     this.module = module;
   }
 
+  public boolean isModuleField() {
+    return this.isModuleField;
+  }
+
+  public void setIsModuleField( boolean isModuleField ) {
+    this.isModuleField = isModuleField;
+  }
+
   public String getService() {
     return this.service;
   }
 
   public void setService( String service ) {
     this.service = service;
+  }
+
+  public boolean isServiceField() {
+    return this.isServiceField;
+  }
+
+  public void setIsServiceField( boolean isServiceField ) {
+    this.isServiceField = isServiceField;
+  }
+
+  public String getResultField() {
+    return this.resultField;
+  }
+
+  public void setResultField( String resultField ) {
+    this.resultField = resultField;
+  }
+
+  public String getStatusCodeField() {
+    return this.statusCodeField;
+  }
+
+  public void setStatusCodeField( String statusCodeField ) {
+    this.statusCodeField = statusCodeField;
+  }
+
+  public String getResponseTimeField() {
+    return this.responseTimeField;
+  }
+
+  public void setResponseTimeField( String responseTimeField ) {
+    this.responseTimeField = responseTimeField;
   }
 
   public String[] getFieldName() {
@@ -170,7 +216,12 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     this.password = "";
     this.bypassAuthCheck = false;
     this.module = "";
+    this.isModuleField = false;
     this.service = "";
+    this.isServiceField = false;
+    this.resultField = "";
+    this.statusCodeField = "";
+    this.responseTimeField = "";
     allocate( 0 );
   }
 
@@ -181,7 +232,12 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     clone.password = this.password;
     clone.bypassAuthCheck = this.bypassAuthCheck;
     clone.module = this.module;
+    clone.isModuleField = this.isModuleField;
     clone.service = this.service;
+    clone.isServiceField = this.isServiceField;
+    clone.resultField = this.resultField;
+    clone.statusCodeField = this.statusCodeField;
+    clone.responseTimeField = this.responseTimeField;
     int count = this.fieldName.length;
     clone.allocate( count );
     for ( int i = 0; i < count; i++ ) {
@@ -199,7 +255,12 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     xml.append( "    " ).append( XMLHandler.addTagValue( "password", this.password ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "bypass_auth_check", this.bypassAuthCheck ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "module", this.module ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "is_module_field", this.isModuleField ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "service", this.service ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "is_service_field", this.isServiceField ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "result_field", this.resultField ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "status_code_field", this.statusCodeField ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "response_time_field", this.responseTimeField ) );
     xml.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < this.fieldName.length; i++ ) {
       xml.append( "      <field>" ).append( Const.CR );
@@ -215,11 +276,40 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
   public void loadXML( Node stepNode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
     try {
       this.serverURL = XMLHandler.getTagValue( stepNode, "server_url" );
+      if ( this.serverURL == null ) {
+        this.serverURL = "";
+      }
       this.username = XMLHandler.getTagValue( stepNode, "username" );
+      if ( this.username == null ) {
+        this.username = "";
+      }
       this.password = XMLHandler.getTagValue( stepNode, "password" );
+      if ( this.password == null ) {
+        this.password = "";
+      }
       this.bypassAuthCheck = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "bypass_auth_check" ) );
       this.module = XMLHandler.getTagValue( stepNode, "module" );
+      if ( this.module == null ) {
+        this.module = "";
+      }
+      this.isModuleField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "is_module_field" ) );
       this.service = XMLHandler.getTagValue( stepNode, "service" );
+      if ( this.service == null ) {
+        this.service = "";
+      }
+      this.isServiceField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "is_service_field" ) );
+      this.resultField = XMLHandler.getTagValue( stepNode, "result_field" );
+      if ( this.resultField == null ) {
+        this.resultField = "";
+      }
+      this.statusCodeField = XMLHandler.getTagValue( stepNode, "status_code_field" );
+      if ( this.statusCodeField == null ) {
+        this.statusCodeField = "";
+      }
+      this.responseTimeField = XMLHandler.getTagValue( stepNode, "response_time_field" );
+      if ( this.responseTimeField == null ) {
+        this.responseTimeField = "";
+      }
       Node fields = XMLHandler.getSubNode( stepNode, "fields" );
       int count = XMLHandler.countNodes( fields, "field" );
       allocate( count );
@@ -243,7 +333,12 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       this.password = rep.getStepAttributeString( id_step, "password" );
       this.bypassAuthCheck = rep.getStepAttributeBoolean( id_step, 0, "bypass_auth_check", false );
       this.module = rep.getStepAttributeString( id_step, "module" );
+      this.isModuleField = rep.getStepAttributeBoolean( id_step, 0, "is_module_field", false );
       this.service = rep.getStepAttributeString( id_step, "service" );
+      this.isServiceField = rep.getStepAttributeBoolean( id_step, 0, "is_service_field", false );
+      this.resultField = rep.getStepAttributeString( id_step, "result_field" );
+      this.statusCodeField = rep.getStepAttributeString( id_step, "status_code_field" );
+      this.responseTimeField = rep.getStepAttributeString( id_step, "response_time_field" );
       int count = rep.countNrStepAttributes( id_step, "field_name" );
       allocate( count );
       for ( int i = 0; i < count; i++ ) {
@@ -265,7 +360,12 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       rep.saveStepAttribute( id_transformation, id_step, "password", this.password );
       rep.saveStepAttribute( id_transformation, id_step, 0, "bypass_auth_check", this.bypassAuthCheck );
       rep.saveStepAttribute( id_transformation, id_step, "module", this.module );
+      rep.saveStepAttribute( id_transformation, id_step, 0, "is_module_field", this.isModuleField );
       rep.saveStepAttribute( id_transformation, id_step, "service", this.service );
+      rep.saveStepAttribute( id_transformation, id_step, 0, "is_service_field", this.isServiceField );
+      rep.saveStepAttribute( id_transformation, id_step, "result_field", this.resultField );
+      rep.saveStepAttribute( id_transformation, id_step, "status_code_field", this.statusCodeField );
+      rep.saveStepAttribute( id_transformation, id_step, "response_time_field", this.responseTimeField );
       for ( int i = 0; i < fieldName.length; i++ ) {
         rep.saveStepAttribute( id_transformation, id_step, i, "field_name",
           Const.isEmpty( fieldName[ i ] ) ? "" : fieldName[ i ] );
@@ -307,8 +407,24 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
                          VariableSpace space, Repository repository, IMetaStore metaStore ) throws KettleStepException {
-    ValueMetaInterface v = new ValueMeta( "RESULT", ValueMeta.TYPE_STRING );
-    v.setOrigin( name );
-    inputRowMeta.addValueMeta( v );
+    ValueMetaInterface vmi;
+
+    if ( !Const.isEmpty( this.resultField ) ) {
+      vmi = new ValueMeta( space.environmentSubstitute( this.resultField ), ValueMeta.TYPE_STRING );
+      vmi.setOrigin( name );
+      inputRowMeta.addValueMeta( vmi );
+    }
+
+    if ( !Const.isEmpty( this.statusCodeField ) ) {
+      vmi = new ValueMeta( space.environmentSubstitute( this.statusCodeField ), ValueMeta.TYPE_INTEGER );
+      vmi.setOrigin( name );
+      inputRowMeta.addValueMeta( vmi );
+    }
+
+    if ( !Const.isEmpty( this.responseTimeField ) ) {
+      vmi = new ValueMeta( space.environmentSubstitute( this.responseTimeField ), ValueMeta.TYPE_INTEGER );
+      vmi.setOrigin( name );
+      inputRowMeta.addValueMeta( vmi );
+    }
   }
 }

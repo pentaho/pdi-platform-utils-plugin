@@ -86,28 +86,49 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       first = false;
     }
 
-    String urlParams = "";
-    for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-      if ( i == 0 ) {
-        urlParams = urlParams + "?";
-      } else {
-        urlParams = urlParams + "&";
-      }
-      urlParams = urlParams + meta.getParameter()[ i ] + "=" + getRowValue( rowData, i );
+    String module = environmentSubstitute( meta.getModule() );
+    if ( meta.isModuleField() ) {
+      module = getRowValue( rowData, module, "" );
     }
 
-    logBasic( "PARAMS: " + urlParams );
-    String response = callHttp( urlParams );
-    logBasic( "RESPONSE: " + response );
+    String service = environmentSubstitute( meta.getService() );
+    if ( meta.isServiceField() ) {
+      service = getRowValue( rowData, service, "" );
+    }
+
+    String queryParameters = "";
+    for ( int i = 0; i < meta.getFieldName().length; i++ ) {
+      if ( i == 0 ) {
+        queryParameters = queryParameters + "?";
+      } else {
+        queryParameters = queryParameters + "&";
+      }
+      queryParameters = queryParameters + meta.getParameter()[ i ] + "=" + getRowValue( rowData, i );
+    }
+
+    HttpResponse response = callHttp( module, service, queryParameters );
 
     int index = getInputRowMeta().size();
-    logBasic( "INDEX: " + index );
-
-    rowData = RowDataUtil.addValueData( rowData, index, response );
+    rowData = RowDataUtil.addValueData( rowData, index++, response.getResult() );
+    rowData = RowDataUtil.addValueData( rowData, index++, (long) response.getStatusCode() );
+    rowData = RowDataUtil.addValueData( rowData, index, response.getResponseTime() );
     putRow( data.outputRowMeta, rowData );
 
     // continue processing
     return true;
+  }
+
+  private String getRowValue( Object[] rowData, String fieldName, String defaultValue ) throws KettleException {
+
+    // find a matching field
+    int index = getInputRowMeta().indexOfValue( fieldName );
+    if ( index >= 0 ) {
+      ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( index );
+      return valueMeta.getCompatibleString( rowData[ index ] );
+    }
+
+    // otherwise, return default value
+    return defaultValue;
   }
 
   private String getRowValue( Object[] rowData, int i ) throws KettleException {
@@ -131,30 +152,29 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
     return environmentSubstitute( meta.getDefaultValue()[ i ] );
   }
 
-  private String callHttp( String params ) throws KettleStepException {
+  private HttpResponse callHttp( String module, String service, String params ) throws KettleStepException {
     try {
-      String module = meta.getModule();
-      if ( module.equals( "platform" ) ) {
-        module = "";
-      } else {
-        module = "/plugin/" + module;
+      String serverUrl = environmentSubstitute( meta.getServerURL() );
+      if ( !serverUrl.endsWith( "/" ) ) {
+        serverUrl = serverUrl + "/";
       }
+      if ( module.equals( "platform" ) ) {
+        module = "api/";
+      } else {
+        module = "plugin/" + module + "/api/";
+      }
+      String url = serverUrl + module + service + params;
 
-      String url = meta.getServerURL() + "/pentaho" + module + "/api/" + meta.getService() + params;
+      String username = environmentSubstitute( meta.getUsername() );
+      String password = environmentSubstitute( meta.getPassword() );
+
       logBasic( "CALL: " + url );
-      return HttpConnectionHelper.callHttp( url, meta.getUsername(), meta.getPassword() );
+      return HttpConnectionHelper.callHttp( url, username, password );
 
     } catch ( IOException ex ) {
       logError( ex.toString() );
     }
     return null;
-  }
-
-
-
-
-  private void processResult( int status ) {
-
   }
 
   public void dispose( StepMetaInterface smi, StepDataInterface sdi ) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>test1</name>
+    <name>callEndpointExample</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -74,8 +74,40 @@
   <notepads>
   </notepads>
   <order>
-  <hop> <from>Data Grid</from><to>Show Version</to><enabled>Y</enabled> </hop>
+  <hop> <from>Data Grid</from><to>Call endpoint</to><enabled>Y</enabled> </hop>
   </order>
+  <step>
+    <name>Call endpoint</name>
+    <type>CallEndpointStep</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <server_url>http&#x3a;&#x2f;&#x2f;localhost&#x3a;8080&#x2f;pentaho</server_url>
+    <username>admin</username>
+    <password>password</password>
+    <bypass_auth_check>N</bypass_auth_check>
+    <module>MODULE</module>
+    <is_module_field>Y</is_module_field>
+    <service>SERVICE</service>
+    <is_service_field>Y</is_service_field>
+    <result_field>RESULT</result_field>
+    <status_code_field>STATUS</status_code_field>
+    <response_time_field>TIME</response_time_field>
+    <fields>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>288</xloc>
+      <yloc>96</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
   <step>
     <name>Data Grid</name>
     <type>DataGrid</type>
@@ -89,7 +121,18 @@
            </partitioning>
     <fields>
       <field>
-        <name>PARAM1</name>
+        <name>MODULE</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>SERVICE</name>
         <type>String</type>
         <format/>
         <currency/>
@@ -101,40 +144,13 @@
       </field>
     </fields>
     <data>
-      <line> <item>a</item> </line>
-      <line> <item>b</item> </line>
-      <line> <item>c</item> </line>
+      <line> <item>platform</item><item>version&#x2f;show</item> </line>
+      <line> <item>platform</item><item>version&#x2f;show</item> </line>
+      <line> <item>platform</item><item>version&#x2f;show</item> </line>
     </data>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>128</xloc>
-      <yloc>128</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Show Version</name>
-    <type>CallEndpointStep</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <server_url>http&#x3a;&#x2f;&#x2f;localhost&#x3a;8080</server_url>
-    <username>admin</username>
-    <password>password</password>
-    <bypass_auth_check>N</bypass_auth_check>
-    <module>platform</module>
-    <service>version&#x2f;show</service>
-    <fields>
-      </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>288</xloc>
+      <xloc>160</xloc>
       <yloc>96</yloc>
       <draw>Y</draw>
       </GUI>

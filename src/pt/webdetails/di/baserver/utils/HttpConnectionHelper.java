@@ -32,7 +32,11 @@ import java.io.InputStreamReader;
  */
 public final class HttpConnectionHelper {
 
-  public static String callHttp( String url, String user, String password ) throws IOException, KettleStepException {
+  public static HttpResponse callHttp( String url, String user, String password ) throws IOException, KettleStepException {
+
+    // used for calculating the responseTime
+    long startTime = System.currentTimeMillis();
+
     HttpClient httpclient = SlaveConnectionManager.getInstance().createHttpClient();
     HttpMethod method = new GetMethod( url );
     httpclient.getParams().setAuthenticationPreemptive( true );
@@ -41,12 +45,15 @@ public final class HttpConnectionHelper {
     HostConfiguration hostConfiguration = new HostConfiguration();
     int status = httpclient.executeMethod( hostConfiguration, method );
 
+    /*
     if ( status == 401 ) {
       throw new KettleStepException( "Authentication Error" );
     }
+    */
 
-    String body = null;
+    HttpResponse response = new HttpResponse();
     if ( status != -1 ) {
+      String body = null;
       String encoding = "";
       String contentType = method.getResponseHeader( "Content-Type" ).getValue();
       if ( contentType != null && contentType.contains( "charset" ) ) {
@@ -67,7 +74,14 @@ public final class HttpConnectionHelper {
       }
       inputStreamReader.close();
       body = bodyBuffer.toString();
+
+      // Get response time
+      long responseTime = System.currentTimeMillis() - startTime;
+
+      response.setStatusCode( status );
+      response.setResult( body );
+      response.setResponseTime( responseTime );
     }
-    return body;
+    return response;
   }
 }

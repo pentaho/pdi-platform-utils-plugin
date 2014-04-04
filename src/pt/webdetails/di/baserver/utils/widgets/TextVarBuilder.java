@@ -37,6 +37,7 @@ public final class TextVarBuilder extends WidgetBuilder {
   private String defaultText = "";
   private char echoChar = 0;
   private Control top = null;
+  private Control left = null;
   private ModifyListener modifyListener = null;
   private VariableSpace variableSpace;
 
@@ -66,6 +67,7 @@ public final class TextVarBuilder extends WidgetBuilder {
       data.width = this.labelWidth;
     }
     data.top = new FormAttachment( this.top, Const.MARGIN );
+    data.left = new FormAttachment( this.left, Const.MARGIN );
     label.setLayoutData( data );
 
     // place text box next to label
@@ -112,6 +114,11 @@ public final class TextVarBuilder extends WidgetBuilder {
 
   public TextVarBuilder setTop( Control top ) {
     this.top = top;
+    return this;
+  }
+
+  public TextVarBuilder setLeft( Control left ) {
+    this.left = left;
     return this;
   }
 

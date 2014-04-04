@@ -122,12 +122,17 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <server_url>http&#x3a;&#x2f;&#x2f;localhost&#x3a;8080</server_url>
+    <server_url>http&#x3a;&#x2f;&#x2f;localhost&#x3a;8080&#x2f;pentaho&#x2f;</server_url>
     <username>admin</username>
     <password>password</password>
     <bypass_auth_check>N</bypass_auth_check>
     <module>platform</module>
+    <is_module_field>N</is_module_field>
     <service>version&#x2f;show</service>
+    <is_service_field>N</is_service_field>
+    <result_field>RESULT</result_field>
+    <status_code_field>STATUS</status_code_field>
+    <response_time_field>TIME</response_time_field>
     <fields>
       </fields>
      <cluster_schema/>

@@ -14,7 +14,6 @@
 package pt.webdetails.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -27,20 +26,19 @@ import org.pentaho.di.ui.core.PropsUI;
 /**
  * @author Marco Vala
  */
-public final class CheckBoxBuilder extends WidgetBuilder {
+public final class RadioButtonBuilder extends WidgetBuilder {
 
   private String labelText = "";
   private int labelWidth = 0;
   private Control top = null;
-  private Control left = null;
 
-  public CheckBoxBuilder( PropsUI props, Composite parent ) {
+  public RadioButtonBuilder( PropsUI props, Composite parent ) {
     super( props, parent );
   }
 
   public Button build() {
     // create label for check box
-    Label label = new Label( parent, SWT.RIGHT );
+    Label label = new Label( parent, SWT.NONE );
     label.setText( labelText );
     this.props.setLook( label );
 
@@ -55,7 +53,6 @@ public final class CheckBoxBuilder extends WidgetBuilder {
       data.width = labelWidth;
     }
     data.top = new FormAttachment( top, Const.MARGIN );
-    data.left = new FormAttachment( this.left, Const.MARGIN );
     label.setLayoutData( data );
 
     // place check box next to label
@@ -67,23 +64,18 @@ public final class CheckBoxBuilder extends WidgetBuilder {
     return checkBox;
   }
 
-  public CheckBoxBuilder setLabelText( String labelText ) {
+  public RadioButtonBuilder setLabelText( String labelText ) {
     this.labelText = labelText;
     return this;
   }
 
-  public CheckBoxBuilder setLabelWidth( int labelWidth ) {
+  public RadioButtonBuilder setLabelWidth( int labelWidth ) {
     this.labelWidth = labelWidth;
     return this;
   }
 
-  public CheckBoxBuilder setTop( Control top ) {
+  public RadioButtonBuilder setTop( Control top ) {
     this.top = top;
-    return this;
-  }
-
-  public CheckBoxBuilder setLeft( Control left ) {
-    this.left = left;
     return this;
   }
 }

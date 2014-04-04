@@ -18,7 +18,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
@@ -43,14 +42,12 @@ import org.pentaho.di.ui.core.widget.ColumnInfo;
 import org.pentaho.di.ui.core.widget.TableView;
 import org.pentaho.di.ui.core.widget.TextVar;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
-import pt.webdetails.di.baserver.utils.widgets.ButtonBuilder;
 import pt.webdetails.di.baserver.utils.widgets.CheckBoxBuilder;
 import pt.webdetails.di.baserver.utils.widgets.GroupBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TableViewBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TextBoxBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TextVarBuilder;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,8 +63,16 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   private TextVar wUsername;
   private TextVar wPassword;
   private Button wBypassAuthCheck;
+
   private TextVar wModule;
+  private Button wModuleIsField;
   private TextVar wService;
+  private Button wServiceIsField;
+
+  private TextVar wResultField;
+  private TextVar wStatusCodeField;
+  private TextVar wResponseTimeField;
+
   private TableView wParameters;
   private ColumnInfo cFieldName;
 
@@ -106,7 +111,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
 
     /*
-    final Text wResult = new TextBoxBuilder( props, shell )
+    final Text wResultField = new TextBoxBuilder( props, shell )
       .setWidth( 200 )
       .setLabelText( "STATUS" )
       .setLabelWidth( 80 )
@@ -117,7 +122,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       @Override
       public void widgetSelected( SelectionEvent selectionEvent ) {
         // TEST
-        wResult.setText( "" );
+        wResultField.setText( "" );
         try {
           // http://localhost:8080/pentaho/plugin/repositorySynchronizer/api/version
 
@@ -131,7 +136,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
           String call = wServerUrl.getText() + "/pentaho" + module + "/api/" + wService.getText();
           int status = HttpConnectionHelper.callHttp( call, wUsername.getText(), wPassword.getText() );
 
-          wResult.setText( String.valueOf( status ) );
+          wResultField.setText( String.valueOf( status ) );
         } catch ( IOException ex ) {
           logError( ex.toString() );
         }
@@ -144,7 +149,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
     final Button wTest = new ButtonBuilder( props, shell )
       .setLabelText( "TEST" )
-      .setLeft( wResult )
+      .setLeft( wResultField )
       .onButtonPressed( lsTest )
       .build();
     */
@@ -157,14 +162,13 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       .setWidth( 200 )
       .setLabelText( "Step name" )
       .setLabelWidth( 80 )
-      .setDefaultText( "1234" )
       .setModifyListener( lsMod )
       .build();
 
     // BA server info group
     Group serverInfo = new GroupBuilder( props, shell )
+      .setLabelText( "BA Server" )
       .setTop( this.wStepName )
-      .setLabelText( "BA Server Info" )
       .build();
 
     // server url
@@ -172,7 +176,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       .setWidth( 400 )
       .setLabelText( "Server URL" )
       .setLabelWidth( 80 )
-      .setDefaultText( "http://localhost:8080" )
       .setModifyListener( lsMod )
       .build();
 
@@ -181,7 +184,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       .setWidth( 200 )
       .setLabelText( "Username" )
       .setLabelWidth( 80 )
-      .setDefaultText( "admin" )
       .setTop( this.wServerUrl )
       .setModifyListener( lsMod )
       .build();
@@ -191,7 +193,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       .setWidth( 200 )
       .setLabelText( "Password" )
       .setLabelWidth( 80 )
-      .setDefaultText( "password" )
       .setEchoChar( '*' )
       .setTop( this.wUsername )
       .setModifyListener( lsMod )
@@ -206,7 +207,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
     // endpoint info group
     Group endpointInfo = new GroupBuilder( props, shell )
-      .setLabelText( "Endpoint Info" )
+      .setLabelText( "Endpoint" )
       .setTop( serverInfo )
       .build();
 
@@ -215,8 +216,14 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       .setWidth( 200 )
       .setLabelText( "Module" )
       .setLabelWidth( 80 )
-      .setDefaultText( "platform" )
       .setModifyListener( lsMod )
+      .build();
+
+    // module is field
+    this.wModuleIsField = new CheckBoxBuilder( props, endpointInfo )
+      .setLabelText( "Module is a field" )
+      .setLabelWidth( 140 )
+      .setLeft( this.wModule )
       .build();
 
     // service
@@ -224,11 +231,49 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       .setWidth( 200 )
       .setLabelText( "Service" )
       .setLabelWidth( 80 )
-      .setDefaultText( "version/show" )
       .setTop( this.wModule )
       .setModifyListener( lsMod )
       .build();
 
+    // service is field
+    this.wServiceIsField = new CheckBoxBuilder( props, endpointInfo )
+      .setLabelText( "Service is a field" )
+      .setLabelWidth( 140 )
+      .setTop( this.wModule )
+      .setLeft( this.wService )
+      .build();
+
+    // output fields group
+    Group outputFields = new GroupBuilder( props, shell )
+      .setLabelText( "Output Fields" )
+      .setTop( endpointInfo )
+      .build();
+
+    // wResultField
+    this.wResultField = new TextVarBuilder( props, outputFields, transMeta )
+      .setWidth( 200 )
+      .setLabelText( "Result field" )
+      .setLabelWidth( 160 )
+      .setModifyListener( lsMod )
+      .build();
+
+    // status code
+    this.wStatusCodeField = new TextVarBuilder( props, outputFields, transMeta )
+      .setWidth( 200 )
+      .setLabelText( "Status code field" )
+      .setLabelWidth( 160 )
+      .setTop( this.wResultField )
+      .setModifyListener( lsMod )
+      .build();
+
+    // response time
+    this.wResponseTimeField = new TextVarBuilder( props, outputFields, transMeta )
+      .setWidth( 200 )
+      .setLabelText( "Response time (ms) field" )
+      .setLabelWidth( 160 )
+      .setTop( this.wStatusCodeField )
+      .setModifyListener( lsMod )
+      .build();
 
     this.cFieldName = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.FieldName" ),
       ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
@@ -237,13 +282,13 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       ColumnInfo.COLUMN_TYPE_TEXT, false );
     cParameter.setUsingVariables( true );
 
-    ColumnInfo cDefaultValue =  new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.DefaultValue" ),
+    ColumnInfo cDefaultValue = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.DefaultValue" ),
       ColumnInfo.COLUMN_TYPE_TEXT, false );
     cDefaultValue.setUsingVariables( true );
     cDefaultValue.setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
 
     this.wParameters = new TableViewBuilder( props, shell )
-      .setTop( endpointInfo )
+      .setTop( outputFields )
       .setLabelText( "Parameters:" )
       .setModifyListener( lsMod )
       .setVariableSpace( transMeta )
@@ -362,7 +407,12 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     wPassword.setText( meta.getPassword() );
     wBypassAuthCheck.setSelection( meta.isBypassingAuthCheck() );
     wModule.setText( meta.getModule() );
+    wModuleIsField.setSelection( meta.isModuleField() );
     wService.setText( meta.getService() );
+    wServiceIsField.setSelection( meta.isServiceField() );
+    wResultField.setText( meta.getResultField() );
+    wStatusCodeField.setText( meta.getStatusCodeField() );
+    wResponseTimeField.setText( meta.getResponseTimeField() );
 
     // load fields
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
@@ -385,7 +435,12 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     meta.setPassword( wPassword.getText() );
     meta.setBypassAuthCheck( wBypassAuthCheck.getSelection() );
     meta.setModule( wModule.getText() );
+    meta.setIsModuleField( wModuleIsField.getSelection() );
     meta.setService( wService.getText() );
+    meta.setIsServiceField( wServiceIsField.getSelection() );
+    meta.setResultField( wResultField.getText() );
+    meta.setStatusCodeField( wStatusCodeField.getText() );
+    meta.setResponseTimeField( wResponseTimeField.getText() );
 
     // save fields
     int count = wParameters.nrNonEmpty();
