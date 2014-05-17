@@ -14,19 +14,14 @@
 package pt.webdetails.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
-import org.pentaho.di.core.Const;
+import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.ui.core.PropsUI;
 
 /**
  * @author Marco Vala
  */
-public final class GroupBuilder extends WidgetBuilder<Group> {
+public final class LabelBuilder extends WidgetBuilder<Label> {
 
   private String text = "";
 
@@ -34,27 +29,19 @@ public final class GroupBuilder extends WidgetBuilder<Group> {
     return this.text;
   }
 
-  public GroupBuilder setText( String text ) {
+  public LabelBuilder setText( final String text ) {
     this.text = text;
     return this;
   }
 
-  public GroupBuilder( Composite parent, PropsUI props ) {
+  public LabelBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
   }
 
   @Override
-  protected Group createWidget( Composite parent ) {
-    // create group
-    Group group = new Group( this.parent, SWT.NONE );
-    group.setText( this.text );
-
-    // create a new form layout for the group
-    FormLayout layout = new FormLayout();
-    layout.marginWidth = Const.FORM_MARGIN;
-    layout.marginHeight = Const.FORM_MARGIN;
-    group.setLayout( layout );
-
-    return group;
+  protected Label createWidget( Composite parent ) {
+    Label label = new Label( parent, SWT.RIGHT );
+    label.setText( text );
+    return label;
   }
 }

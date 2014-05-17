@@ -13,20 +13,6 @@
 
 package pt.webdetails.di.baserver.utils;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.pentaho.di.cluster.SlaveConnectionManager;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.exception.KettleStepException;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 /**
  * @author Marco Vala
  */

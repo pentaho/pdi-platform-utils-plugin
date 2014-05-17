@@ -11,25 +11,41 @@
 * the license for the specific language governing your rights and limitations.
 */
 
-package pt.webdetails.di.baserver.utils.widgets;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.pentaho.di.ui.core.PropsUI;
+package pt.webdetails.di.baserver.utils;
 
 /**
  * @author Marco Vala
  */
-public final class CheckBoxBuilder extends WidgetBuilder<Button> {
+public enum HttpMethodType {
+  GET,
+  POST,
+  PUT,
+  DELETE,
+  HEAD,
+  OPTIONS
 
-  public CheckBoxBuilder( Composite parent, PropsUI props ) {
-    super( parent, props );
+  /*
+  private static final String[] names = new String[values().length];
+
+  static {
+    HttpMethodType[] types = values();
+    for ( int i = 0; i < types.length; i++ ) {
+      names[i] = types[i].name();
+    }
   }
 
-  @Override
-  protected Button createWidget( Composite parent ) {
-    Button checkBox = new Button( parent, SWT.CHECK );
-    return checkBox;
+  public static String[] names() {
+    return names;
   }
+
+  public static HttpMethodType getType( String name ) {
+    HttpMethodType[] types = values();
+    for ( int i = 0; i < types.length; i++ ) {
+      if ( types[i].name().equals( name ) ) {
+        return types[i];
+      }
+    }
+    return null;
+  }
+  */
 }

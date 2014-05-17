@@ -14,6 +14,7 @@
 package pt.webdetails.di.baserver.utils;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -43,7 +44,14 @@ public final class HttpConnectionHelper {
     Credentials credentials = new UsernamePasswordCredentials( user, password );
     httpclient.getState().setCredentials( AuthScope.ANY, credentials );
     HostConfiguration hostConfiguration = new HostConfiguration();
-    int status = httpclient.executeMethod( hostConfiguration, method );
+
+    int status;
+    try {
+      status = httpclient.executeMethod( hostConfiguration, method );
+    }
+    catch ( IllegalArgumentException ex ) {
+      status = -1;
+    }
 
     /*
     if ( status == 401 ) {
@@ -55,9 +63,12 @@ public final class HttpConnectionHelper {
     if ( status != -1 ) {
       String body = null;
       String encoding = "";
-      String contentType = method.getResponseHeader( "Content-Type" ).getValue();
-      if ( contentType != null && contentType.contains( "charset" ) ) {
-        encoding = contentType.replaceFirst( "^.*;\\s*charset\\s*=\\s*", "" ).replace( "\"", "" ).trim();
+      Header contentTypeHeader = method.getResponseHeader( "Content-Type" );
+      if ( contentTypeHeader != null ) {
+        String contentType = contentTypeHeader.getValue();
+        if ( contentType != null && contentType.contains( "charset" ) ) {
+          encoding = contentType.replaceFirst( "^.*;\\s*charset\\s*=\\s*", "" ).replace( "\"", "" ).trim();
+        }
       }
 
       // get the response

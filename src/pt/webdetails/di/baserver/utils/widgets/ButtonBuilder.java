@@ -26,36 +26,12 @@ import org.pentaho.di.ui.core.PropsUI;
 /**
  * @author Marco Vala
  */
-public class ButtonBuilder extends WidgetBuilder {
+public class ButtonBuilder extends WidgetBuilder<Button> {
 
   private String labelText = "";
-  private Control top = null;
-  private Control left = null;
-  private SelectionListener onButtonPressed = null;
 
-  public ButtonBuilder( PropsUI props, Composite parent ) {
-    super( props, parent );
-  }
-
-  public Button build() {
-    // create button
-    Button button = new Button( this.parent, SWT.PUSH );
-    button.setText( this.labelText );
-    this.props.setLook( button );
-
-    // place button
-    FormData data;
-    data = new FormData();
-    data.top = new FormAttachment( this.top, Const.MARGIN );
-    data.left = new FormAttachment( this.left, Const.MARGIN );
-    button.setLayoutData( data );
-
-    // add listener
-    if ( this.onButtonPressed != null ) {
-      button.addSelectionListener( this.onButtonPressed );
-    }
-
-    return button;
+  public String getLabelText() {
+    return this.labelText;
   }
 
   public ButtonBuilder setLabelText( String labelText ) {
@@ -63,18 +39,16 @@ public class ButtonBuilder extends WidgetBuilder {
     return this;
   }
 
-  public ButtonBuilder setTop( Control top ) {
-    this.top = top;
-    return this;
+  public ButtonBuilder( Composite parent, PropsUI props ) {
+    super( parent, props );
   }
 
-  public ButtonBuilder setLeft( Control left ) {
-    this.left = left;
-    return this;
-  }
+  @Override
+  protected Button createWidget( Composite parent ) {
+    // create button
+    Button button = new Button( this.parent, SWT.PUSH );
+    button.setText( this.labelText );
 
-  public ButtonBuilder onButtonPressed( SelectionListener selectionListener ) {
-    this.onButtonPressed = selectionListener;
-    return this;
+    return button;
   }
 }

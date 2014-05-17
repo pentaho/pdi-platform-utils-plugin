@@ -15,104 +15,36 @@ package pt.webdetails.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.pentaho.di.core.Const;
 import org.pentaho.di.ui.core.PropsUI;
 
 /**
  * @author Marco Vala
  */
-public final class TextBoxBuilder extends WidgetBuilder {
+public final class TextBoxBuilder extends WidgetBuilder<Text> {
 
-  private int width = 0;
-  private String labelText = "";
-  private int labelWidth = 0;
   private String defaultText = "";
-  private char echoChar = 0;
-  private Control top = null;
-  private ModifyListener modifyListener = null;
 
-  public TextBoxBuilder( PropsUI props, Composite parent ) {
-    super( props, parent );
+  public String getDefaultText() {
+    return this.defaultText;
   }
 
-  public Text build() {
-    // create label for text box
-    Label label = new Label( parent, SWT.RIGHT );
-    label.setText( this.labelText );
-    super.props.setLook( label );
-
-    // create text box
-    Text textBox = new Text( this.parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    textBox.setText( this.defaultText );
-    if ( this.echoChar != 0 ) {
-      textBox.setEchoChar( '*' );
-    }
-    this.props.setLook( textBox );
-
-    // place label
-    FormData data;
-    data = new FormData();
-    if ( this.labelWidth > 0 ) {
-      data.width = this.labelWidth;
-    }
-    data.top = new FormAttachment( this.top, Const.MARGIN );
-    label.setLayoutData( data );
-
-    // place text box next to label
-    data = new FormData();
-    if ( this.width > 0 ) {
-      data.width = this.width;
-    }
-    data.top = new FormAttachment( this.top, Const.MARGIN );
-    data.left = new FormAttachment( label, Const.MARGIN );
-    textBox.setLayoutData( data );
-
-    // add listener
-    if ( this.modifyListener != null ) {
-      textBox.addModifyListener( this.modifyListener );
-    }
-
-    return textBox;
-  }
-
-  public TextBoxBuilder setWidth( int width ) {
-    this.width = width;
-    return this;
-  }
-
-  public TextBoxBuilder setLabelText( String labelText ) {
-    this.labelText = labelText;
-    return this;
-  }
-
-  public TextBoxBuilder setLabelWidth( int labelWidth ) {
-    this.labelWidth = labelWidth;
-    return this;
-  }
-
-  public TextBoxBuilder setDefaultText( String defaultText ) {
+  public TextBoxBuilder setDefaultText( final String defaultText ) {
     this.defaultText = defaultText;
     return this;
   }
 
-  public TextBoxBuilder setEchoChar( char echoChar ) {
-    this.echoChar = echoChar;
-    return this;
+  public TextBoxBuilder( Composite parent, PropsUI props ) {
+    super( parent, props );
   }
 
-  public TextBoxBuilder setTop( Control top ) {
-    this.top = top;
-    return this;
-  }
-
-  public TextBoxBuilder setModifyListener( ModifyListener modifyListener ) {
-    this.modifyListener = modifyListener;
-    return this;
+  @Override
+  protected Text createWidget( Composite parent ) {
+    Text textBox = new Text( parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    textBox.setText( this.defaultText );
+    return textBox;
   }
 }

@@ -15,23 +15,9 @@ package pt.webdetails.di.baserver.utils;
 
 
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.util.URIUtil;
-
-
-import org.pentaho.di.cluster.SlaveConnectionManager;
-import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.row.RowDataUtil;
-import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.Trans;
@@ -43,8 +29,6 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.UnknownHostException;
 
 /**
  * @author Marco Vala
@@ -86,14 +70,18 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       first = false;
     }
 
-    String module = environmentSubstitute( meta.getModule() );
-    if ( meta.isModuleField() ) {
-      module = getRowValue( rowData, module, "" );
+    String module;
+    if ( meta.isModuleFromField() ) {
+      module = getRowValue( rowData, environmentSubstitute( meta.getModuleField() ), "" );
+    } else {
+      module = environmentSubstitute( meta.getModuleName() );
     }
 
-    String service = environmentSubstitute( meta.getService() );
-    if ( meta.isServiceField() ) {
-      service = getRowValue( rowData, service, "" );
+    String service;
+    if ( meta.isServiceFromField() ) {
+      service = getRowValue( rowData, environmentSubstitute( meta.getServiceField() ), "" );
+    } else {
+      service = environmentSubstitute( meta.getServiceName() );
     }
 
     String queryParameters = "";
@@ -159,13 +147,13 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
         serverUrl = serverUrl + "/";
       }
       if ( module.equals( "platform" ) ) {
-        module = "api/";
+        module = "api";
       } else {
-        module = "plugin/" + module + "/api/";
+        module = "plugin/" + module + "/api";
       }
       String url = serverUrl + module + service + params;
 
-      String username = environmentSubstitute( meta.getUsername() );
+      String username = environmentSubstitute( meta.getUserName() );
       String password = environmentSubstitute( meta.getPassword() );
 
       logBasic( "CALL: " + url );

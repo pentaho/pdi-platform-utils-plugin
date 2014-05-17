@@ -14,6 +14,8 @@
 package pt.webdetails.di.baserver.utils;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -23,9 +25,12 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -39,16 +44,23 @@ import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.ui.core.widget.ColumnInfo;
+import org.pentaho.di.ui.core.widget.ComboVar;
 import org.pentaho.di.ui.core.widget.TableView;
 import org.pentaho.di.ui.core.widget.TextVar;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
+import pt.webdetails.di.baserver.utils.inspector.Endpoint;
+import pt.webdetails.di.baserver.utils.inspector.Inspector;
 import pt.webdetails.di.baserver.utils.widgets.CheckBoxBuilder;
+import pt.webdetails.di.baserver.utils.widgets.ComboVarBuilder;
 import pt.webdetails.di.baserver.utils.widgets.GroupBuilder;
+import pt.webdetails.di.baserver.utils.widgets.LabelBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TableViewBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TextBoxBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TextVarBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,31 +70,648 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
 
   private CallEndpointMeta metaInfo;
-  private Text wStepName;
-  private TextVar wServerUrl;
-  private TextVar wUsername;
-  private TextVar wPassword;
-  private Button wBypassAuthCheck;
+  private Inspector inspector;
 
-  private TextVar wModule;
-  private Button wModuleIsField;
-  private TextVar wService;
-  private Button wServiceIsField;
+  private Text stepName;
 
-  private TextVar wResultField;
-  private TextVar wStatusCodeField;
-  private TextVar wResponseTimeField;
-
-  private TableView wParameters;
+  private TextVar serverUrl;
+  private TextVar userName;
+  private TextVar password;
+  private Button isBypassingAuthentication;
+  private ComboVar moduleName;
+  private Button isModuleFromField;
+  private ComboVar moduleField;
+  private ComboVar endpointName;
+  private ComboVar endpointType;
+  private Button isEndpointFromField;
+  private ComboVar endpointField;
+  private TextVar resultField;
+  private TextVar statusCodeField;
+  private TextVar responseTimeField;
+  private TableView queryParameters;
   private ColumnInfo cFieldName;
+  private Group serverGroup;
+  private Group moduleGroup;
+  private Group endpointGroup;
+  private Group outputFieldsGroup;
+  private ColumnInfo cParameter;
 
 
   public CallEndpointDialog( Shell parent, Object in, TransMeta transMeta, String name ) {
     super( parent, (BaseStepMeta) in, transMeta, name );
-    metaInfo = (CallEndpointMeta) in;
+    this.metaInfo = (CallEndpointMeta) in;
+    this.inspector = Inspector.getInstance();
+  }
+
+  private Collection<String> getModuleNames() {
+    String serverUrl = this.transMeta.environmentSubstitute( this.serverUrl.getText() );
+    String userName = this.transMeta.environmentSubstitute( this.userName.getText() );
+    String password = this.transMeta.environmentSubstitute( this.password.getText() );
+
+    return this.inspector.getPluginIds( serverUrl, userName, password );
+  }
+
+  private void updateEndpoints() {
+    String serverUrl = this.transMeta.environmentSubstitute( this.serverUrl.getText() );
+    String userName = this.transMeta.environmentSubstitute( this.userName.getText() );
+    String password = this.transMeta.environmentSubstitute( this.password.getText() );
+    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
+    if ( moduleName.equals( "platform" ) ) {
+      this.inspector.updateEndpoints( serverUrl, null, userName, password );
+    } else {
+      this.inspector.updateEndpoints( serverUrl, moduleName, userName, password );
+    }
+  }
+
+  private Collection<String> getFieldNames() {
+    StepMeta stepMeta = this.transMeta.findStep( this.stepname );
+    if ( stepMeta != null ) {
+      try {
+        // get field names from previous steps
+        RowMetaInterface row = this.transMeta.getPrevStepFields( stepMeta );
+        List<String> entries = new ArrayList<String>();
+        for ( int i = 0; i < row.size(); i++ ) {
+          entries.add( row.getValueMeta( i ).getName() );
+        }
+        return entries;
+
+        //fieldNames = entries.toArray( new String[ entries.size() ] );
+        //Const.sortStrings( fieldNames );
+      } catch ( KettleException e ) {
+        logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+      }
+    }
+    return Collections.emptySet();
+  }
+
+  private void updateModuleNames() {
+    this.moduleName.removeAll();
+    this.moduleName.add( "platform" );
+    for ( String item : getModuleNames() ) {
+      this.moduleName.add( item );
+    }
+  }
+
+  private void updateEndpointNames() {
+    boolean first = true;
+    this.endpointName.removeAll();
+    for ( String path : this.inspector.getEndpointPaths() ) {
+      this.endpointName.add( path );
+      if ( first ) {
+        this.endpointName.setText( path );
+        first = false;
+      }
+    }
+  }
+
+  private void updateEndpointTypes() {
+    String path = this.endpointName.getText();
+    Iterable<Endpoint> endpoints = this.inspector.getEndpointsWithPath( path );
+
+    boolean first = true;
+    this.endpointType.removeAll();
+    for ( Endpoint item : endpoints ) {
+      this.endpointType.add( item.getType().name() );
+      if ( first ) {
+        this.endpointType.setText( item.getType().name() );
+        first = false;
+      }
+    }
+  }
+
+  private void updateEndpointParams() {
+    String path = this.endpointName.getText();
+    String type = this.endpointType.getText();
+
+    Endpoint endpoint = this.inspector.getEndpoint( path, type );
+
+    if ( endpoint != null ) {
+      // TODO add parameters to table
+    }
   }
 
 
+  private void updateFieldNamesComboBox() {
+    StepMeta stepMeta = transMeta.findStep( stepname );
+    if ( stepMeta != null ) {
+      try {
+        // get field names from previous steps
+        RowMetaInterface row = transMeta.getPrevStepFields( stepMeta );
+        List<String> entries = new ArrayList<String>();
+        for ( int i = 0; i < row.size(); i++ ) {
+          entries.add( row.getValueMeta( i ).getName() );
+        }
+        String[] fieldNames = entries.toArray( new String[ entries.size() ] );
+
+        // sort field names and add them to the combo box
+        Const.sortStrings( fieldNames );
+        cFieldName.setComboValues( fieldNames );
+      } catch ( KettleException e ) {
+        logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+      }
+    }
+  }
+
+  private void processInputChange() {
+    this.metaInfo.setChanged( this.changed );
+    wOK.setEnabled( !Const.isEmpty( stepName.getText() ) );
+  }
+
+  private void ok() {
+    // keep information for next time
+    saveData( metaInfo );
+    dispose();
+  }
+
+  private void cancel() {
+    // fill return value
+    stepname = null;
+    dispose();
+  }
+
+
+
+  //region Step Name
+
+  private void buildStepNameInput( Composite parent ) {
+
+    // label
+    Label stepNameLabel = new LabelBuilder( parent, this.props )
+      .setText( "Step name" )
+      .build();
+
+    // step name input
+    this.stepName = new TextBoxBuilder( parent, this.props )
+      .setWidth( 200 )
+      .setLeft( stepNameLabel )
+      .build();
+
+    this.stepName.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+  }
+
+  //endregion
+
+  // region Server Group
+
+  private void buildServerGroup( Composite parent ) {
+
+    // group
+    this.serverGroup = new GroupBuilder( parent, this.props )
+      .setText( "BA Server" )
+      .setTop( this.stepName )
+      .build();
+
+    // widgets
+    buildServerUrlInput( this.serverGroup );
+    buildUserNameInput( this.serverGroup );
+    buildPasswordInput( this.serverGroup );
+    buildIsBypassingAuthenticationCheck( this.serverGroup );
+  }
+
+  private void buildServerUrlInput( Composite parent ) {
+
+    // label
+    Label serverUrlLabel = new LabelBuilder( parent, this.props )
+      .setText( "Server URL" )
+      .setWidth( 170 )
+      .build();
+
+    // server url input box
+    this.serverUrl = new TextVarBuilder( parent, this.props, this.transMeta )
+      .setLeft( serverUrlLabel )
+      .setWidth( 350 )
+      .build();
+
+    this.serverUrl.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+  }
+
+  private void buildUserNameInput( Composite parent ) {
+
+    // label
+    Label userNameLabel = new LabelBuilder( parent, this.props )
+      .setText( "User name" )
+      .setTop( this.serverUrl )
+      .setWidth( 170 )
+      .build();
+
+    // user name input box
+    this.userName = new TextVarBuilder( parent, this.props, this.transMeta )
+      .setTop( this.serverUrl )
+      .setLeft( userNameLabel )
+      .setWidth( 200 )
+      .build();
+
+    this.userName.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+  }
+
+  private void buildPasswordInput( Composite parent ) {
+
+    // label
+    Label passwordLabel = new LabelBuilder( parent, this.props )
+      .setText( "Password" )
+      .setTop( this.userName )
+      .setWidth( 170 )
+      .build();
+
+    // password input box
+    this.password = new TextVarBuilder( parent, this.props, this.transMeta )
+      .setTop( this.userName )
+      .setLeft( passwordLabel )
+      .setWidth( 200 )
+      .build();
+
+    this.password.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        protectPasswordWithEchoChar();
+        processInputChange();
+      }
+    } );
+  }
+
+  private void buildIsBypassingAuthenticationCheck( Composite parent ) {
+
+    // label
+    Label bypassAuthenticationCheckLabel = new LabelBuilder( parent, this.props )
+      .setText( "Bypass authentication on local execution?" )
+      .setTop( this.password )
+      .setWidth( 340 )
+      .build();
+
+    // is bypassing authentication check box
+    this.isBypassingAuthentication = new CheckBoxBuilder( parent, this.props )
+      .setTop( this.password )
+      .setLeft( bypassAuthenticationCheckLabel )
+      .build();
+
+    this.isBypassingAuthentication.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        processIsBypassingAuthenticationChange();
+      }
+    } );
+  }
+
+  private void protectPasswordWithEchoChar() {
+    if ( this.password.getText().startsWith( "${" ) ) {
+      this.password.setEchoChar( '\0' );
+    } else {
+      this.password.setEchoChar( '*' );
+    }
+  }
+
+  private void processIsBypassingAuthenticationChange() {
+    // TODO add logic
+  }
+
+  // endregion
+
+  // region Module Group
+
+  private void buildModuleGroup( Composite parent ) {
+
+    // group
+    this.moduleGroup = new GroupBuilder( parent, this.props )
+      .setText( "Module" )
+      .setTop( this.serverGroup )
+      .build();
+
+    // build widgets
+    buildModuleNameInput( this.moduleGroup );
+    buildModuleFromFieldInput( this.moduleGroup );
+  }
+
+  private void buildModuleNameInput( Composite parent ) {
+
+    // label
+    Label moduleNameLabel = new LabelBuilder( parent, this.props )
+      .setText( "Module name" )
+      .setWidth( 170 )
+      .build();
+
+    // module name input box
+    this.moduleName = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .setLeft( moduleNameLabel )
+      .setWidth( 350 )
+      .build();
+
+    this.moduleName.addFocusListener( new FocusAdapter() {
+      @Override public void focusGained( FocusEvent focusEvent ) {
+        super.focusGained( focusEvent );
+        updateModuleNames();
+      }
+    } );
+
+    this.moduleName.addModifyListener(
+      new ModifyListener() {
+        @Override
+        public void modifyText( ModifyEvent modifyEvent ) {
+          processInputChange();
+          updateEndpoints();
+          updateEndpointNames();
+        }
+      }
+    );
+  }
+
+  private void buildModuleFromFieldInput( Composite parent ) {
+
+    Control top = this.moduleName;
+
+    // module is defined in a field
+    Label moduleIsFieldLabel = new LabelBuilder( parent, this.props )
+      .setText( "Module is defined in a field?" )
+      .setTop( top )
+      .setWidth( 170 )
+      .build();
+    this.isModuleFromField = new CheckBoxBuilder( parent, this.props )
+      .setTop( top )
+      .setLeft( moduleIsFieldLabel )
+      .build();
+
+    this.isModuleFromField.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        toggleModuleFromField();
+      }
+    } );
+
+    // module field
+    Label moduleFieldLabel = new LabelBuilder( parent, props )
+      .setText( "Module from field" )
+      .setTop( top )
+      .setLeft( this.isModuleFromField )
+      .setWidth( 120 )
+      .build();
+    this.moduleField = new ComboVarBuilder( parent, props, transMeta )
+      .addAllItems( getFieldNames() )
+      .setTop( top )
+      .setLeft( moduleFieldLabel )
+      .setWidth( 200 )
+      .setEnabled( false )
+      .build();
+
+    this.moduleField.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+  }
+
+  private void toggleModuleFromField() {
+    boolean isEnabled = isModuleFromField.getSelection();
+    this.moduleName.setEnabled( !isEnabled );
+    this.moduleField.setEnabled( isEnabled );
+  }
+
+  // endregion
+
+  //region Endpoint Group
+
+  private void buildEnpointGroup( Composite parent ) {
+
+    // group
+    this.endpointGroup = new GroupBuilder( parent, this.props )
+      .setText( "Endpoint" )
+      .setTop( this.moduleGroup )
+      .build();
+
+    // widgets
+    buildEndpointInput( this.endpointGroup );
+    buildEndpointFromFieldInput( this.endpointGroup );
+  }
+
+  private void buildEndpointInput( Composite parent ) {
+
+    // create label
+    Label endpointNameLabel = new LabelBuilder( parent, this.props )
+      .setText( "Endpoint name" )
+      .setWidth( 170 )
+      .build();
+
+    // create focus listener
+    FocusAdapter endpointNameFocusListener = new FocusAdapter() {
+      @Override
+      public void focusGained( FocusEvent focusEvent ) {
+        super.focusGained( focusEvent );
+        //updateEndpointNames();
+      }
+    };
+
+    // create modify listener
+    ModifyListener endpointNameModifyListener = new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+        updateEndpointTypes();
+      }
+    };
+
+    // create combo box
+    this.endpointName = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .setLeft( endpointNameLabel )
+      .setWidth( 350 )
+      .build();
+
+    // add listeners
+    this.endpointName.addFocusListener( endpointNameFocusListener );
+    this.endpointName.addModifyListener( endpointNameModifyListener );
+
+    // create type label
+    Label endpointTypeLabel = new LabelBuilder( parent, this.props )
+      .setText( "Endpoint type" )
+      .setTop( this.endpointName )
+      .setWidth( 170 )
+      .build();
+
+    // create combo box
+    this.endpointType = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .setTop( this.endpointName )
+      .setLeft( endpointTypeLabel )
+      .setWidth( 150 )
+      .build();
+
+    // create focus listener
+    FocusAdapter endpointTypeFocusListener = new FocusAdapter() {
+      @Override
+      public void focusGained( FocusEvent focusEvent ) {
+        super.focusGained( focusEvent );
+        //updateEndpointTypes();
+      }
+    };
+
+    // create modify listener
+    ModifyListener endpointTypeModifyListener = new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+        //updateEndpointParams();
+      }
+    };
+
+    // add listeners
+    this.endpointType.addFocusListener( endpointTypeFocusListener );
+    this.endpointType.addModifyListener( endpointTypeModifyListener );
+  }
+
+  private void buildEndpointFromFieldInput( Composite parent ) {
+
+    // add service is defined in a field checkbox
+    Label serviceIsFieldLabel = new LabelBuilder( parent, this.props )
+      .setText( "Endpoint is defined in a field?" )
+      .setTop( this.endpointType )
+      .setWidth( 170 )
+      .build();
+    this.isEndpointFromField = new CheckBoxBuilder( parent, this.props )
+      .setTop( this.endpointType )
+      .setLeft( serviceIsFieldLabel )
+      .build();
+
+    this.isEndpointFromField.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        toggleEndpointFromField();
+      }
+    } );
+
+    // add service from field combo box
+    Label serviceFieldLabel = new LabelBuilder( parent, this.props )
+      .setText( "Endpoint from field" )
+      .setTop( this.endpointType )
+      .setLeft( this.isEndpointFromField )
+      .setWidth( 120 )
+      .build();
+    this.endpointField = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .addAllItems( getFieldNames() )
+      .setTop( this.endpointType )
+      .setLeft( serviceFieldLabel )
+      .setWidth( 200 )
+      .setEnabled( false )
+      .build();
+
+    this.endpointField.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+  }
+
+  private void toggleEndpointFromField() {
+    boolean isEnabled = isEndpointFromField.getSelection();
+    this.endpointName.setEnabled( !isEnabled );
+    this.endpointField.setEnabled( isEnabled );
+  }
+
+  //endregion
+
+  //region Output Fields Group
+
+  private void buildOutputFieldGroup( Composite parent ) {
+
+    // group
+    this.outputFieldsGroup = new GroupBuilder( parent, this.props )
+      .setText( "Output Fields" )
+      .setTop( this.endpointGroup )
+      .build();
+
+    // widgets
+    buildResultFieldInput( this.outputFieldsGroup );
+    buildStatusCodeFieldInput( this.outputFieldsGroup );
+    buildResponseTimeFieldInput( this.outputFieldsGroup );
+  }
+
+  private void buildResultFieldInput( Composite parent ) {
+
+    // label
+    Label resultFieldLabel = new LabelBuilder( parent, this.props )
+      .setText( "Result into field" )
+      .setWidth( 170 )
+      .build();
+
+    // result field input
+    this.resultField = new TextVarBuilder( parent, this.props, this.transMeta )
+      .setLeft( resultFieldLabel )
+      .setWidth( 200 )
+      .build();
+
+    this.resultField.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+  }
+
+  private void buildStatusCodeFieldInput( Composite parent ) {
+
+    // label
+    Label statusCodeLabel = new LabelBuilder( parent, this.props )
+      .setText( "Status code into field" )
+      .setTop( this.resultField )
+      .setWidth( 170 )
+      .build();
+
+    // status code field input
+    this.statusCodeField = new TextVarBuilder( parent, this.props, this.transMeta )
+      .setTop( this.resultField )
+      .setLeft( statusCodeLabel )
+      .setWidth( 200 )
+      .build();
+
+    this.statusCodeField.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+  }
+
+  private void buildResponseTimeFieldInput( Composite parent ) {
+
+    // label
+    Label responseTimeLabel = new LabelBuilder( parent, this.props )
+      .setText( "Response time into field" )
+      .setTop( this.statusCodeField )
+      .setWidth( 170 )
+      .build();
+
+    // response time field input
+    this.responseTimeField = new TextVarBuilder( parent, this.props, this.transMeta )
+      .setTop( this.statusCodeField )
+      .setLeft( responseTimeLabel )
+      .setWidth( 200 )
+      .build();
+
+    this.responseTimeField.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+  }
+
+
+  //endregion Output Fields Group
+
+  @Override
   public String open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
@@ -100,202 +729,45 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     props.setLook( shell );
     setShellImage( shell, metaInfo );
 
-
-    // listener to detect changes
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        updateOKButtonStatus();
-        metaInfo.setChanged( changed );
-      }
-    };
-
-
-    /*
-    final Text wResultField = new TextBoxBuilder( props, shell )
-      .setWidth( 200 )
-      .setLabelText( "STATUS" )
-      .setLabelWidth( 80 )
-      .build();
-
-    SelectionListener lsTest = new SelectionListener() {
-
-      @Override
-      public void widgetSelected( SelectionEvent selectionEvent ) {
-        // TEST
-        wResultField.setText( "" );
-        try {
-          // http://localhost:8080/pentaho/plugin/repositorySynchronizer/api/version
-
-          String module = wModule.getText();
-          if ( module.equals( "platform" ) ) {
-            module = "";
-          } else {
-            module = "/plugin/" + module;
-          }
-
-          String call = wServerUrl.getText() + "/pentaho" + module + "/api/" + wService.getText();
-          int status = HttpConnectionHelper.callHttp( call, wUsername.getText(), wPassword.getText() );
-
-          wResultField.setText( String.valueOf( status ) );
-        } catch ( IOException ex ) {
-          logError( ex.toString() );
-        }
-      }
-
-      @Override
-      public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
-      }
-    };
-
-    final Button wTest = new ButtonBuilder( props, shell )
-      .setLabelText( "TEST" )
-      .setLeft( wResultField )
-      .onButtonPressed( lsTest )
-      .build();
-    */
-
-
-    // WIDGETS
-
-    // step name
-    this.wStepName = new TextBoxBuilder( props, shell )
-      .setWidth( 200 )
-      .setLabelText( "Step name" )
-      .setLabelWidth( 80 )
-      .setModifyListener( lsMod )
-      .build();
-
-    // BA server info group
-    Group serverInfo = new GroupBuilder( props, shell )
-      .setLabelText( "BA Server" )
-      .setTop( this.wStepName )
-      .build();
-
-    // server url
-    this.wServerUrl = new TextVarBuilder( props, serverInfo, transMeta )
-      .setWidth( 400 )
-      .setLabelText( "Server URL" )
-      .setLabelWidth( 80 )
-      .setModifyListener( lsMod )
-      .build();
-
-    // username
-    this.wUsername = new TextVarBuilder( props, serverInfo, transMeta )
-      .setWidth( 200 )
-      .setLabelText( "Username" )
-      .setLabelWidth( 80 )
-      .setTop( this.wServerUrl )
-      .setModifyListener( lsMod )
-      .build();
-
-    // password
-    this.wPassword = new TextVarBuilder( props, serverInfo, transMeta )
-      .setWidth( 200 )
-      .setLabelText( "Password" )
-      .setLabelWidth( 80 )
-      .setEchoChar( '*' )
-      .setTop( this.wUsername )
-      .setModifyListener( lsMod )
-      .build();
-
-    // bypass authentication
-    this.wBypassAuthCheck = new CheckBoxBuilder( props, serverInfo )
-      .setLabelText( "Bypass authentication on local execution " )
-      .setLabelWidth( 260 )
-      .setTop( this.wPassword )
-      .build();
-
-    // endpoint info group
-    Group endpointInfo = new GroupBuilder( props, shell )
-      .setLabelText( "Endpoint" )
-      .setTop( serverInfo )
-      .build();
-
-    // module
-    this.wModule = new TextVarBuilder( props, endpointInfo, transMeta )
-      .setWidth( 200 )
-      .setLabelText( "Module" )
-      .setLabelWidth( 80 )
-      .setModifyListener( lsMod )
-      .build();
-
-    // module is field
-    this.wModuleIsField = new CheckBoxBuilder( props, endpointInfo )
-      .setLabelText( "Module is a field" )
-      .setLabelWidth( 140 )
-      .setLeft( this.wModule )
-      .build();
-
-    // service
-    this.wService = new TextVarBuilder( props, endpointInfo, transMeta )
-      .setWidth( 200 )
-      .setLabelText( "Service" )
-      .setLabelWidth( 80 )
-      .setTop( this.wModule )
-      .setModifyListener( lsMod )
-      .build();
-
-    // service is field
-    this.wServiceIsField = new CheckBoxBuilder( props, endpointInfo )
-      .setLabelText( "Service is a field" )
-      .setLabelWidth( 140 )
-      .setTop( this.wModule )
-      .setLeft( this.wService )
-      .build();
-
-    // output fields group
-    Group outputFields = new GroupBuilder( props, shell )
-      .setLabelText( "Output Fields" )
-      .setTop( endpointInfo )
-      .build();
-
-    // wResultField
-    this.wResultField = new TextVarBuilder( props, outputFields, transMeta )
-      .setWidth( 200 )
-      .setLabelText( "Result field" )
-      .setLabelWidth( 160 )
-      .setModifyListener( lsMod )
-      .build();
-
-    // status code
-    this.wStatusCodeField = new TextVarBuilder( props, outputFields, transMeta )
-      .setWidth( 200 )
-      .setLabelText( "Status code field" )
-      .setLabelWidth( 160 )
-      .setTop( this.wResultField )
-      .setModifyListener( lsMod )
-      .build();
-
-    // response time
-    this.wResponseTimeField = new TextVarBuilder( props, outputFields, transMeta )
-      .setWidth( 200 )
-      .setLabelText( "Response time (ms) field" )
-      .setLabelWidth( 160 )
-      .setTop( this.wStatusCodeField )
-      .setModifyListener( lsMod )
-      .build();
+    // widgets
+    buildStepNameInput( this.shell );
+    buildServerGroup( this.shell );
+    buildModuleGroup( this.shell );
+    buildEnpointGroup( this.shell );
+    buildOutputFieldGroup( this.shell );
 
     this.cFieldName = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.FieldName" ),
       ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
 
-    ColumnInfo cParameter = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.Parameter" ),
+    this.cParameter = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.Parameter" ),
       ColumnInfo.COLUMN_TYPE_TEXT, false );
-    cParameter.setUsingVariables( true );
+    this.cParameter.setUsingVariables( true );
 
     ColumnInfo cDefaultValue = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.DefaultValue" ),
       ColumnInfo.COLUMN_TYPE_TEXT, false );
     cDefaultValue.setUsingVariables( true );
     cDefaultValue.setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
 
-    this.wParameters = new TableViewBuilder( props, shell )
-      .setTop( outputFields )
-      .setLabelText( "Parameters:" )
-      .setModifyListener( lsMod )
-      .setVariableSpace( transMeta )
+    Label lParameters = new LabelBuilder( shell, props )
+      .setText( "Query parameters:" )
+      .setTop( outputFieldsGroup )
+      .build();
+    this.queryParameters = new TableViewBuilder( props, shell, transMeta )
       .addColumnInfo( cFieldName )
       .addColumnInfo( cParameter )
       .addColumnInfo( cDefaultValue )
       .setRowsCount( metaInfo.getFieldName().length )
+      .setModifyListener( new ModifyListener() {
+        @Override
+        public void modifyText( ModifyEvent modifyEvent ) {
+          processInputChange();
+        }
+      } )
+      .setTop( lParameters )
+      .setLeftPlacement( 0 )
+      .setRightPlacement( 100 )
+      .setBottomPlacement( 100 )
+      .setBottomMargin( 50 )
       .build();
 
     // background thread that updates field name combo box
@@ -323,7 +795,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       }
     };
     wCancel.addListener( SWT.Selection, lsCancel );
-    setButtonPositions( new Button[] { wOK, wCancel }, Const.MARGIN, this.wParameters );
+    setButtonPositions( new Button[] { wOK, wCancel }, Const.MARGIN, this.queryParameters );
 
     // listener to add default action
     lsDef = new SelectionAdapter() {
@@ -331,7 +803,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
         ok();
       }
     };
-    wStepName.addSelectionListener( lsDef );
+    stepName.addSelectionListener( lsDef );
 
     // listener to detect X or something that kills this window
     ShellListener lsShell = new ShellAdapter() {
@@ -348,8 +820,8 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     setSize();
 
     // set focus on step name
-    wStepName.selectAll();
-    wStepName.setFocus();
+    stepName.selectAll();
+    stepName.setFocus();
 
     // open shell
     shell.open();
@@ -361,92 +833,59 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     return stepname;
   }
 
-  private void updateOKButtonStatus() {
-    wOK.setEnabled( !Const.isEmpty( wStepName.getText() ) );
-  }
-
-  private void updateFieldNamesComboBox() {
-    StepMeta stepMeta = transMeta.findStep( stepname );
-    if ( stepMeta != null ) {
-      try {
-        // get field names from previous steps
-        RowMetaInterface row = transMeta.getPrevStepFields( stepMeta );
-        List<String> entries = new ArrayList<String>();
-        for ( int i = 0; i < row.size(); i++ ) {
-          entries.add( row.getValueMeta( i ).getName() );
-        }
-        String[] fieldNames = entries.toArray( new String[ entries.size() ] );
-
-        // sort field names and add them to the combo box
-        Const.sortStrings( fieldNames );
-        cFieldName.setComboValues( fieldNames );
-      } catch ( KettleException e ) {
-        logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
-      }
-    }
-  }
-
-  private void ok() {
-    // keep information for next time
-    saveData( metaInfo );
-    dispose();
-  }
-
-  private void cancel() {
-    // fill return value
-    stepname = null;
-    dispose();
-  }
-
   private void loadData( CallEndpointMeta meta ) {
     // load step name
-    wStepName.setText( stepname );
+    stepName.setText( stepname );
 
-    wServerUrl.setText( meta.getServerURL() );
-    wUsername.setText( meta.getUsername() );
-    wPassword.setText( meta.getPassword() );
-    wBypassAuthCheck.setSelection( meta.isBypassingAuthCheck() );
-    wModule.setText( meta.getModule() );
-    wModuleIsField.setSelection( meta.isModuleField() );
-    wService.setText( meta.getService() );
-    wServiceIsField.setSelection( meta.isServiceField() );
-    wResultField.setText( meta.getResultField() );
-    wStatusCodeField.setText( meta.getStatusCodeField() );
-    wResponseTimeField.setText( meta.getResponseTimeField() );
+    serverUrl.setText( meta.getServerURL() );
+    userName.setText( meta.getUserName() );
+    password.setText( meta.getPassword() );
+    isBypassingAuthentication.setSelection( meta.isBypassingAuthentication() );
+    moduleName.setText( meta.getModuleName() );
+    isModuleFromField.setSelection( meta.isModuleFromField() );
+    moduleField.setText( meta.getModuleField() );
+    endpointName.setText( meta.getServiceName() );
+    isEndpointFromField.setSelection( meta.isServiceFromField() );
+    endpointField.setText( meta.getServiceField() );
+    resultField.setText( meta.getResultField() );
+    statusCodeField.setText( meta.getStatusCodeField() );
+    responseTimeField.setText( meta.getResponseTimeField() );
 
     // load fields
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-      TableItem item = wParameters.table.getItem( i );
+      TableItem item = queryParameters.table.getItem( i );
       int index = 0;
       item.setText( ++index, Const.NVL( meta.getFieldName()[ i ], "" ) );
       item.setText( ++index, Const.NVL( meta.getParameter()[ i ], "" ) );
       item.setText( ++index, Const.NVL( meta.getDefaultValue()[ i ], "" ) );
     }
-    wParameters.setRowNums();
-    wParameters.optWidth( true );
+    queryParameters.setRowNums();
+    queryParameters.optWidth( true );
   }
 
   private void saveData( CallEndpointMeta meta ) {
     // save step name
-    stepname = wStepName.getText();
+    stepname = stepName.getText();
 
-    meta.setServerURL( wServerUrl.getText() );
-    meta.setUsername( wUsername.getText() );
-    meta.setPassword( wPassword.getText() );
-    meta.setBypassAuthCheck( wBypassAuthCheck.getSelection() );
-    meta.setModule( wModule.getText() );
-    meta.setIsModuleField( wModuleIsField.getSelection() );
-    meta.setService( wService.getText() );
-    meta.setIsServiceField( wServiceIsField.getSelection() );
-    meta.setResultField( wResultField.getText() );
-    meta.setStatusCodeField( wStatusCodeField.getText() );
-    meta.setResponseTimeField( wResponseTimeField.getText() );
+    meta.setServerURL( serverUrl.getText() );
+    meta.setUserName( userName.getText() );
+    meta.setPassword( password.getText() );
+    meta.setBypassingAuthentication( isBypassingAuthentication.getSelection() );
+    meta.setModuleName( moduleName.getText() );
+    meta.setModuleFromField( isModuleFromField.getSelection() );
+    meta.setModuleField( moduleField.getText() );
+    meta.setServiceName( endpointName.getText() );
+    meta.setServiceFromField( isEndpointFromField.getSelection() );
+    meta.setServiceField( endpointField.getText() );
+    meta.setResultField( resultField.getText() );
+    meta.setStatusCodeField( statusCodeField.getText() );
+    meta.setResponseTimeField( responseTimeField.getText() );
 
     // save fields
-    int count = wParameters.nrNonEmpty();
+    int count = queryParameters.nrNonEmpty();
     meta.allocate( count );
     for ( int i = 0; i < count; i++ ) {
-      TableItem item = wParameters.getNonEmpty( i );
+      TableItem item = queryParameters.getNonEmpty( i );
       int index = 0;
       meta.getFieldName()[ i ] = item.getText( ++index );
       meta.getParameter()[ i ] = item.getText( ++index );
