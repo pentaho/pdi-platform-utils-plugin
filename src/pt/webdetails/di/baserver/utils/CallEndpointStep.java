@@ -14,9 +14,7 @@
 package pt.webdetails.di.baserver.utils;
 
 
-
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.row.RowDataUtil;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.i18n.BaseMessages;
@@ -27,8 +25,13 @@ import org.pentaho.di.trans.step.StepDataInterface;
 import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import pt.webdetails.di.baserver.utils.web.HttpConnectionHelper;
+import pt.webdetails.di.baserver.utils.web.Response;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Marco Vala
@@ -70,31 +73,47 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       first = false;
     }
 
-    String module;
-    if ( meta.isModuleFromField() ) {
-      module = getRowValue( rowData, environmentSubstitute( meta.getModuleField() ), "" );
+    String moduleName;
+    String endpointPath;
+    String httpMethod;
+    if ( meta.isEndpointFromField() ) {
+      moduleName = getRowValue( rowData, environmentSubstitute( meta.getModuleName() ), "" );
+      endpointPath = getRowValue( rowData, environmentSubstitute( meta.getEndpointPath() ), "" );
+      httpMethod = getRowValue( rowData, environmentSubstitute( meta.getHttpMethod() ), "" );
     } else {
-      module = environmentSubstitute( meta.getModuleName() );
+      moduleName = environmentSubstitute( meta.getModuleName() );
+      endpointPath = environmentSubstitute( meta.getEndpointPath() );
+      httpMethod = environmentSubstitute( meta.getHttpMethod() );
     }
 
-    String service;
-    if ( meta.isServiceFromField() ) {
-      service = getRowValue( rowData, environmentSubstitute( meta.getServiceField() ), "" );
-    } else {
-      service = environmentSubstitute( meta.getServiceName() );
-    }
-
-    String queryParameters = "";
+    Map<String, String> queryParameters = new HashMap<String, String>();
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-      if ( i == 0 ) {
-        queryParameters = queryParameters + "?";
-      } else {
-        queryParameters = queryParameters + "&";
-      }
-      queryParameters = queryParameters + meta.getParameter()[ i ] + "=" + getRowValue( rowData, i );
+      queryParameters.put( meta.getParameter()[ i ], getRowValue( rowData, i ) );
     }
 
-    HttpResponse response = callHttp( module, service, queryParameters );
+    Response response = null;
+
+    if ( meta.isBypassingAuthentication() ) {
+      try {
+        IPentahoSession session = PentahoSessionHolder.getSession();
+        if ( session != null ) {
+          response = HttpConnectionHelper.invokeEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
+        }
+      } catch ( NoClassDefFoundError ex ) {
+        logBasic( "No valid session. Falling back to normal authentication mode." );
+      }
+    }
+
+    if ( response == null ) {
+
+      String serverUrl = environmentSubstitute( meta.getServerURL() );
+      String username = environmentSubstitute( meta.getUserName() );
+      String password = environmentSubstitute( meta.getPassword() );
+
+      response =
+        HttpConnectionHelper
+          .invokeEndpoint( serverUrl, username, password, moduleName, endpointPath, httpMethod, queryParameters );
+    }
 
     int index = getInputRowMeta().size();
     rowData = RowDataUtil.addValueData( rowData, index++, response.getResult() );
@@ -138,31 +157,6 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
 
   private String getRowDefaultValue( int i ) {
     return environmentSubstitute( meta.getDefaultValue()[ i ] );
-  }
-
-  private HttpResponse callHttp( String module, String service, String params ) throws KettleStepException {
-    try {
-      String serverUrl = environmentSubstitute( meta.getServerURL() );
-      if ( !serverUrl.endsWith( "/" ) ) {
-        serverUrl = serverUrl + "/";
-      }
-      if ( module.equals( "platform" ) ) {
-        module = "api";
-      } else {
-        module = "plugin/" + module + "/api";
-      }
-      String url = serverUrl + module + service + params;
-
-      String username = environmentSubstitute( meta.getUserName() );
-      String password = environmentSubstitute( meta.getPassword() );
-
-      logBasic( "CALL: " + url );
-      return HttpConnectionHelper.callHttp( url, username, password );
-
-    } catch ( IOException ex ) {
-      logError( ex.toString() );
-    }
-    return null;
   }
 
   public void dispose( StepMetaInterface smi, StepDataInterface sdi ) {

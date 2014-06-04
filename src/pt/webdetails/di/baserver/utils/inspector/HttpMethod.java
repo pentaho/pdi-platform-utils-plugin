@@ -11,44 +11,41 @@
 * the license for the specific language governing your rights and limitations.
 */
 
-package pt.webdetails.di.baserver.utils;
+package pt.webdetails.di.baserver.utils.inspector;
 
 /**
  * @author Marco Vala
  */
-public class HttpResponse {
+public enum HttpMethod {
+  GET,
+  POST,
+  PUT,
+  DELETE,
+  HEAD,
+  OPTIONS
 
-  private int statusCode;
-  private String result;
-  private long responseTime;
+  /*
+  private static final String[] names = new String[values().length];
 
-  public HttpResponse() {
-    this.statusCode = 0;
-    this.result = "";
-    this.responseTime = 0;
+  static {
+    HttpMethod[] types = values();
+    for ( int i = 0; i < types.length; i++ ) {
+      names[i] = types[i].name();
+    }
   }
 
-  public int getStatusCode() {
-    return statusCode;
+  public static String[] names() {
+    return names;
   }
 
-  public void setStatusCode( int statusCode ) {
-    this.statusCode = statusCode;
+  public static HttpMethod getHttpMethod( String name ) {
+    HttpMethod[] types = values();
+    for ( int i = 0; i < types.length; i++ ) {
+      if ( types[i].name().equals( name ) ) {
+        return types[i];
+      }
+    }
+    return null;
   }
-
-  public String getResult() {
-    return result;
-  }
-
-  public void setResult( String result ) {
-    this.result = result;
-  }
-
-  public long getResponseTime() {
-    return responseTime;
-  }
-
-  public void setResponseTime( long responseTime ) {
-    this.responseTime = responseTime;
-  }
+  */
 }

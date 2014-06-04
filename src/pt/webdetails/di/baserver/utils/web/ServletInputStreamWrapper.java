@@ -11,41 +11,35 @@
 * the license for the specific language governing your rights and limitations.
 */
 
-package pt.webdetails.di.baserver.utils;
+package pt.webdetails.di.baserver.utils.web;
+
+import javax.servlet.ServletInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author Marco Vala
  */
-public enum HttpMethodType {
-  GET,
-  POST,
-  PUT,
-  DELETE,
-  HEAD,
-  OPTIONS
+public final class ServletInputStreamWrapper extends ServletInputStream {
 
-  /*
-  private static final String[] names = new String[values().length];
+  private final InputStream inputStream;
 
-  static {
-    HttpMethodType[] types = values();
-    for ( int i = 0; i < types.length; i++ ) {
-      names[i] = types[i].name();
-    }
+  public InputStream getInputStream() {
+    return this.inputStream;
   }
 
-  public static String[] names() {
-    return names;
+  public ServletInputStreamWrapper( InputStream inputStream ) {
+    this.inputStream = inputStream;
   }
 
-  public static HttpMethodType getType( String name ) {
-    HttpMethodType[] types = values();
-    for ( int i = 0; i < types.length; i++ ) {
-      if ( types[i].name().equals( name ) ) {
-        return types[i];
-      }
-    }
-    return null;
+  @Override
+  public int read() throws IOException {
+    return this.inputStream.read();
   }
-  */
+
+  @Override
+  public void close() throws IOException {
+    super.close();
+    this.inputStream.close();
+  }
 }

@@ -15,7 +15,6 @@ package pt.webdetails.di.baserver.utils.inspector;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
-import pt.webdetails.di.baserver.utils.HttpMethodType;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -69,7 +68,7 @@ public class WadlParser {
   private Endpoint parseMethod( Node methodNode, final String path ) {
     Endpoint endpoint = new Endpoint();
     endpoint.setId( methodNode.valueOf( "@id" ) );
-    endpoint.setType( HttpMethodType.valueOf( methodNode.valueOf( "@name" ) ) );
+    endpoint.setHttpMethod( HttpMethod.valueOf( methodNode.valueOf( "@name" ) ) );
     endpoint.setPath( shortPath( path ) );
 
     Node requestNode = methodNode.selectSingleNode( "*[name() = 'request']" );

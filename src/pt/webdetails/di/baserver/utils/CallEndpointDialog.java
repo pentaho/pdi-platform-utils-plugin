@@ -14,8 +14,6 @@
 package pt.webdetails.di.baserver.utils;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -50,6 +48,7 @@ import org.pentaho.di.ui.core.widget.TextVar;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
 import pt.webdetails.di.baserver.utils.inspector.Endpoint;
 import pt.webdetails.di.baserver.utils.inspector.Inspector;
+import pt.webdetails.di.baserver.utils.widgets.ButtonBuilder;
 import pt.webdetails.di.baserver.utils.widgets.CheckBoxBuilder;
 import pt.webdetails.di.baserver.utils.widgets.ComboVarBuilder;
 import pt.webdetails.di.baserver.utils.widgets.GroupBuilder;
@@ -74,26 +73,31 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
   private Text stepName;
 
+  private Group serverGroup;
   private TextVar serverUrl;
   private TextVar userName;
   private TextVar password;
   private Button isBypassingAuthentication;
+
+  private Group moduleGroup;
   private ComboVar moduleName;
   private Button isModuleFromField;
-  private ComboVar moduleField;
-  private ComboVar endpointName;
-  private ComboVar endpointType;
+  private ComboVar moduleNameField;
+
+  private Group endpointGroup;
+  private ComboVar endpointPath;
+  private ComboVar httpMethod;
   private Button isEndpointFromField;
-  private ComboVar endpointField;
+  private ComboVar endpointPathField;
+  private ComboVar httpMethodField;
+
+  private Group outputFieldsGroup;
   private TextVar resultField;
   private TextVar statusCodeField;
   private TextVar responseTimeField;
+
   private TableView queryParameters;
   private ColumnInfo cFieldName;
-  private Group serverGroup;
-  private Group moduleGroup;
-  private Group endpointGroup;
-  private Group outputFieldsGroup;
   private ColumnInfo cParameter;
 
 
@@ -103,25 +107,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     this.inspector = Inspector.getInstance();
   }
 
-  private Collection<String> getModuleNames() {
-    String serverUrl = this.transMeta.environmentSubstitute( this.serverUrl.getText() );
-    String userName = this.transMeta.environmentSubstitute( this.userName.getText() );
-    String password = this.transMeta.environmentSubstitute( this.password.getText() );
-
-    return this.inspector.getPluginIds( serverUrl, userName, password );
-  }
-
-  private void updateEndpoints() {
-    String serverUrl = this.transMeta.environmentSubstitute( this.serverUrl.getText() );
-    String userName = this.transMeta.environmentSubstitute( this.userName.getText() );
-    String password = this.transMeta.environmentSubstitute( this.password.getText() );
-    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
-    if ( moduleName.equals( "platform" ) ) {
-      this.inspector.updateEndpoints( serverUrl, null, userName, password );
-    } else {
-      this.inspector.updateEndpoints( serverUrl, moduleName, userName, password );
-    }
-  }
 
   private Collection<String> getFieldNames() {
     StepMeta stepMeta = this.transMeta.findStep( this.stepname );
@@ -145,43 +130,50 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   }
 
   private void updateModuleNames() {
+    this.inspector.updateModules();
     this.moduleName.removeAll();
     this.moduleName.add( "platform" );
-    for ( String item : getModuleNames() ) {
+    for ( String item : this.inspector.getModuleNames() ) {
       this.moduleName.add( item );
     }
   }
 
   private void updateEndpointNames() {
+    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
+    if ( moduleName.equals( "platform" ) ) {
+      this.inspector.updateEndpoints( null );
+    } else {
+      this.inspector.updateEndpoints( moduleName );
+    }
     boolean first = true;
-    this.endpointName.removeAll();
+    this.endpointPath.removeAll();
     for ( String path : this.inspector.getEndpointPaths() ) {
-      this.endpointName.add( path );
+      this.endpointPath.add( path );
       if ( first ) {
-        this.endpointName.setText( path );
+        this.endpointPath.setText( path );
         first = false;
       }
     }
   }
 
-  private void updateEndpointTypes() {
-    String path = this.endpointName.getText();
+  private void updateHttpMethods() {
+    String path = this.endpointPath.getText();
     Iterable<Endpoint> endpoints = this.inspector.getEndpointsWithPath( path );
 
     boolean first = true;
-    this.endpointType.removeAll();
+    this.httpMethod.removeAll();
     for ( Endpoint item : endpoints ) {
-      this.endpointType.add( item.getType().name() );
+      this.httpMethod.add( item.getHttpMethod().name() );
       if ( first ) {
-        this.endpointType.setText( item.getType().name() );
+        this.httpMethod.setText( item.getHttpMethod().name() );
         first = false;
       }
     }
   }
 
   private void updateEndpointParams() {
-    String path = this.endpointName.getText();
-    String type = this.endpointType.getText();
+    String path = this.endpointPath.getText();
+    String type = this.httpMethod.getText();
 
     Endpoint endpoint = this.inspector.getEndpoint( path, type );
 
@@ -230,6 +222,15 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   }
 
 
+  private void initInspector() {
+    String serverUrl = this.transMeta.environmentSubstitute( this.serverUrl.getText() );
+    String userName = this.transMeta.environmentSubstitute( this.userName.getText() );
+    String password = this.transMeta.environmentSubstitute( this.password.getText() );
+
+    this.inspector.setServer( serverUrl, userName, password );
+  }
+
+
 
   //region Step Name
 
@@ -271,6 +272,19 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     buildUserNameInput( this.serverGroup );
     buildPasswordInput( this.serverGroup );
     buildIsBypassingAuthenticationCheck( this.serverGroup );
+
+    Button bt = new ButtonBuilder( this.serverGroup, this.props )
+      .setLabelText( "Refresh endpoint list" )
+      .setTop( this.isBypassingAuthentication )
+      .build();
+
+    bt.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        initInspector();
+        updateModuleNames();
+      }
+    } );
   }
 
   private void buildServerUrlInput( Composite parent ) {
@@ -363,7 +377,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       @Override
       public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
-        processIsBypassingAuthenticationChange();
+        processInputChange();
       }
     } );
   }
@@ -376,110 +390,28 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     }
   }
 
-  private void processIsBypassingAuthenticationChange() {
-    // TODO add logic
-  }
-
   // endregion
 
   // region Module Group
 
+  /*
   private void buildModuleGroup( Composite parent ) {
-
     // group
     this.moduleGroup = new GroupBuilder( parent, this.props )
       .setText( "Module" )
       .setTop( this.serverGroup )
       .build();
 
-    // build widgets
-    buildModuleNameInput( this.moduleGroup );
-    buildModuleFromFieldInput( this.moduleGroup );
+    // widgets
+    //buildModuleNameInput( this.moduleGroup );
+    //buildModuleFromFieldInput( this.moduleGroup );
   }
+  */
 
-  private void buildModuleNameInput( Composite parent ) {
 
-    // label
-    Label moduleNameLabel = new LabelBuilder( parent, this.props )
-      .setText( "Module name" )
-      .setWidth( 170 )
-      .build();
 
-    // module name input box
-    this.moduleName = new ComboVarBuilder( parent, this.props, this.transMeta )
-      .setLeft( moduleNameLabel )
-      .setWidth( 350 )
-      .build();
 
-    this.moduleName.addFocusListener( new FocusAdapter() {
-      @Override public void focusGained( FocusEvent focusEvent ) {
-        super.focusGained( focusEvent );
-        updateModuleNames();
-      }
-    } );
 
-    this.moduleName.addModifyListener(
-      new ModifyListener() {
-        @Override
-        public void modifyText( ModifyEvent modifyEvent ) {
-          processInputChange();
-          updateEndpoints();
-          updateEndpointNames();
-        }
-      }
-    );
-  }
-
-  private void buildModuleFromFieldInput( Composite parent ) {
-
-    Control top = this.moduleName;
-
-    // module is defined in a field
-    Label moduleIsFieldLabel = new LabelBuilder( parent, this.props )
-      .setText( "Module is defined in a field?" )
-      .setTop( top )
-      .setWidth( 170 )
-      .build();
-    this.isModuleFromField = new CheckBoxBuilder( parent, this.props )
-      .setTop( top )
-      .setLeft( moduleIsFieldLabel )
-      .build();
-
-    this.isModuleFromField.addSelectionListener( new SelectionAdapter() {
-      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
-        super.widgetSelected( selectionEvent );
-        toggleModuleFromField();
-      }
-    } );
-
-    // module field
-    Label moduleFieldLabel = new LabelBuilder( parent, props )
-      .setText( "Module from field" )
-      .setTop( top )
-      .setLeft( this.isModuleFromField )
-      .setWidth( 120 )
-      .build();
-    this.moduleField = new ComboVarBuilder( parent, props, transMeta )
-      .addAllItems( getFieldNames() )
-      .setTop( top )
-      .setLeft( moduleFieldLabel )
-      .setWidth( 200 )
-      .setEnabled( false )
-      .build();
-
-    this.moduleField.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent modifyEvent ) {
-        processInputChange();
-      }
-    } );
-  }
-
-  private void toggleModuleFromField() {
-    boolean isEnabled = isModuleFromField.getSelection();
-    this.moduleName.setEnabled( !isEnabled );
-    this.moduleField.setEnabled( isEnabled );
-  }
 
   // endregion
 
@@ -490,123 +422,194 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     // group
     this.endpointGroup = new GroupBuilder( parent, this.props )
       .setText( "Endpoint" )
-      .setTop( this.moduleGroup )
+      .setTop( this.serverGroup )
       .build();
 
     // widgets
+    buildModuleNameInput( this.endpointGroup );
     buildEndpointInput( this.endpointGroup );
+    new Label( parent, SWT.SEPARATOR | SWT.HORIZONTAL );
+    buildModuleFromFieldInput( this.endpointGroup );
     buildEndpointFromFieldInput( this.endpointGroup );
+  }
+
+  private void buildModuleNameInput( Composite parent ) {
+    // label
+    Label moduleNameLabel = new LabelBuilder( parent, this.props )
+      .setText( "Module name" )
+      .setWidth( 170 )
+      .build();
+
+    // input box
+    this.moduleName = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .setLeft( moduleNameLabel )
+      .setWidth( 350 )
+      .build();
+
+    this.moduleName.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        updateEndpointNames();
+      }
+    } );
+
+    this.moduleName.addModifyListener( new ModifyListener() {
+      @Override public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
   }
 
   private void buildEndpointInput( Composite parent ) {
 
-    // create label
+    Control top = this.moduleName;
+
+    // endpoint path
     Label endpointNameLabel = new LabelBuilder( parent, this.props )
-      .setText( "Endpoint name" )
+      .setText( "Endpoint path" )
+      .setTop( top )
       .setWidth( 170 )
       .build();
-
-    // create focus listener
-    FocusAdapter endpointNameFocusListener = new FocusAdapter() {
-      @Override
-      public void focusGained( FocusEvent focusEvent ) {
-        super.focusGained( focusEvent );
-        //updateEndpointNames();
-      }
-    };
-
-    // create modify listener
-    ModifyListener endpointNameModifyListener = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent modifyEvent ) {
-        processInputChange();
-        updateEndpointTypes();
-      }
-    };
-
-    // create combo box
-    this.endpointName = new ComboVarBuilder( parent, this.props, this.transMeta )
+    this.endpointPath = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .setTop( top )
       .setLeft( endpointNameLabel )
       .setWidth( 350 )
       .build();
+    this.endpointPath.addModifyListener( new ModifyListener() {
+      @Override public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+    this.endpointPath.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        updateHttpMethods();
+      }
+    } );
 
-    // add listeners
-    this.endpointName.addFocusListener( endpointNameFocusListener );
-    this.endpointName.addModifyListener( endpointNameModifyListener );
-
-    // create type label
+    // endpoint type
     Label endpointTypeLabel = new LabelBuilder( parent, this.props )
-      .setText( "Endpoint type" )
-      .setTop( this.endpointName )
+      .setText( "Http method" )
+      .setTop( this.endpointPath )
       .setWidth( 170 )
       .build();
-
-    // create combo box
-    this.endpointType = new ComboVarBuilder( parent, this.props, this.transMeta )
-      .setTop( this.endpointName )
+    this.httpMethod = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .setTop( this.endpointPath )
       .setLeft( endpointTypeLabel )
       .setWidth( 150 )
       .build();
-
-    // create focus listener
-    FocusAdapter endpointTypeFocusListener = new FocusAdapter() {
-      @Override
-      public void focusGained( FocusEvent focusEvent ) {
-        super.focusGained( focusEvent );
-        //updateEndpointTypes();
-      }
-    };
-
-    // create modify listener
-    ModifyListener endpointTypeModifyListener = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent modifyEvent ) {
+    this.httpMethod.addModifyListener( new ModifyListener() {
+      @Override public void modifyText( ModifyEvent modifyEvent ) {
         processInputChange();
-        //updateEndpointParams();
       }
-    };
+    } );
+  }
 
-    // add listeners
-    this.endpointType.addFocusListener( endpointTypeFocusListener );
-    this.endpointType.addModifyListener( endpointTypeModifyListener );
+
+  private void buildModuleFromFieldInput( Composite parent ) {
+
+    Control top = this.isEndpointFromField;
+
+    /*
+    // module is defined in a field
+    Label isModuleFromFieldLabel = new LabelBuilder( parent, this.props )
+      .setText( "Module is defined in a field?" )
+      .setTop( top )
+      .setWidth( 170 )
+      .build();
+
+    this.isModuleFromField = new CheckBoxBuilder( parent, this.props )
+      .setTop( top )
+      .setLeft( isModuleFromFieldLabel )
+      .build();
+
+    this.isModuleFromField.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        toggleIsModuleFromField();
+      }
+    } );
+    */
+
+
   }
 
   private void buildEndpointFromFieldInput( Composite parent ) {
 
-    // add service is defined in a field checkbox
-    Label serviceIsFieldLabel = new LabelBuilder( parent, this.props )
+    Label endpointIsFieldLabel = new LabelBuilder( parent, this.props )
       .setText( "Endpoint is defined in a field?" )
-      .setTop( this.endpointType )
+      .setTop( this.httpMethod )
       .setWidth( 170 )
       .build();
+
     this.isEndpointFromField = new CheckBoxBuilder( parent, this.props )
-      .setTop( this.endpointType )
-      .setLeft( serviceIsFieldLabel )
+      .setTop( this.httpMethod )
+      .setLeft( endpointIsFieldLabel )
       .build();
 
     this.isEndpointFromField.addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
-        toggleEndpointFromField();
+        toggleIsEndpointFromField();
       }
     } );
 
-    // add service from field combo box
-    Label serviceFieldLabel = new LabelBuilder( parent, this.props )
-      .setText( "Endpoint from field" )
-      .setTop( this.endpointType )
-      .setLeft( this.isEndpointFromField )
-      .setWidth( 120 )
+    // module name field
+    Label moduleNameFieldLabel = new LabelBuilder( parent, props )
+      .setText( "Module name from field" )
+      .setTop( this.isEndpointFromField )
+      .setWidth( 170 )
       .build();
-    this.endpointField = new ComboVarBuilder( parent, this.props, this.transMeta )
+
+    this.moduleNameField = new ComboVarBuilder( parent, props, transMeta )
       .addAllItems( getFieldNames() )
-      .setTop( this.endpointType )
-      .setLeft( serviceFieldLabel )
+      .setTop( this.isEndpointFromField )
+      .setLeft( moduleNameFieldLabel )
+      .setWidth( 200 )
+      .build();
+
+    this.moduleNameField.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+
+    Label endpointFieldLabel = new LabelBuilder( parent, this.props )
+      .setText( "Endpoint path from field" )
+      .setTop( this.moduleNameField )
+      .setWidth( 170 )
+      .build();
+
+    this.endpointPathField = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .addAllItems( getFieldNames() )
+      .setTop( this.moduleNameField )
+      .setLeft( endpointFieldLabel )
       .setWidth( 200 )
       .setEnabled( false )
       .build();
 
-    this.endpointField.addModifyListener( new ModifyListener() {
+    this.endpointPathField.addModifyListener( new ModifyListener() {
+      @Override
+      public void modifyText( ModifyEvent modifyEvent ) {
+        processInputChange();
+      }
+    } );
+
+    Label endpointTypeFieldLabel = new LabelBuilder( parent, this.props )
+      .setText( "Http method from field" )
+      .setTop( this.endpointPathField )
+      .setWidth( 170 )
+      .build();
+
+    this.httpMethodField = new ComboVarBuilder( parent, this.props, this.transMeta )
+      .addAllItems( getFieldNames() )
+      .setTop( this.endpointPathField )
+      .setLeft( endpointTypeFieldLabel )
+      .setWidth( 200 )
+      .build();
+
+    this.httpMethodField.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent modifyEvent ) {
         processInputChange();
@@ -614,10 +617,20 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     } );
   }
 
-  private void toggleEndpointFromField() {
+  /*
+  private void toggleIsModuleFromField() {
+    boolean isEnabled = isModuleFromField.getSelection();
+  }
+  */
+
+  private void toggleIsEndpointFromField() {
     boolean isEnabled = isEndpointFromField.getSelection();
-    this.endpointName.setEnabled( !isEnabled );
-    this.endpointField.setEnabled( isEnabled );
+    this.moduleName.setEnabled( !isEnabled );
+    this.endpointPath.setEnabled( !isEnabled );
+    this.httpMethod.setEnabled( !isEnabled );
+    this.moduleNameField.setEnabled( isEnabled );
+    this.endpointPathField.setEnabled( isEnabled );
+    this.httpMethodField.setEnabled( isEnabled );
   }
 
   //endregion
@@ -732,7 +745,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     // widgets
     buildStepNameInput( this.shell );
     buildServerGroup( this.shell );
-    buildModuleGroup( this.shell );
+    //buildModuleGroup( this.shell );
     buildEnpointGroup( this.shell );
     buildOutputFieldGroup( this.shell );
 
@@ -816,6 +829,8 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     // load information (based on previous usage)
     loadData( metaInfo );
 
+    toggleIsEndpointFromField();
+
     // set the shell size (based on previous usage)
     setSize();
 
@@ -841,12 +856,31 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     userName.setText( meta.getUserName() );
     password.setText( meta.getPassword() );
     isBypassingAuthentication.setSelection( meta.isBypassingAuthentication() );
-    moduleName.setText( meta.getModuleName() );
+
+    /*
     isModuleFromField.setSelection( meta.isModuleFromField() );
-    moduleField.setText( meta.getModuleField() );
-    endpointName.setText( meta.getServiceName() );
-    isEndpointFromField.setSelection( meta.isServiceFromField() );
-    endpointField.setText( meta.getServiceField() );
+    if ( isModuleFromField.getSelection() ) {
+    } else {
+    }
+    */
+
+    isEndpointFromField.setSelection( meta.isEndpointFromField() );
+    if ( isEndpointFromField.getSelection() ) {
+      moduleName.setText( "" );
+      endpointPath.setText( "" );
+      httpMethod.setText( "" );
+      moduleNameField.setText( meta.getModuleName() );
+      endpointPathField.setText( meta.getEndpointPath() );
+      httpMethodField.setText( meta.getHttpMethod() );
+    } else {
+      moduleName.setText( meta.getModuleName() );
+      endpointPath.setText( meta.getEndpointPath() );
+      httpMethod.setText( meta.getHttpMethod() );
+      moduleNameField.setText( "" );
+      endpointPathField.setText( "" );
+      httpMethodField.setText( "" );
+    }
+
     resultField.setText( meta.getResultField() );
     statusCodeField.setText( meta.getStatusCodeField() );
     responseTimeField.setText( meta.getResponseTimeField() );
@@ -871,12 +905,18 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     meta.setUserName( userName.getText() );
     meta.setPassword( password.getText() );
     meta.setBypassingAuthentication( isBypassingAuthentication.getSelection() );
-    meta.setModuleName( moduleName.getText() );
-    meta.setModuleFromField( isModuleFromField.getSelection() );
-    meta.setModuleField( moduleField.getText() );
-    meta.setServiceName( endpointName.getText() );
-    meta.setServiceFromField( isEndpointFromField.getSelection() );
-    meta.setServiceField( endpointField.getText() );
+
+    meta.setEndpointFromField( isEndpointFromField.getSelection() );
+    if ( isEndpointFromField.getSelection() ) {
+      meta.setModuleName( moduleNameField.getText() );
+      meta.setEndpointPath( endpointPathField.getText() );
+      meta.setHttpMethod( httpMethodField.getText() );
+    } else {
+      meta.setModuleName( moduleName.getText() );
+      meta.setEndpointPath( endpointPath.getText() );
+      meta.setHttpMethod( httpMethod.getText() );
+    }
+
     meta.setResultField( resultField.getText() );
     meta.setStatusCodeField( statusCodeField.getText() );
     meta.setResponseTimeField( responseTimeField.getText() );

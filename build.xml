@@ -93,8 +93,15 @@
           message="PDI installation not found in '${kettle.dir}'. Please specify the path to your PDI installation in 'build.properties'."/>
     <property name="steps.dir" value="${kettle.dir}/plugins/steps"/>
 
-    <!-- remove setTop installation -->
+    <!-- check BA Server path -->
+    <available file="${baserver.dir}" type="dir" property="baserver.dir.exists"/>
+    <fail unless="baserver.dir.exists"
+          message="BA Server not found in '${baserver.dir}'. Please specify the path to your BA Server installation in 'build.properties'."/>
+    <property name="steps2.dir" value="${baserver.dir}/pentaho-solutions/system/kettle/plugins/steps"/>
+
+    <!-- remove installation -->
     <delete dir="${steps.dir}/${project.id}"/>
+    <delete dir="${steps2.dir}/${project.id}"/>
 
   </target>
 
@@ -106,6 +113,9 @@
 
     <!-- put stage files in place -->
     <copy todir="${steps.dir}">
+      <fileset dir="${stage.dir}" includes="**/*.*"/>
+    </copy>
+    <copy todir="${steps2.dir}">
       <fileset dir="${stage.dir}" includes="**/*.*"/>
     </copy>
 

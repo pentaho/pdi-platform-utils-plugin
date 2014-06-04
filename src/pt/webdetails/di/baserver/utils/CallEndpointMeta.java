@@ -62,15 +62,18 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
   private String userName;
   private String password;
   private boolean isBypassingAuthentication;
+
   private String moduleName;
   private boolean isModuleFromField;
-  private String moduleField;
-  private String serviceName;
-  private boolean isServiceFromField;
-  private String serviceField;
+
+  private String endpointPath;
+  private String httpMethod;
+  private boolean isEndpointFromField;
+
   private String resultField;
   private String statusCodeField;
   private String responseTimeField;
+
   private String[] fieldName;
   private String[] parameter;
   private String[] defaultValue;
@@ -127,36 +130,28 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     this.isModuleFromField = isModuleFromField;
   }
 
-  public String getModuleField() {
-    return this.moduleField;
+  public String getEndpointPath() {
+    return this.endpointPath;
   }
 
-  public void setModuleField( String moduleField ) {
-    this.moduleField = moduleField;
+  public void setEndpointPath( String endpointPath ) {
+    this.endpointPath = endpointPath;
   }
 
-  public String getServiceName() {
-    return this.serviceName;
+  public String getHttpMethod() {
+    return this.httpMethod;
   }
 
-  public void setServiceName( String serviceName ) {
-    this.serviceName = serviceName;
+  public void setHttpMethod( String httpMethod ) {
+    this.httpMethod = httpMethod;
   }
 
-  public boolean isServiceFromField() {
-    return this.isServiceFromField;
+  public boolean isEndpointFromField() {
+    return this.isEndpointFromField;
   }
 
-  public void setServiceFromField( boolean isServiceFromField ) {
-    this.isServiceFromField = isServiceFromField;
-  }
-
-  public String getServiceField() {
-    return this.serviceField;
-  }
-
-  public void setServiceField( String serviceField ) {
-    this.serviceField = serviceField;
+  public void setEndpointFromField( boolean isServiceFromField ) {
+    this.isEndpointFromField = isServiceFromField;
   }
 
   public String getResultField() {
@@ -246,10 +241,9 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     this.isBypassingAuthentication = false;
     this.moduleName = "";
     this.isModuleFromField = false;
-    this.moduleField = "";
-    this.serviceName = "";
-    this.isServiceFromField = false;
-    this.serviceField = "";
+    this.endpointPath = "";
+    this.httpMethod = "";
+    this.isEndpointFromField = false;
     this.resultField = "Result";
     this.statusCodeField = "Status code";
     this.responseTimeField = "Response time";
@@ -264,10 +258,9 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     clone.isBypassingAuthentication = this.isBypassingAuthentication;
     clone.moduleName = this.moduleName;
     clone.isModuleFromField = this.isModuleFromField;
-    clone.moduleField = this.moduleField;
-    clone.serviceName = this.serviceName;
-    clone.isServiceFromField = this.isServiceFromField;
-    clone.serviceField = this.serviceField;
+    clone.endpointPath = this.endpointPath;
+    clone.httpMethod = this.httpMethod;
+    clone.isEndpointFromField = this.isEndpointFromField;
     clone.resultField = this.resultField;
     clone.statusCodeField = this.statusCodeField;
     clone.responseTimeField = this.responseTimeField;
@@ -289,10 +282,9 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     xml.append( "    " ).append( XMLHandler.addTagValue( "isBypassingAuthentication", this.isBypassingAuthentication ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "moduleName", this.moduleName ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "isModuleFromField", this.isModuleFromField ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "moduleField", this.moduleField ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "serviceName", this.serviceName ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "isServiceFromField", this.isServiceFromField ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "serviceField", this.serviceField ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "endpointPath", this.endpointPath ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "httpMethod", this.httpMethod ) );
+    xml.append( "    " ).append( XMLHandler.addTagValue( "isEndpointFromField", this.isEndpointFromField ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "resultField", this.resultField ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "statusCodeField", this.statusCodeField ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "responseTimeField", this.responseTimeField ) );
@@ -328,19 +320,15 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
         this.moduleName = "";
       }
       this.isModuleFromField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "isModuleFromField" ) );
-      this.moduleField = XMLHandler.getTagValue( stepNode, "moduleField" );
-      if ( this.moduleField == null ) {
-        this.moduleField = "";
+      this.endpointPath = XMLHandler.getTagValue( stepNode, "endpointPath" );
+      if ( this.endpointPath == null ) {
+        this.endpointPath = "";
       }
-      this.serviceName = XMLHandler.getTagValue( stepNode, "serviceName" );
-      if ( this.serviceName == null ) {
-        this.serviceName = "";
+      this.httpMethod = XMLHandler.getTagValue( stepNode, "httpMethod" );
+      if ( this.httpMethod == null ) {
+        this.httpMethod = "";
       }
-      this.isServiceFromField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "isServiceFromField" ) );
-      this.serviceField = XMLHandler.getTagValue( stepNode, "serviceField" );
-      if ( this.serviceField == null ) {
-        this.serviceField = "";
-      }
+      this.isEndpointFromField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "isEndpointFromField" ) );
       this.resultField = XMLHandler.getTagValue( stepNode, "resultField" );
       if ( this.resultField == null ) {
         this.resultField = "";
@@ -377,10 +365,9 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       this.isBypassingAuthentication = rep.getStepAttributeBoolean( id_step, 0, "isBypassingAuthentication", false );
       this.moduleName = rep.getStepAttributeString( id_step, "moduleName" );
       this.isModuleFromField = rep.getStepAttributeBoolean( id_step, 0, "isModuleFromField", false );
-      this.moduleField = rep.getStepAttributeString( id_step, "moduleField" );
-      this.serviceName = rep.getStepAttributeString( id_step, "serviceName" );
-      this.isServiceFromField = rep.getStepAttributeBoolean( id_step, 0, "isServiceFromField", false );
-      this.serviceField = rep.getStepAttributeString( id_step, "serviceField" );
+      this.endpointPath = rep.getStepAttributeString( id_step, "endpointPath" );
+      this.httpMethod = rep.getStepAttributeString( id_step, "httpMethod" );
+      this.isEndpointFromField = rep.getStepAttributeBoolean( id_step, 0, "isEndpointFromField", false );
       this.resultField = rep.getStepAttributeString( id_step, "resultField" );
       this.statusCodeField = rep.getStepAttributeString( id_step, "statusCodeField" );
       this.responseTimeField = rep.getStepAttributeString( id_step, "responseTimeField" );
@@ -406,13 +393,12 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       rep.saveStepAttribute( id_transformation, id_step, 0, "isBypassingAuthentication", this.isBypassingAuthentication );
       rep.saveStepAttribute( id_transformation, id_step, "moduleName", this.moduleName );
       rep.saveStepAttribute( id_transformation, id_step, 0, "isModuleFromField", this.isModuleFromField );
-      rep.saveStepAttribute( id_transformation, id_step, "moduleField", this.moduleField );
-      rep.saveStepAttribute( id_transformation, id_step, "serviceName", this.serviceName );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "isServiceFromField", this.isServiceFromField );
-      rep.saveStepAttribute( id_transformation, id_step, "serviceField", this.serviceField );
-      rep.saveStepAttribute( id_transformation, id_step, "result_field", this.resultField );
-      rep.saveStepAttribute( id_transformation, id_step, "status_code_field", this.statusCodeField );
-      rep.saveStepAttribute( id_transformation, id_step, "response_time_field", this.responseTimeField );
+      rep.saveStepAttribute( id_transformation, id_step, "endpointPath", this.endpointPath );
+      rep.saveStepAttribute( id_transformation, id_step, "httpMethod", this.httpMethod );
+      rep.saveStepAttribute( id_transformation, id_step, 0, "isEndpointFromField", this.isEndpointFromField );
+      rep.saveStepAttribute( id_transformation, id_step, "resultField", this.resultField );
+      rep.saveStepAttribute( id_transformation, id_step, "statusCodeField", this.statusCodeField );
+      rep.saveStepAttribute( id_transformation, id_step, "responseTimeField", this.responseTimeField );
       for ( int i = 0; i < fieldName.length; i++ ) {
         rep.saveStepAttribute( id_transformation, id_step, i, "queryParameters_fieldName",
           Const.isEmpty( fieldName[ i ] ) ? "" : fieldName[ i ] );

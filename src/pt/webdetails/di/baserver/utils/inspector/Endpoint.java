@@ -13,8 +13,6 @@
 
 package pt.webdetails.di.baserver.utils.inspector;
 
-import pt.webdetails.di.baserver.utils.HttpMethodType;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,7 +25,7 @@ public class Endpoint implements Comparable<Endpoint> {
 
   private String id;
   private String path;
-  private HttpMethodType type;
+  private HttpMethod httpMethod;
   private ArrayList<QueryParam> queryParams;
 
   // endregion
@@ -50,12 +48,12 @@ public class Endpoint implements Comparable<Endpoint> {
     this.path = path;
   }
 
-  public HttpMethodType getType() {
-    return this.type;
+  public HttpMethod getHttpMethod() {
+    return this.httpMethod;
   }
 
-  public void setType( HttpMethodType type ) {
-    this.type = type;
+  public void setHttpMethod( HttpMethod httpMethod ) {
+    this.httpMethod = httpMethod;
   }
 
   public Collection<QueryParam> getQueryParams() {

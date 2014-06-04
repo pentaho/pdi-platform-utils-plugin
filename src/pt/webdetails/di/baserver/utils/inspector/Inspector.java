@@ -18,8 +18,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.pentaho.di.core.exception.KettleStepException;
-import pt.webdetails.di.baserver.utils.HttpConnectionHelper;
-import pt.webdetails.di.baserver.utils.HttpResponse;
+import pt.webdetails.di.baserver.utils.web.HttpConnectionHelper;
+import pt.webdetails.di.baserver.utils.web.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -51,10 +51,20 @@ public final class Inspector {
 
   // region Fields
 
+  private String serverUrl;
+  private String userName;
+  private String password;
+  private LinkedList<String> modules = new LinkedList<String>();
   private TreeMap<String, LinkedList<Endpoint>> endpointsMap = new TreeMap<String, LinkedList<Endpoint>>();
 
   // endregion
 
+
+  public void setServer( final String serverUrl, final String userName, final String password ) {
+    this.serverUrl = serverUrl;
+    this.userName = userName;
+    this.password = password;
+  }
 
 
   public String getBaseUrl( final String serverUrl ) {
@@ -73,11 +83,15 @@ public final class Inspector {
     }
   }
 
-  public Collection<String> getPluginIds( final String serverUrl, final String userName, final String password ) {
-    String endpointUrl = getBaseUrl( serverUrl ) + "/plugin-manager/ids";
-    HttpResponse response = null;
+
+
+  private Collection<String> getModules() {
+
+    String endpointUrl = getBaseUrl( this.serverUrl ) + "/plugin-manager/ids";
+
+    Response response = null;
     try {
-      response = HttpConnectionHelper.callHttp( endpointUrl, userName, password );
+      response = HttpConnectionHelper.callHttp( endpointUrl, this.userName, this.password );
     } catch ( IOException e ) {
       // do nothing
     } catch ( KettleStepException e ) {
@@ -97,19 +111,24 @@ public final class Inspector {
     return Collections.emptySet();
   }
 
-  public Collection<Endpoint> getServices( final String serverUrl, final String pluginId, final String userName, final String password ) {
+  public void updateModules() {
+    modules.clear();
+    modules.addAll( getModules() );
+  }
+
+  private Collection<Endpoint> getEndpoints( final String pluginId ) {
     String endpointUrl;
 
     if ( pluginId == null ) {
-      endpointUrl = getBaseUrl( serverUrl ) + "/application.wadl";
+      endpointUrl = getBaseUrl( this.serverUrl ) + "/application.wadl";
     } else {
-      endpointUrl = getBaseUrl( serverUrl, pluginId ) + "/application.wadl";
+      endpointUrl = getBaseUrl( this.serverUrl, pluginId ) + "/application.wadl";
     }
 
-    HttpResponse response = null;
+    Response response = null;
     try {
       response =
-        HttpConnectionHelper.callHttp( endpointUrl, userName, password );
+        HttpConnectionHelper.callHttp( endpointUrl, this.userName, this.password );
     } catch ( IOException e ) {
       // do nothing
     } catch ( KettleStepException e ) {
@@ -131,9 +150,11 @@ public final class Inspector {
     return Collections.emptySet();
   }
 
-  public void updateEndpoints( final String serverUrl, final String pluginId, final String userName, final String password ) {
+
+
+  public void updateEndpoints( final String pluginId ) {
     endpointsMap.clear();
-    Collection<Endpoint> endpoints = getServices( serverUrl, pluginId, userName, password );
+    Collection<Endpoint> endpoints = getEndpoints( pluginId );
     for ( Endpoint endpoint : endpoints ) {
       final String path = endpoint.getPath();
       if ( endpointsMap.get( path ) == null ) {
@@ -143,25 +164,34 @@ public final class Inspector {
     }
   }
 
+
+
+
+
+
+
   public Iterable<String> getModuleNames() {
-    return null;
+    return this.modules;
   }
 
   public Iterable<String> getEndpointPaths() {
-    return endpointsMap.keySet();
+    return this.endpointsMap.keySet();
   }
 
   public Iterable<Endpoint> getEndpointsWithPath( String path ) {
     if ( !path.equals( "" ) ) {
-      return endpointsMap.get( path );
+      Iterable<Endpoint> endpoints = this.endpointsMap.get( path );
+      if ( endpoints != null ) {
+        return endpoints;
+      }
     }
     return Collections.emptyList();
   }
 
   public Endpoint getEndpoint( String path, String type ) {
     if ( !path.equals( "" ) ) {
-      for ( Endpoint item : endpointsMap.get( path ) ) {
-        if ( item.getType().name().equals( type ) ) {
+      for ( Endpoint item : this.endpointsMap.get( path ) ) {
+        if ( item.getHttpMethod().name().equals( type ) ) {
           return item;
         }
       }
