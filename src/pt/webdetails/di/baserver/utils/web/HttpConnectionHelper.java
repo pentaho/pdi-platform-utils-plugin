@@ -214,7 +214,7 @@ public final class HttpConnectionHelper {
 
     // create servlet request
     final InternalHttpServletRequest servletRequest =
-      new InternalHttpServletRequest( httpMethod, "", "/plugin", pluginName + "/api" + endpointPath );
+      new InternalHttpServletRequest( httpMethod, "", "/plugin", "/" + pluginName + "/api" + endpointPath );
 
     for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
       servletRequest.setParameter( entry.getKey(), entry.getValue() );
