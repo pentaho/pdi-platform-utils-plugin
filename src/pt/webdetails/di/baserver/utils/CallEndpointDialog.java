@@ -24,7 +24,6 @@ import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -53,10 +52,12 @@ import pt.webdetails.di.baserver.utils.widgets.CheckBoxBuilder;
 import pt.webdetails.di.baserver.utils.widgets.ComboVarBuilder;
 import pt.webdetails.di.baserver.utils.widgets.GroupBuilder;
 import pt.webdetails.di.baserver.utils.widgets.LabelBuilder;
+import pt.webdetails.di.baserver.utils.widgets.SeparatorBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TableViewBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TextBoxBuilder;
 import pt.webdetails.di.baserver.utils.widgets.TextVarBuilder;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,8 +69,12 @@ import java.util.List;
 public class CallEndpointDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
 
+  public static final int LEFT_PLACEMENT = 0;
+  public static final int RIGHT_PLACEMENT = 100;
+
   private CallEndpointMeta metaInfo;
   private Inspector inspector;
+  private boolean connected;
 
   private Text stepName;
 
@@ -77,19 +82,17 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   private TextVar serverUrl;
   private TextVar userName;
   private TextVar password;
-  private Button isBypassingAuthentication;
-
-  private Group moduleGroup;
-  private ComboVar moduleName;
-  private Button isModuleFromField;
-  private ComboVar moduleNameField;
+  private Label connectionStatus;
 
   private Group endpointGroup;
+  private ComboVar moduleName;
   private ComboVar endpointPath;
   private ComboVar httpMethod;
-  private Button isEndpointFromField;
+  private Button endpointFromFields;
+  private ComboVar moduleNameField;
   private ComboVar endpointPathField;
   private ComboVar httpMethodField;
+  private Button isBypassingAuthentication;
 
   private Group outputFieldsGroup;
   private TextVar resultField;
@@ -105,8 +108,89 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     super( parent, (BaseStepMeta) in, transMeta, name );
     this.metaInfo = (CallEndpointMeta) in;
     this.inspector = Inspector.getInstance();
+    this.connected = false;
   }
 
+
+  private void refresh() {
+    String serverUrl = this.transMeta.environmentSubstitute( this.serverUrl.getText() );
+    String userName = this.transMeta.environmentSubstitute( this.userName.getText() );
+    String password = this.transMeta.environmentSubstitute( this.password.getText() );
+    if ( this.inspector.inspectServer( serverUrl, userName, password ) ) {
+      if ( !this.connected ) {
+        this.connected = true;
+        this.connectionStatus.setText( "Connected!" );
+        this.connectionStatus.setForeground( getParent().getDisplay().getSystemColor( SWT.COLOR_DARK_GREEN ) );
+        updateModuleNamesComboBox();
+        updateEndpointPathsComboBox();
+        updateHttpMethodsComboBox();
+      }
+    } else {
+      this.connected = false;
+      this.connectionStatus.setText( "Could not connect to server." );
+      this.connectionStatus.setForeground( getParent().getDisplay().getSystemColor( SWT.COLOR_RED ) );
+    }
+  }
+
+  private void updateModuleNamesComboBox() {
+    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
+    this.moduleName.removeAll();
+    for ( String item : this.inspector.getModuleNames() ) {
+      this.moduleName.add( item );
+    }
+    if ( moduleName.equals( "" ) ) {
+      moduleName = this.inspector.getDefaultModuleName();
+    }
+    this.moduleName.setText( moduleName );
+  }
+
+  private void updateEndpointPathsComboBox() {
+    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
+    String endpointPath = this.transMeta.environmentSubstitute( this.endpointPath.getText() );
+    this.endpointPath.removeAll();
+    for ( String path : this.inspector.getEndpointPaths( moduleName ) ) {
+      this.endpointPath.add( path );
+    }
+    if ( endpointPath.equals( "" )  ) {
+      endpointPath = this.inspector.getDefaultEndpointPath( moduleName );
+    }
+    this.endpointPath.setText( endpointPath );
+  }
+
+  private void updateHttpMethodsComboBox() {
+    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
+    String endpointPath = this.transMeta.environmentSubstitute( this.endpointPath.getText() );
+    String httpMethod = this.transMeta.environmentSubstitute( this.httpMethod.getText() );
+    Iterable<Endpoint> endpoints = this.inspector.getEndpoints( moduleName, endpointPath );
+    this.httpMethod.removeAll();
+    for ( Endpoint endpoint : endpoints ) {
+      this.httpMethod.add( endpoint.getHttpMethod().name() );
+    }
+    if ( endpointPath.equals( "" ) ) {
+      Endpoint endpoint = this.inspector.getDefaultEndpoint( moduleName, endpointPath );
+      if ( endpoint != null ) {
+        httpMethod = endpoint.getHttpMethod().name();
+      }
+    }
+    this.httpMethod.setText( httpMethod );
+  }
+
+  private void setDefaultEndpointPath() {
+    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
+    this.endpointPath.setText( this.inspector.getDefaultEndpointPath( moduleName ) );
+  }
+
+  private void setDefaultHttpMethod() {
+    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
+    String path = this.transMeta.environmentSubstitute( this.endpointPath.getText() );
+    Endpoint endpoint = this.inspector.getDefaultEndpoint( moduleName, path );
+    if ( endpoint != null ) {
+      this.httpMethod.setText( endpoint.getHttpMethod().name() );
+    }
+    else {
+      this.httpMethod.setText( "" );
+    }
+  }
 
   private Collection<String> getFieldNames() {
     StepMeta stepMeta = this.transMeta.findStep( this.stepname );
@@ -128,60 +212,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     }
     return Collections.emptySet();
   }
-
-  private void updateModuleNames() {
-    this.inspector.updateModules();
-    this.moduleName.removeAll();
-    this.moduleName.add( "platform" );
-    for ( String item : this.inspector.getModuleNames() ) {
-      this.moduleName.add( item );
-    }
-  }
-
-  private void updateEndpointNames() {
-    String moduleName = this.transMeta.environmentSubstitute( this.moduleName.getText() );
-    if ( moduleName.equals( "platform" ) ) {
-      this.inspector.updateEndpoints( null );
-    } else {
-      this.inspector.updateEndpoints( moduleName );
-    }
-    boolean first = true;
-    this.endpointPath.removeAll();
-    for ( String path : this.inspector.getEndpointPaths() ) {
-      this.endpointPath.add( path );
-      if ( first ) {
-        this.endpointPath.setText( path );
-        first = false;
-      }
-    }
-  }
-
-  private void updateHttpMethods() {
-    String path = this.endpointPath.getText();
-    Iterable<Endpoint> endpoints = this.inspector.getEndpointsWithPath( path );
-
-    boolean first = true;
-    this.httpMethod.removeAll();
-    for ( Endpoint item : endpoints ) {
-      this.httpMethod.add( item.getHttpMethod().name() );
-      if ( first ) {
-        this.httpMethod.setText( item.getHttpMethod().name() );
-        first = false;
-      }
-    }
-  }
-
-  private void updateEndpointParams() {
-    String path = this.endpointPath.getText();
-    String type = this.httpMethod.getText();
-
-    Endpoint endpoint = this.inspector.getEndpoint( path, type );
-
-    if ( endpoint != null ) {
-      // TODO add parameters to table
-    }
-  }
-
 
   private void updateFieldNamesComboBox() {
     StepMeta stepMeta = transMeta.findStep( stepname );
@@ -222,16 +252,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   }
 
 
-  private void initInspector() {
-    String serverUrl = this.transMeta.environmentSubstitute( this.serverUrl.getText() );
-    String userName = this.transMeta.environmentSubstitute( this.userName.getText() );
-    String password = this.transMeta.environmentSubstitute( this.password.getText() );
-
-    this.inspector.setServer( serverUrl, userName, password );
-  }
-
-
-
   //region Step Name
 
   private void buildStepNameInput( Composite parent ) {
@@ -239,12 +259,13 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     // label
     Label stepNameLabel = new LabelBuilder( parent, this.props )
       .setText( "Step name" )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
     // step name input
     this.stepName = new TextBoxBuilder( parent, this.props )
-      .setWidth( 200 )
       .setLeft( stepNameLabel )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.stepName.addModifyListener( new ModifyListener() {
@@ -265,40 +286,28 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     this.serverGroup = new GroupBuilder( parent, this.props )
       .setText( "BA Server" )
       .setTop( this.stepName )
+      .setLeftPlacement( LEFT_PLACEMENT )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     // widgets
     buildServerUrlInput( this.serverGroup );
     buildUserNameInput( this.serverGroup );
     buildPasswordInput( this.serverGroup );
-    buildIsBypassingAuthenticationCheck( this.serverGroup );
-
-    Button bt = new ButtonBuilder( this.serverGroup, this.props )
-      .setLabelText( "Refresh endpoint list" )
-      .setTop( this.isBypassingAuthentication )
-      .build();
-
-    bt.addSelectionListener( new SelectionAdapter() {
-      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
-        super.widgetSelected( selectionEvent );
-        initInspector();
-        updateModuleNames();
-      }
-    } );
+    buildRefreshEndpointListButton( this.serverGroup );
   }
 
   private void buildServerUrlInput( Composite parent ) {
-
     // label
     Label serverUrlLabel = new LabelBuilder( parent, this.props )
       .setText( "Server URL" )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
     // server url input box
     this.serverUrl = new TextVarBuilder( parent, this.props, this.transMeta )
       .setLeft( serverUrlLabel )
-      .setWidth( 350 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.serverUrl.addModifyListener( new ModifyListener() {
@@ -310,19 +319,18 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   }
 
   private void buildUserNameInput( Composite parent ) {
-
     // label
     Label userNameLabel = new LabelBuilder( parent, this.props )
       .setText( "User name" )
       .setTop( this.serverUrl )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
     // user name input box
     this.userName = new TextVarBuilder( parent, this.props, this.transMeta )
       .setTop( this.serverUrl )
       .setLeft( userNameLabel )
-      .setWidth( 200 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.userName.addModifyListener( new ModifyListener() {
@@ -334,49 +342,24 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   }
 
   private void buildPasswordInput( Composite parent ) {
-
     // label
     Label passwordLabel = new LabelBuilder( parent, this.props )
       .setText( "Password" )
       .setTop( this.userName )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
     // password input box
     this.password = new TextVarBuilder( parent, this.props, this.transMeta )
       .setTop( this.userName )
       .setLeft( passwordLabel )
-      .setWidth( 200 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.password.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent modifyEvent ) {
         protectPasswordWithEchoChar();
-        processInputChange();
-      }
-    } );
-  }
-
-  private void buildIsBypassingAuthenticationCheck( Composite parent ) {
-
-    // label
-    Label bypassAuthenticationCheckLabel = new LabelBuilder( parent, this.props )
-      .setText( "Bypass authentication on local execution?" )
-      .setTop( this.password )
-      .setWidth( 340 )
-      .build();
-
-    // is bypassing authentication check box
-    this.isBypassingAuthentication = new CheckBoxBuilder( parent, this.props )
-      .setTop( this.password )
-      .setLeft( bypassAuthenticationCheckLabel )
-      .build();
-
-    this.isBypassingAuthentication.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent selectionEvent ) {
-        super.widgetSelected( selectionEvent );
         processInputChange();
       }
     } );
@@ -390,66 +373,74 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     }
   }
 
-  // endregion
+  private void buildRefreshEndpointListButton( Composite parent ) {
 
-  // region Module Group
-
-  /*
-  private void buildModuleGroup( Composite parent ) {
-    // group
-    this.moduleGroup = new GroupBuilder( parent, this.props )
-      .setText( "Module" )
-      .setTop( this.serverGroup )
+    Button button = new ButtonBuilder( parent, this.props )
+      .setLabelText( "Connect to server and get available endpoints" )
+      .setTop( this.password )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
-    // widgets
-    //buildModuleNameInput( this.moduleGroup );
-    //buildModuleFromFieldInput( this.moduleGroup );
+    Label statusSeparator = new SeparatorBuilder( parent, this.props )
+      .setTop( button )
+      .setLeftPlacement( LEFT_PLACEMENT )
+      .setRightPlacement( RIGHT_PLACEMENT )
+      .build();
+
+    this.connectionStatus = new LabelBuilder( parent, this.props )
+      .setText( "                                              " )
+      .setTop( statusSeparator )
+      .setRightPlacement( RIGHT_PLACEMENT )
+      .build();
+
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        refresh();
+      }
+    } );
   }
-  */
-
-
-
-
-
 
   // endregion
 
   //region Endpoint Group
 
   private void buildEnpointGroup( Composite parent ) {
-
     // group
     this.endpointGroup = new GroupBuilder( parent, this.props )
       .setText( "Endpoint" )
       .setTop( this.serverGroup )
+      .setLeftPlacement( LEFT_PLACEMENT )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     // widgets
     buildModuleNameInput( this.endpointGroup );
-    buildEndpointInput( this.endpointGroup );
-    new Label( parent, SWT.SEPARATOR | SWT.HORIZONTAL );
-    buildModuleFromFieldInput( this.endpointGroup );
+    buildEndpointPathInput( this.endpointGroup );
+    buildHttpMethodInput( this.endpointGroup );
     buildEndpointFromFieldInput( this.endpointGroup );
+    buildBypassAuthenticationCheck( this.endpointGroup );
   }
 
   private void buildModuleNameInput( Composite parent ) {
-    // label
+
     Label moduleNameLabel = new LabelBuilder( parent, this.props )
       .setText( "Module name" )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
-    // input box
     this.moduleName = new ComboVarBuilder( parent, this.props, this.transMeta )
       .setLeft( moduleNameLabel )
-      .setWidth( 350 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.moduleName.addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
-        updateEndpointNames();
+        updateEndpointPathsComboBox();
+        setDefaultEndpointPath();
+        updateHttpMethodsComboBox();
+        setDefaultHttpMethod();
       }
     } );
 
@@ -460,44 +451,49 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     } );
   }
 
-  private void buildEndpointInput( Composite parent ) {
+  private void buildEndpointPathInput( Composite parent ) {
 
-    Control top = this.moduleName;
-
-    // endpoint path
-    Label endpointNameLabel = new LabelBuilder( parent, this.props )
+    Label endpointPathLabel = new LabelBuilder( parent, this.props )
       .setText( "Endpoint path" )
-      .setTop( top )
-      .setWidth( 170 )
+      .setTop( this.moduleName )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
+
     this.endpointPath = new ComboVarBuilder( parent, this.props, this.transMeta )
-      .setTop( top )
-      .setLeft( endpointNameLabel )
-      .setWidth( 350 )
+      .setTop( this.moduleName )
+      .setLeft( endpointPathLabel )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
+
     this.endpointPath.addModifyListener( new ModifyListener() {
       @Override public void modifyText( ModifyEvent modifyEvent ) {
         processInputChange();
       }
     } );
+
     this.endpointPath.addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
-        updateHttpMethods();
+        updateHttpMethodsComboBox();
+        setDefaultHttpMethod();
       }
     } );
+  }
 
-    // endpoint type
-    Label endpointTypeLabel = new LabelBuilder( parent, this.props )
-      .setText( "Http method" )
+  private void buildHttpMethodInput( Composite parent ) {
+
+    Label httpMethodLabel = new LabelBuilder( parent, this.props )
+      .setText( "HTTP method" )
       .setTop( this.endpointPath )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
+
     this.httpMethod = new ComboVarBuilder( parent, this.props, this.transMeta )
       .setTop( this.endpointPath )
-      .setLeft( endpointTypeLabel )
-      .setWidth( 150 )
+      .setLeft( httpMethodLabel )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
+
     this.httpMethod.addModifyListener( new ModifyListener() {
       @Override public void modifyText( ModifyEvent modifyEvent ) {
         processInputChange();
@@ -506,48 +502,26 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
   }
 
 
-  private void buildModuleFromFieldInput( Composite parent ) {
-
-    Control top = this.isEndpointFromField;
-
-    /*
-    // module is defined in a field
-    Label isModuleFromFieldLabel = new LabelBuilder( parent, this.props )
-      .setText( "Module is defined in a field?" )
-      .setTop( top )
-      .setWidth( 170 )
-      .build();
-
-    this.isModuleFromField = new CheckBoxBuilder( parent, this.props )
-      .setTop( top )
-      .setLeft( isModuleFromFieldLabel )
-      .build();
-
-    this.isModuleFromField.addSelectionListener( new SelectionAdapter() {
-      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
-        super.widgetSelected( selectionEvent );
-        toggleIsModuleFromField();
-      }
-    } );
-    */
-
-
-  }
-
   private void buildEndpointFromFieldInput( Composite parent ) {
 
-    Label endpointIsFieldLabel = new LabelBuilder( parent, this.props )
-      .setText( "Endpoint is defined in a field?" )
+    Label endpointIsFieldSeparator = new SeparatorBuilder( parent, this.props )
       .setTop( this.httpMethod )
-      .setWidth( 170 )
+      .setLeftPlacement( LEFT_PLACEMENT )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
-    this.isEndpointFromField = new CheckBoxBuilder( parent, this.props )
-      .setTop( this.httpMethod )
+    Label endpointIsFieldLabel = new LabelBuilder( parent, this.props )
+      .setText( "Endpoint from fields" )
+      .setTop( endpointIsFieldSeparator )
+      .setRightPlacement( this.props.getMiddlePct() )
+      .build();
+
+    this.endpointFromFields = new CheckBoxBuilder( parent, this.props )
+      .setTop( endpointIsFieldSeparator )
       .setLeft( endpointIsFieldLabel )
       .build();
 
-    this.isEndpointFromField.addSelectionListener( new SelectionAdapter() {
+    this.endpointFromFields.addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
         toggleIsEndpointFromField();
@@ -556,16 +530,16 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
     // module name field
     Label moduleNameFieldLabel = new LabelBuilder( parent, props )
-      .setText( "Module name from field" )
-      .setTop( this.isEndpointFromField )
-      .setWidth( 170 )
+      .setText( "Module field name" )
+      .setTop( this.endpointFromFields )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
     this.moduleNameField = new ComboVarBuilder( parent, props, transMeta )
       .addAllItems( getFieldNames() )
-      .setTop( this.isEndpointFromField )
+      .setTop( this.endpointFromFields )
       .setLeft( moduleNameFieldLabel )
-      .setWidth( 200 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.moduleNameField.addModifyListener( new ModifyListener() {
@@ -576,16 +550,16 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     } );
 
     Label endpointFieldLabel = new LabelBuilder( parent, this.props )
-      .setText( "Endpoint path from field" )
+      .setText( "Endpoint path field name" )
       .setTop( this.moduleNameField )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
     this.endpointPathField = new ComboVarBuilder( parent, this.props, this.transMeta )
       .addAllItems( getFieldNames() )
       .setTop( this.moduleNameField )
       .setLeft( endpointFieldLabel )
-      .setWidth( 200 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .setEnabled( false )
       .build();
 
@@ -597,16 +571,16 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     } );
 
     Label endpointTypeFieldLabel = new LabelBuilder( parent, this.props )
-      .setText( "Http method from field" )
+      .setText( "Http method field name" )
       .setTop( this.endpointPathField )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
     this.httpMethodField = new ComboVarBuilder( parent, this.props, this.transMeta )
       .addAllItems( getFieldNames() )
       .setTop( this.endpointPathField )
       .setLeft( endpointTypeFieldLabel )
-      .setWidth( 200 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.httpMethodField.addModifyListener( new ModifyListener() {
@@ -617,32 +591,59 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     } );
   }
 
-  /*
-  private void toggleIsModuleFromField() {
-    boolean isEnabled = isModuleFromField.getSelection();
-  }
-  */
-
-  private void toggleIsEndpointFromField() {
-    boolean isEnabled = isEndpointFromField.getSelection();
+  private boolean toggleIsEndpointFromField() {
+    boolean isEnabled = endpointFromFields.getSelection();
     this.moduleName.setEnabled( !isEnabled );
     this.endpointPath.setEnabled( !isEnabled );
     this.httpMethod.setEnabled( !isEnabled );
     this.moduleNameField.setEnabled( isEnabled );
     this.endpointPathField.setEnabled( isEnabled );
     this.httpMethodField.setEnabled( isEnabled );
+    return isEnabled;
+  }
+
+  private void buildBypassAuthenticationCheck( Composite parent ) {
+
+    Label bypassAuthenticationCheckSeparator = new SeparatorBuilder( parent, this.props )
+      .setTop( this.httpMethodField )
+      .setLeftPlacement( LEFT_PLACEMENT )
+      .setRightPlacement( RIGHT_PLACEMENT )
+      .build();
+
+    // label
+    Label bypassAuthenticationCheckLabel = new LabelBuilder( parent, this.props )
+      .setText( "Bypass authentication" )
+      .setTop( bypassAuthenticationCheckSeparator )
+      .setRightPlacement( this.props.getMiddlePct() )
+      .build();
+
+    // is bypassing authentication check box
+    this.isBypassingAuthentication = new CheckBoxBuilder( parent, this.props )
+      .setTop( bypassAuthenticationCheckSeparator )
+      .setLeft( bypassAuthenticationCheckLabel )
+      .build();
+
+    this.isBypassingAuthentication.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        processInputChange();
+      }
+    } );
   }
 
   //endregion
 
   //region Output Fields Group
 
-  private void buildOutputFieldGroup( Composite parent ) {
+  private void buildOutputFieldsGroup( Composite parent ) {
 
     // group
     this.outputFieldsGroup = new GroupBuilder( parent, this.props )
       .setText( "Output Fields" )
       .setTop( this.endpointGroup )
+      .setLeftPlacement( LEFT_PLACEMENT )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     // widgets
@@ -655,14 +656,14 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
     // label
     Label resultFieldLabel = new LabelBuilder( parent, this.props )
-      .setText( "Result into field" )
-      .setWidth( 170 )
+      .setText( "Result field name" )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
-    // result field input
+    // result field name input
     this.resultField = new TextVarBuilder( parent, this.props, this.transMeta )
       .setLeft( resultFieldLabel )
-      .setWidth( 200 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.resultField.addModifyListener( new ModifyListener() {
@@ -677,16 +678,16 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
     // label
     Label statusCodeLabel = new LabelBuilder( parent, this.props )
-      .setText( "Status code into field" )
+      .setText( "Status code field name" )
       .setTop( this.resultField )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
-    // status code field input
+    // status code field name input
     this.statusCodeField = new TextVarBuilder( parent, this.props, this.transMeta )
       .setTop( this.resultField )
       .setLeft( statusCodeLabel )
-      .setWidth( 200 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.statusCodeField.addModifyListener( new ModifyListener() {
@@ -701,16 +702,16 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
     // label
     Label responseTimeLabel = new LabelBuilder( parent, this.props )
-      .setText( "Response time into field" )
+      .setText( "Response time field name" )
       .setTop( this.statusCodeField )
-      .setWidth( 170 )
+      .setRightPlacement( this.props.getMiddlePct() )
       .build();
 
-    // response time field input
+    // response time field name input
     this.responseTimeField = new TextVarBuilder( parent, this.props, this.transMeta )
       .setTop( this.statusCodeField )
       .setLeft( responseTimeLabel )
-      .setWidth( 200 )
+      .setRightPlacement( RIGHT_PLACEMENT )
       .build();
 
     this.responseTimeField.addModifyListener( new ModifyListener() {
@@ -720,7 +721,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       }
     } );
   }
-
 
   //endregion Output Fields Group
 
@@ -745,9 +745,8 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     // widgets
     buildStepNameInput( this.shell );
     buildServerGroup( this.shell );
-    //buildModuleGroup( this.shell );
     buildEnpointGroup( this.shell );
-    buildOutputFieldGroup( this.shell );
+    buildOutputFieldsGroup( this.shell );
 
     this.cFieldName = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.Column.FieldName" ),
       ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
@@ -829,8 +828,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     // load information (based on previous usage)
     loadData( metaInfo );
 
-    toggleIsEndpointFromField();
-
     // set the shell size (based on previous usage)
     setSize();
 
@@ -855,20 +852,9 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     serverUrl.setText( meta.getServerURL() );
     userName.setText( meta.getUserName() );
     password.setText( meta.getPassword() );
-    isBypassingAuthentication.setSelection( meta.isBypassingAuthentication() );
 
-    /*
-    isModuleFromField.setSelection( meta.isModuleFromField() );
-    if ( isModuleFromField.getSelection() ) {
-    } else {
-    }
-    */
-
-    isEndpointFromField.setSelection( meta.isEndpointFromField() );
-    if ( isEndpointFromField.getSelection() ) {
-      moduleName.setText( "" );
-      endpointPath.setText( "" );
-      httpMethod.setText( "" );
+    endpointFromFields.setSelection( meta.isEndpointFromField() );
+    if ( toggleIsEndpointFromField() ) {
       moduleNameField.setText( meta.getModuleName() );
       endpointPathField.setText( meta.getEndpointPath() );
       httpMethodField.setText( meta.getHttpMethod() );
@@ -876,10 +862,8 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       moduleName.setText( meta.getModuleName() );
       endpointPath.setText( meta.getEndpointPath() );
       httpMethod.setText( meta.getHttpMethod() );
-      moduleNameField.setText( "" );
-      endpointPathField.setText( "" );
-      httpMethodField.setText( "" );
     }
+    isBypassingAuthentication.setSelection( meta.isBypassingAuthentication() );
 
     resultField.setText( meta.getResultField() );
     statusCodeField.setText( meta.getStatusCodeField() );
@@ -904,10 +888,9 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
     meta.setServerURL( serverUrl.getText() );
     meta.setUserName( userName.getText() );
     meta.setPassword( password.getText() );
-    meta.setBypassingAuthentication( isBypassingAuthentication.getSelection() );
 
-    meta.setEndpointFromField( isEndpointFromField.getSelection() );
-    if ( isEndpointFromField.getSelection() ) {
+    meta.setEndpointFromField( endpointFromFields.getSelection() );
+    if ( endpointFromFields.getSelection() ) {
       meta.setModuleName( moduleNameField.getText() );
       meta.setEndpointPath( endpointPathField.getText() );
       meta.setHttpMethod( httpMethodField.getText() );
@@ -916,6 +899,7 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
       meta.setEndpointPath( endpointPath.getText() );
       meta.setHttpMethod( httpMethod.getText() );
     }
+    meta.setBypassingAuthentication( isBypassingAuthentication.getSelection() );
 
     meta.setResultField( resultField.getText() );
     meta.setStatusCodeField( statusCodeField.getText() );

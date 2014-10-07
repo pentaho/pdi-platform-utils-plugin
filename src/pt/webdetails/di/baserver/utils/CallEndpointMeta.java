@@ -235,18 +235,18 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void setDefault() {
-    this.serverURL = "";
-    this.userName = "";
-    this.password = "";
+    this.serverURL = "http://localhost:8080/pentaho";
+    this.userName = "admin";
+    this.password = "password";
     this.isBypassingAuthentication = false;
     this.moduleName = "";
-    this.isModuleFromField = false;
     this.endpointPath = "";
     this.httpMethod = "";
+    this.isModuleFromField = false;
     this.isEndpointFromField = false;
     this.resultField = "Result";
-    this.statusCodeField = "Status code";
-    this.responseTimeField = "Response time";
+    this.statusCodeField = "";
+    this.responseTimeField = "";
     allocate( 0 );
   }
 
