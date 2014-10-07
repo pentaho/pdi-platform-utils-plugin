@@ -204,7 +204,7 @@ public class SetSessionVariableMeta extends BaseStepMeta implements StepMetaInte
                      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
                      Repository repository, IMetaStore metaStore ) {
 
-    // see if we have fields from previous steps
+    // see if we have fields from setTop steps
     if ( prev == null || prev.size() == 0 ) {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING,
         BaseMessages.getString( PKG, "SetSessionVariable.CheckResult.NotReceivingFieldsFromPreviousSteps" ),

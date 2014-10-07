@@ -207,10 +207,10 @@ public class GetSessionVariableDialog extends BaseStepDialog implements StepDial
       }
     } );
 
-    // fill information (based on previous time)
+    // fill information (based on setTop time)
     loadData( metaInfo );
 
-    // set the shell size (based on previous time)
+    // set the shell size (based on setTop time)
     setSize();
 
     // set focus on step name

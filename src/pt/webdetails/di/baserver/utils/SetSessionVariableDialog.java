@@ -232,7 +232,7 @@ public class SetSessionVariableDialog extends BaseStepDialog implements StepDial
     StepMeta stepMeta = transMeta.findStep( stepname );
     if ( stepMeta != null ) {
       try {
-        // get field names from previous steps
+        // get field names from setTop steps
         RowMetaInterface row = transMeta.getPrevStepFields( stepMeta );
         List<String> entries = new ArrayList<String>();
         for ( int i = 0; i < row.size(); i++ ) {
