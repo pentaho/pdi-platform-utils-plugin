@@ -24,18 +24,17 @@ import pt.webdetails.di.baserver.utils.web.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
  * @author Marco Vala
  */
 public final class Inspector {
-
-  // region Inner Definitions
 
   // loaded on the first execution of Inspector.getInstance(), not before
   private static class InspectorHolder {
@@ -47,27 +46,14 @@ public final class Inspector {
     return InspectorHolder.INSTANCE;
   }
 
-  // endregion
 
-  // region Fields
-
-  private String serverUrl;
-  private String userName;
-  private String password;
-  private LinkedList<String> modules = new LinkedList<String>();
-  private TreeMap<String, LinkedList<Endpoint>> endpointsMap = new TreeMap<String, LinkedList<Endpoint>>();
-
-  // endregion
+  private String serverUrl = "";
+  private String userName = "";
+  private String password = "";
+  private TreeMap<String, TreeMap<String, LinkedList<Endpoint>>> endpoints;
 
 
-  public void setServer( final String serverUrl, final String userName, final String password ) {
-    this.serverUrl = serverUrl;
-    this.userName = userName;
-    this.password = password;
-  }
-
-
-  public String getBaseUrl( final String serverUrl ) {
+  private String getBaseUrl( final String serverUrl ) {
     if ( serverUrl.endsWith( "/" ) ) {
       return serverUrl + "api";
     } else {
@@ -75,7 +61,7 @@ public final class Inspector {
     }
   }
 
-  public String getBaseUrl( final String serverUrl, final String pluginId ) {
+  private String getBaseUrl( final String serverUrl, final String pluginId ) {
     if ( serverUrl.endsWith( "/" ) ) {
       return serverUrl + "plugin/" + pluginId + "/api";
     } else {
@@ -83,11 +69,10 @@ public final class Inspector {
     }
   }
 
-
-
-  private Collection<String> getModules() {
+  private boolean inspectModuleNames() {
 
     String endpointUrl = getBaseUrl( this.serverUrl ) + "/plugin-manager/ids";
+    this.endpoints = new TreeMap<String, TreeMap<String, LinkedList<Endpoint>>>();
 
     Response response = null;
     try {
@@ -100,101 +85,141 @@ public final class Inspector {
 
     if ( response != null && response.getStatusCode() == HttpStatus.SC_OK ) {
       String[] moduleNames = response.getResult().substring( 12, response.getResult().length() - 2 ).split( "," );
-      ArrayList<String> plugins = new ArrayList<String>();
+      LinkedList<String> modules = new LinkedList<String>();
       for ( String moduleName : moduleNames ) {
-        plugins.add( moduleName.substring( 1, moduleName.length() - 1 ) );
+        final String id = moduleName.substring( 1, moduleName.length() - 1 );
+        this.endpoints.put( id, null );
       }
-      Collections.sort( plugins );
-      return plugins;
+      this.endpoints.put( "platform", null );
+      return true;
     }
 
-    return Collections.emptySet();
+    return false;
   }
 
-  public void updateModules() {
-    modules.clear();
-    modules.addAll( getModules() );
-  }
-
-  private Collection<Endpoint> getEndpoints( final String pluginId ) {
+  private boolean inspectEndpoints( final String moduleName ) {
     String endpointUrl;
 
-    if ( pluginId == null ) {
+    if ( moduleName.equals( "platform" ) ) {
       endpointUrl = getBaseUrl( this.serverUrl ) + "/application.wadl";
     } else {
-      endpointUrl = getBaseUrl( this.serverUrl, pluginId ) + "/application.wadl";
+      endpointUrl = getBaseUrl( this.serverUrl, moduleName ) + "/application.wadl";
     }
-
-    Response response = null;
+    URI uri = null;
     try {
-      response =
-        HttpConnectionHelper.callHttp( endpointUrl, this.userName, this.password );
-    } catch ( IOException e ) {
-      // do nothing
-    } catch ( KettleStepException e ) {
+      uri = new URI( endpointUrl );
+    } catch ( URISyntaxException e ) {
       // do nothing
     }
 
-    if ( response != null && response.getStatusCode() == HttpStatus.SC_OK ) {
-      SAXReader reader = new SAXReader();
-      InputStream inputStream = new ByteArrayInputStream( response.getResult().getBytes() );
-      WadlParser parser = new WadlParser();
+    if ( uri != null ) {
+      Response response = null;
       try {
-        Document doc = reader.read( inputStream );
-        return parser.getEndpoints( doc );
-      } catch ( DocumentException e ) {
+        response =
+          HttpConnectionHelper.callHttp( uri.toASCIIString(), this.userName, this.password );
+      } catch ( IOException e ) {
+        // do nothing
+      } catch ( KettleStepException e ) {
         // do nothing
       }
-    }
 
-    return Collections.emptySet();
-  }
+      if ( response != null && response.getStatusCode() == HttpStatus.SC_OK ) {
+        SAXReader reader = new SAXReader();
+        InputStream inputStream = new ByteArrayInputStream( response.getResult().getBytes() );
+        WadlParser parser = new WadlParser();
+        try {
+          Document doc = reader.read( inputStream );
+
+          TreeMap<String, LinkedList<Endpoint>> endpointMap = new TreeMap<String, LinkedList<Endpoint>>();
+
+          for ( Endpoint endpoint : parser.getEndpoints( doc ) ) {
+            final String path = endpoint.getPath();
+            if ( !endpointMap.containsKey( path ) ) {
+              endpointMap.put( path, new LinkedList<Endpoint>() );
+            }
+            endpointMap.get( path ).add( endpoint );
+          }
+
+          this.endpoints.put( moduleName, endpointMap );
+
+          return true;
 
 
-
-  public void updateEndpoints( final String pluginId ) {
-    endpointsMap.clear();
-    Collection<Endpoint> endpoints = getEndpoints( pluginId );
-    for ( Endpoint endpoint : endpoints ) {
-      final String path = endpoint.getPath();
-      if ( endpointsMap.get( path ) == null ) {
-        endpointsMap.put( path, new LinkedList<Endpoint>( ) );
+        } catch ( DocumentException e ) {
+          // do nothing
+        }
       }
-      endpointsMap.get( path ).add( endpoint );
     }
+
+    return false;
+  }
+
+  private Map<String, LinkedList<Endpoint>> getEndpointMap( String moduleName ) {
+
+    Map<String, LinkedList<Endpoint>> endpointMap = this.endpoints.get( moduleName );
+
+    if ( endpointMap != null ) {
+      return endpointMap;
+    }
+
+    if ( inspectEndpoints( moduleName ) ) {
+      return this.endpoints.get( moduleName );
+    }
+
+    return Collections.emptyMap();
   }
 
 
-
-
-
-
+  public boolean inspectServer( final String serverUrl, final String userName, final String password ) {
+    this.serverUrl = serverUrl;
+    this.userName = userName;
+    this.password = password;
+    return inspectModuleNames();
+  }
 
   public Iterable<String> getModuleNames() {
-    return this.modules;
-  }
-
-  public Iterable<String> getEndpointPaths() {
-    return this.endpointsMap.keySet();
-  }
-
-  public Iterable<Endpoint> getEndpointsWithPath( String path ) {
-    if ( !path.equals( "" ) ) {
-      Iterable<Endpoint> endpoints = this.endpointsMap.get( path );
-      if ( endpoints != null ) {
-        return endpoints;
-      }
+    if ( this.endpoints != null ) {
+      return this.endpoints.keySet();
     }
     return Collections.emptyList();
   }
 
-  public Endpoint getEndpoint( String path, String type ) {
-    if ( !path.equals( "" ) ) {
-      for ( Endpoint item : this.endpointsMap.get( path ) ) {
-        if ( item.getHttpMethod().name().equals( type ) ) {
-          return item;
-        }
-      }
+  public String getDefaultModuleName() {
+    if ( this.endpoints != null ) {
+      return "platform";
+    }
+    return "";
+  }
+
+  public Iterable<String> getEndpointPaths( String moduleName ) {
+    Map<String, LinkedList<Endpoint>> moduleEndpoints = getEndpointMap( moduleName );
+    return moduleEndpoints.keySet();
+  }
+
+  public String getDefaultEndpointPath( String moduleName ) {
+    Map<String, LinkedList<Endpoint>> moduleEndpoints = getEndpointMap( moduleName );
+    if ( moduleEndpoints.size() > 0 ) {
+      // return first path
+      return moduleEndpoints.keySet().iterator().next();
+    }
+    return "";
+  }
+
+  public Iterable<Endpoint> getEndpoints( String moduleName, String path ) {
+    Map<String, LinkedList<Endpoint>> moduleEndpoints = getEndpointMap( moduleName );
+    Iterable<Endpoint> endpoints = moduleEndpoints.get( path );
+    if ( endpoints != null ) {
+      return endpoints;
+    }
+    return Collections.emptyList();
+  }
+
+  public Endpoint getDefaultEndpoint( String moduleName, String path ) {
+    Map<String, LinkedList<Endpoint>> moduleEndpoints = getEndpointMap( moduleName );
+    Iterable<Endpoint> endpoints = moduleEndpoints.get( path );
+    if ( endpoints != null && endpoints.iterator().hasNext() ) {
+      // return first endpoint
+      return endpoints.iterator().next();
     }
     return null;
   }
