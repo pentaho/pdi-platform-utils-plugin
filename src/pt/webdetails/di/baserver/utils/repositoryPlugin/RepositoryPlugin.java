@@ -20,6 +20,7 @@ import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 
 import org.pentaho.di.core.vfs.KettleVFS;
+import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.spoon.SpoonLifecycleListener;
 import org.pentaho.di.ui.spoon.SpoonPerspective;
 import org.pentaho.di.ui.spoon.SpoonPluginCategories;
@@ -29,6 +30,8 @@ import org.pentaho.reporting.libraries.pensol.LibPensolBoot;
 import org.pentaho.reporting.libraries.pensol.PentahoSolutionFileProvider;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
+import org.pentaho.vfs.ui.VfsFileChooserDialog;
+import pt.webdetails.di.baserver.utils.repositoryPlugin.ui.PentahoSolutionVfsFileChooserPanel;
 
 
 @org.pentaho.di.ui.spoon.SpoonPlugin( id = "RepositoryPlugin", image = "" )
@@ -36,7 +39,6 @@ import org.pentaho.ui.xul.XulException;
 public class RepositoryPlugin implements SpoonPluginInterface {
 
   // region constants
-  private static final String JCR_SCHEME = "jcr-solution";
   // endregion
 
   // region properties
@@ -47,6 +49,13 @@ public class RepositoryPlugin implements SpoonPluginInterface {
   }
   private static final Log logger = LogFactory.getLog( RepositoryPlugin.class );
 
+  private Spoon getSpoon() {
+    return Spoon.getInstance();
+  }
+
+  private Constants getConstants() {
+    return Constants.getInstance();
+  }
 
   /***
    * Gets the file system manager the plugin uses to add the JCR VFS file provider
@@ -86,13 +95,16 @@ public class RepositoryPlugin implements SpoonPluginInterface {
     }
     this.setFileSystemManager( fileSystemManager );
 
-    if ( fileSystemManager != null && !fileSystemManager.hasProvider( JCR_SCHEME ) ) {
+    String vfsScheme = this.getConstants().getVfsScheme();
+    if ( fileSystemManager != null && !fileSystemManager.hasProvider( vfsScheme ) ) {
       try {
-        fileSystemManager.addProvider( JCR_SCHEME, new PentahoSolutionFileProvider() );
+        fileSystemManager.addProvider( vfsScheme, new PentahoSolutionFileProvider() );
       } catch ( FileSystemException e ) {
         this.getLogger().error( "Error trying to add Pentaho Solution File provider.", e );
       }
     }
+
+    this.registerJCRFileChooserDialog();
 
   }
 
@@ -123,11 +135,11 @@ public class RepositoryPlugin implements SpoonPluginInterface {
    * This method changes the context class loader to the LibPensol classloader and
    * triggers the initialization of the LibPensolBoot properties (configuration).
    * This is required because when not switching the classloader, LibPensol fails to
-   * find the org/pentaho/reporting/libraries/pensol/libpensol.properties resource
+   * find the org/pentaho/reporting/libraries/pensol/libpensol.properties resource.
    */
   private void forceLibPensolPropertiesLoad() {
     ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
-    try{
+    try {
       Thread.currentThread().setContextClassLoader( LibPensolBoot.class.getClassLoader() );
       LibPensolBoot libPensolBoot = LibPensolBoot.getInstance();
       Configuration configuration = libPensolBoot.getGlobalConfig();
@@ -136,6 +148,13 @@ public class RepositoryPlugin implements SpoonPluginInterface {
     } finally {
       Thread.currentThread().setContextClassLoader( origClassLoader );
     }
+  }
+
+  private void registerJCRFileChooserDialog() {
+    Spoon spoon = this.getSpoon();
+    VfsFileChooserDialog vfsFileChooserDialog = spoon.getVfsFileChooserDialog( null, null );
+    PentahoSolutionVfsFileChooserPanel vfsPanel = new PentahoSolutionVfsFileChooserPanel( vfsFileChooserDialog );
+    vfsFileChooserDialog.addVFSUIPanel( vfsPanel );
   }
   // endregion
 

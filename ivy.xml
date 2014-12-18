@@ -47,12 +47,17 @@
     <dependency org="org.eclipse.swt" name="swt-linux-x86_64" rev="3.7"/>
 
     <!-- Repository Plugin Dependencies -->
-    <dependency org="pentaho"        name="pentaho-xul-core"            rev="${dependency.repository-plugin.platform.revision}" transitive="false" />
+    <dependency org="pentaho"         name="pentaho-xul-core"            rev="${dependency.repository-plugin.platform.revision}" transitive="false" />
     <dependency org="commons-vfs"     name="commons-vfs"                 rev="20100924-pentaho"                                  transitive="false" />
     <dependency org="pentaho-library" name="libpensol"                   rev="${dependency.repository-plugin.platform.revision}" transitive="false" />
     <dependency org="pentaho"         name="pentaho-platform-repository" rev="${dependency.repository-plugin.platform.revision}" transitive="false" />
     <dependency org="pentaho"         name="pentaho-platform-core"       rev="${dependency.repository-plugin.platform.revision}" transitive="false" />
     <dependency org="pentaho-library" name="libbase"                     rev="${dependency.repository-plugin.platform.revision}" transitive="false" />
+    <dependency org="pentaho"         name="pentaho-vfs-browser"         rev="${dependency.repository-plugin.platform.revision}" transitive="false" />
+
+    <!-- Required to use Spoon -->
+    <dependency org="org.eclipse" name="jface" rev="3.3.0-I20070606-0010" transitive="false" />
+
 
   </dependencies>
 </ivy-module>
