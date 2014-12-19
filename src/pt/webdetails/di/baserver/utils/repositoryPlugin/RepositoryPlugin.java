@@ -15,10 +15,15 @@ package pt.webdetails.di.baserver.utils.repositoryPlugin;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.pentaho.di.core.exception.KettleFileException;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.spoon.SpoonLifecycleListener;
@@ -32,6 +37,8 @@ import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.ui.PentahoSolutionVfsFileChooserPanel;
+
+import java.net.MalformedURLException;
 
 
 @org.pentaho.di.ui.spoon.SpoonPlugin( id = "RepositoryPlugin", image = "" )
@@ -152,9 +159,45 @@ public class RepositoryPlugin implements SpoonPluginInterface {
 
   private void registerJCRFileChooserDialog() {
     Spoon spoon = this.getSpoon();
-    VfsFileChooserDialog vfsFileChooserDialog = spoon.getVfsFileChooserDialog( null, null );
-    PentahoSolutionVfsFileChooserPanel vfsPanel = new PentahoSolutionVfsFileChooserPanel( vfsFileChooserDialog );
+    final VfsFileChooserDialog vfsFileChooserDialog = spoon.getVfsFileChooserDialog( null, null );
+    final PentahoSolutionVfsFileChooserPanel vfsPanel = new PentahoSolutionVfsFileChooserPanel( vfsFileChooserDialog );
     vfsFileChooserDialog.addVFSUIPanel( vfsPanel );
+
+    vfsPanel.getConnectionButton().addSelectionListener( new SelectionListener() {
+      public void showMessage( String message ) {
+        MessageBox box = new MessageBox( vfsPanel.getShell() );
+        box.setText( "BOX TEXT" ); //$NON-NLS-1$
+        box.setMessage( message );
+        //log.logError( e1.getMessage(), e1 );
+        box.open();
+        return;
+      }
+
+      public FileObject getFileObject( String vfsFileUri ) throws KettleFileException {
+          FileObject file;
+          file = KettleVFS.getFileObject( vfsFileUri );
+          return file;
+      }
+
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        try {
+          String connectionString = vfsPanel.getPentahoConnectionString();
+          FileObject file = this.getFileObject( connectionString );
+          vfsFileChooserDialog.setSelectedFile( file );
+          vfsFileChooserDialog.setRootFile( file );
+
+        } catch ( MalformedURLException e ) {
+          showMessage( "ERROR URL" );
+        } catch ( KettleFileException e ) {
+          showMessage( "ERROR FILE" );
+        }
+      }
+
+      @Override public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
+
+      }
+    } );
+
   }
   // endregion
 

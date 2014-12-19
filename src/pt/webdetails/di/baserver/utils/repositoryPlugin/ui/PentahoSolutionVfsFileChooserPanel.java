@@ -21,6 +21,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Widget;
+import org.pentaho.di.core.Const;
+import org.pentaho.di.core.RowMetaAndData;
+import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.exception.KettleValueException;
+import org.pentaho.di.core.util.EnvUtil;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.i18n.BaseMessages;
@@ -31,6 +37,10 @@ import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.Constants;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.RepositoryPlugin;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+
 public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
 
   private static String vfsSchemeDisplayText = "Pentaho";
@@ -39,7 +49,12 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
   private static Class<?> PKG = RepositoryPlugin.class;
 
   public PentahoSolutionVfsFileChooserPanel( VfsFileChooserDialog vfsFileChooserDialog ) {
-    super( Constants.getInstance().getVfsScheme() , vfsSchemeDisplayText, vfsFileChooserDialog, SWT.NONE );
+    super( "" , "", vfsFileChooserDialog, SWT.NONE );
+
+    this.setVfsScheme( this.getConstants().getVfsScheme() );
+    String vfsSchemeDisplayText = BaseMessages.getString( PKG,
+        "PentahoSolutionVfsFileChooserPanel.VfsDropdownOption.Text" );
+    this.setVfsSchemeDisplayText( vfsSchemeDisplayText );
 
     this.createPanel();
   }
@@ -52,55 +67,71 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
   }
 
   private TextVar serverUrl;
-  public TextVar getServerUrl() {
-    return this.serverUrl;
+  private URL getServerUrl() throws MalformedURLException {
+    String resolvedUrl = this.resolveVariable( this.serverUrl.getText() );
+    URL url = new URL( resolvedUrl );
+    return url;
   }
 
   private TextVar webAppName;
-  public TextVar getWebAppName() {
-    return this.webAppName;
+  private String getWebAppName() {
+    String resolvedWebAppName = this.resolveVariable( this.webAppName.getText() );
+    return resolvedWebAppName;
   }
 
   private TextVar userName;
-  public TextVar getUserName() {
-    return this.userName;
+  private String getUserName() {
+    String resolvedUserName = this.resolveVariable( this.userName.getText() );
+    return resolvedUserName;
   }
 
   private TextVar password;
-  public TextVar getPassword() {
-    return this.password;
+  private String getPassword() {
+    String resolvedPassword = this.resolveVariable( this.password.getText() );
+    return resolvedPassword;
   }
 
   private Constants getConstants() {
     return Constants.getInstance();
   }
 
-  public String getPentahoConnectionString() {
-    return null;
-    /*
-    String connectionString = this.getConstants().getVfsScheme() + ":" +
-      this.getServerUrl()
-    ;
-    */
-  }
+  /***
+   *
+   * @return the file URI constructed from the dialog input
+   * @throws MalformedURLException when the specified Server URL is invalid
+   */
+  public String getPentahoConnectionString() throws MalformedURLException {
+    StringBuffer urlString = new StringBuffer( this.getConstants().getVfsScheme() );
+    urlString.append( ":" );
 
-  /*
-  try {
-    FileObject root = rootFile;
-    root = resolveFile( buildS3FileSystemUrlString() );
-    vfsFileChooserDialog.setSelectedFile( root );
-    vfsFileChooserDialog.setRootFile( root );
-    rootFile = root;
-  } catch ( FileSystemException e1 ) {
-    MessageBox box = new MessageBox( getShell() );
-    box.setText( BaseMessages.getString( PKG, "S3VfsFileChooserDialog.error" ) ); //$NON-NLS-1$
-    box.setMessage( e1.getMessage() );
-    log.logError( e1.getMessage(), e1 );
-    box.open();
-    return;
-  }
-  */
+    URL serverUrl = this.getServerUrl();
+    urlString.append( serverUrl.getProtocol() );
+    urlString.append( "://" );
 
+    String username = this.getUserName();
+    if ( !nullOrEmpty( username ) ) {
+      urlString.append( this.getUserName() );
+      urlString.append( ":" );
+      urlString.append( this.getPassword() );
+      urlString.append( "@" );
+    }
+
+    urlString.append( serverUrl.getHost() );
+    int port = serverUrl.getPort();
+    if ( port != -1 ) { // if port is specified
+      urlString.append( ":" );
+      urlString.append( port );
+    }
+
+    String webAppName = this.getWebAppName();
+    if ( !nullOrEmpty( webAppName ) ) {
+      urlString.append( "/" );
+      urlString.append( this.getWebAppName() );
+      urlString.append( "!/" );
+    }
+
+    return urlString.toString();
+  }
 
 
   private Spoon getSpoon() {
@@ -110,32 +141,82 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
 
   // region Methods
 
+  // region aux
+  private static boolean nullOrEmpty( String string ) {
+    return string == null || string.isEmpty();
+  }
+  // endregion
+
   private VariableSpace getVariableSpace() {
+    VariableSpace environmentVariables = this.getEnvironmentVariables();
+    VariableSpace kettlePropertiesVariables = this.getKettlePropertiesVariables();
+
+    kettlePropertiesVariables.copyVariablesFrom( environmentVariables );
+    return kettlePropertiesVariables;
+  }
+
+  private VariableSpace getEnvironmentVariables() {
     Spoon spoon = this.getSpoon();
+    VariableSpace variables = new Variables();
 
-    VariableSpace variableSpace = spoon.getActiveTransformation();
-    if ( variableSpace != null ) {
-      return variableSpace;
+    RowMetaAndData envVariables = spoon.variables;
+    for ( int i = 0; i < envVariables.size(); i++ ) {
+      try {
+        String name = envVariables.getValueMeta( i ).getName();
+        String value = envVariables.getString( i, "" );
+        variables.setVariable( name, value );
+
+      } catch ( KettleValueException e ) {
+        // Just eat the exception. getString() should never give an
+        // exception.
+        e.printStackTrace();
+      }
     }
 
-    variableSpace = spoon.getActiveJob();
-    if ( variableSpace != null ) {
-      return variableSpace;
+    return variables;
+  }
+
+  private VariableSpace getKettlePropertiesVariables() {
+    VariableSpace variables = new Variables();
+    //vars.initializeVariablesFrom( null );
+    try {
+      Map<?, ?> kettleProperties = EnvUtil.readProperties( Const.KETTLE_PROPERTIES );
+      for ( Object key : kettleProperties.keySet() ) {
+        String variable = (String) key;
+        String value = variables.environmentSubstitute( (String) kettleProperties.get( key ) );
+        variables.setVariable( variable, value );
+      }
+    } catch ( KettleException e ) {
+      e.printStackTrace();
     }
 
-    // TODO: check for environment variables
-    return new Variables();
+    return variables;
+  }
+
+  private String resolveVariable( String variable ) {
+    return this.getVariableSpace().environmentSubstitute( variable );
+  }
+
+  public void activate( ) {
+    VariableSpace variableSpace = this.getVariableSpace();
+    this.serverUrl.setVariables( variableSpace );
+    this.userName.setVariables( variableSpace );
+    this.password.setVariables( variableSpace );
+    this.webAppName.setVariables( variableSpace );
   }
 
   // region create View
   private void createPanel() {
-    Composite group = this.buildGroup( this, 2 );
+    Composite group = this.buildGroup( this, 4 );
 
     this.serverUrl = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.ServerUrl.Label" );
-    this.webAppName = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.WebAppName.Label" );
-
     this.userName = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.UserName.Label" );
+    this.webAppName = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.WebAppName.Label" );
     this.password = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.Password.Label", true );
+
+    this.buildEmptyWidget( group );
+    this.buildEmptyWidget( group );
+    this.buildEmptyWidget( group );
     this.connectionButton = this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.ConnectButton.Text" );
   }
 
@@ -165,13 +246,20 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return fieldPanel;
   }
 
+  private Widget buildEmptyWidget( Composite parent ) {
+    Label label = new Label( parent, SWT.NONE );
+    GridData labelGridData = new GridData();
+    label.setLayoutData( labelGridData );
+    return label;
+  }
+
   private TextVar buildTextInput( Composite parent, String i18nLabelKey, boolean isPassword ) {
     Label label = new Label( parent, SWT.RIGHT );
     String labelText = BaseMessages.getString( PKG, i18nLabelKey );
     label.setText( labelText );
 
     GridData labelGridData = new GridData();
-    labelGridData.widthHint = 80;
+    labelGridData.widthHint = 100;
     label.setLayoutData( labelGridData );
 
     int flags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
@@ -191,9 +279,9 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
   }
 
   private Button buildButton( Composite parent, String i18nTextKey ) {
-    Button button = new Button( parent, SWT.CENTER );
+    Button button = new Button( parent, SWT.PUSH | SWT.CENTER );
 
-    GridData buttonGridData = new GridData();
+    GridData buttonGridData = new GridData( SWT.RIGHT, SWT.CENTER, true, true, 1, 1 );
     buttonGridData.widthHint = 100;
     button.setLayoutData( buttonGridData );
 
