@@ -13,7 +13,6 @@
 
 package pt.webdetails.di.baserver.utils.repositoryPlugin.ui;
 
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -43,8 +42,6 @@ import java.util.Map;
 
 public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
 
-  private static String vfsSchemeDisplayText = "Pentaho";
-
   // for message resolution
   private static Class<?> PKG = RepositoryPlugin.class;
 
@@ -60,7 +57,6 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
   }
 
   // region Properties
-
   private Button connectionButton;
   public Button getConnectionButton() {
     return this.connectionButton;
@@ -71,12 +67,6 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     String resolvedUrl = this.resolveVariable( this.serverUrl.getText() );
     URL url = new URL( resolvedUrl );
     return url;
-  }
-
-  private TextVar webAppName;
-  private String getWebAppName() {
-    String resolvedWebAppName = this.resolveVariable( this.webAppName.getText() );
-    return resolvedWebAppName;
   }
 
   private TextVar userName;
@@ -123,12 +113,7 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
       urlString.append( port );
     }
 
-    String webAppName = this.getWebAppName();
-    if ( !nullOrEmpty( webAppName ) ) {
-      urlString.append( "/" );
-      urlString.append( this.getWebAppName() );
-      urlString.append( "!/" );
-    }
+    urlString.append( serverUrl.getPath() );
 
     return urlString.toString();
   }
@@ -202,20 +187,22 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     this.serverUrl.setVariables( variableSpace );
     this.userName.setVariables( variableSpace );
     this.password.setVariables( variableSpace );
-    this.webAppName.setVariables( variableSpace );
+    //this.webAppName.setVariables( variableSpace );
   }
 
   // region create View
   private void createPanel() {
-    Composite group = this.buildGroup( this, 4 );
+    Composite group = this.buildGroup( this, 2 );
 
     this.serverUrl = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.ServerUrl.Label" );
-    this.userName = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.UserName.Label" );
-    this.webAppName = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.WebAppName.Label" );
-    this.password = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.Password.Label", true );
+    this.serverUrl.setText( this.getConstants().getDefaultServerUrl() );
 
-    this.buildEmptyWidget( group );
-    this.buildEmptyWidget( group );
+    this.userName = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.UserName.Label" );
+    this.userName.setText( this.getConstants().getDefaultUser() );
+
+    this.password = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.Password.Label", true );
+    this.password.setText( this.getConstants().getDefaultPassword() );
+
     this.buildEmptyWidget( group );
     this.connectionButton = this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.ConnectButton.Text" );
   }
@@ -269,6 +256,8 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     TextVar textVarInput = new TextVar( this.getVariableSpace(), parent, flags );
     GridData inputGridData = new GridData();
     inputGridData.widthHint = 250;
+    inputGridData.grabExcessHorizontalSpace = true;
+    inputGridData.horizontalAlignment = SWT.FILL;
     textVarInput.setLayoutData( inputGridData );
 
     return textVarInput;

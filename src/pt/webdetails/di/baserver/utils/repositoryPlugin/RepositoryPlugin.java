@@ -126,6 +126,10 @@ public class RepositoryPlugin implements SpoonPluginInterface {
   public void applyToContainer( String category, XulDomContainer container ) throws XulException {
     this.container = container;
     container.registerClassLoader( getClass().getClassLoader() );
+    if ( category.equals( "spoon" ) ) {
+      container.loadOverlay( "pt/webdetails/di/baserver/utils/repositoryPlugin/ui/spoon_overlays.xul" );
+      container.addEventHandler( new ToolbarEventHandler() );
+    }
   }
 
   @Override
@@ -174,9 +178,9 @@ public class RepositoryPlugin implements SpoonPluginInterface {
       }
 
       public FileObject getFileObject( String vfsFileUri ) throws KettleFileException {
-          FileObject file;
-          file = KettleVFS.getFileObject( vfsFileUri );
-          return file;
+        FileObject file;
+        file = KettleVFS.getFileObject( vfsFileUri );
+        return file;
       }
 
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {

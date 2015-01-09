@@ -36,6 +36,7 @@
     <jar jarfile="${stage.dir}/${project.id}/${project.jarfile}">
       <fileset dir="${classes.dir}"/>
       <fileset dir="${res.dir}" includes="**/*.png"/>
+      <fileset dir="${res.dir}" includes="**/*.xul"/>
     </jar>
 
     <!-- copy libs to stage dir -->

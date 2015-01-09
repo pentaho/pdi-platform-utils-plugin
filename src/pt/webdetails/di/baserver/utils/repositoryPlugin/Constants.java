@@ -27,6 +27,18 @@ public final class Constants {
   public String getVfsScheme() {
     return "jcr-solution";
   }
+
+  public String getDefaultServerUrl() {
+    return "http://127.0.0.1:8080/pentaho";
+  }
+
+  public String getDefaultUser() {
+    return "admin";
+  }
+
+  public String getDefaultPassword() {
+    return "password";
+  }
   // endregion
 
   private Constants() {}

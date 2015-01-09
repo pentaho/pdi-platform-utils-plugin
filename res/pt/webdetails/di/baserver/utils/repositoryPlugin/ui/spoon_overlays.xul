@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<overlay id="baserver-utils" title="BAServerUtils"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:HTML="http://www.w3.org/Profiles/XHTML-transitional"
+    xmlns:pen="http://www.pentaho.org/2008/xul" >
+
+  <toolbar id="main-toolbar" >
+    <toolbarbutton id="toolbar-file-open-url" insertbefore="toolbar-expore-repository"
+                   image="images/open.png"
+                   tooltiptext="${Spoon.Tooltip.OpenTranformation}" onclick="toolbarEventHandler.openFileFromPentahoRepository()" />
+
+    <toolbarbutton id="toolbar-file-save-url"
+                   image="images/saveas.png"
+                   tooltiptext="${Spoon.Tooltip.OpenTranformation}" onclick="toolbarEventHandler.saveFileToPentahoRepository()" />
+  </toolbar>
+
+</overlay>
