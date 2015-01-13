@@ -1,17 +1,16 @@
 <?xml version="1.0"?>
-<overlay id="baserver-utils" title="BAServerUtils"
+<overlay id="baserver-utils-pentaho-repository" title="BAServerUtilsPentahoRepository"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     xmlns:HTML="http://www.w3.org/Profiles/XHTML-transitional"
     xmlns:pen="http://www.pentaho.org/2008/xul" >
 
   <toolbar id="main-toolbar" >
-    <toolbarbutton id="toolbar-file-open-url" insertbefore="toolbar-expore-repository"
-                   image="images/open.png"
-                   tooltiptext="${Spoon.Tooltip.OpenTranformation}" onclick="toolbarEventHandler.openFileFromPentahoRepository()" />
+    <toolbarseparator insertafter="toolbar-file-save-as" />
+    <toolbarbutton id="toolbar-file-open-url" image="pt/webdetails/di/baserver/utils/repositoryPlugin/ui/img/Open_BAserver.png"
+                   tooltiptext="${PentahoSolutionVfsFileChooserPanel.Toolbar.OpenFromPentahoRepository.Tooltip}" onclick="toolbarEventHandler.openFileFromPentahoRepository()" />
 
-    <toolbarbutton id="toolbar-file-save-url"
-                   image="images/saveas.png"
-                   tooltiptext="${Spoon.Tooltip.OpenTranformation}" onclick="toolbarEventHandler.saveFileToPentahoRepository()" />
+    <toolbarbutton id="toolbar-file-save-url" image="pt/webdetails/di/baserver/utils/repositoryPlugin/ui/img/Save_BAserver.png"
+                   tooltiptext="${PentahoSolutionVfsFileChooserPanel.Toolbar.SaveToPentahoRepository.Tooltip}" onclick="toolbarEventHandler.saveFileToPentahoRepository()" />
   </toolbar>
 
 </overlay>

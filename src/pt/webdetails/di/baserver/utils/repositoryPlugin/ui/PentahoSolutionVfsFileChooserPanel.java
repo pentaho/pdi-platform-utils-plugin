@@ -53,30 +53,50 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
         "PentahoSolutionVfsFileChooserPanel.VfsDropdownOption.Text" );
     this.setVfsSchemeDisplayText( vfsSchemeDisplayText );
 
+    Spoon spoon = this.getSpoon();
+
+    // Set panel variable space to use by default the
+    // environment and kettle properties file variables
+    VariableSpace variableSpace = new Variables();
+    variableSpace.copyVariablesFrom( this.getEnvironmentVariables( spoon ) );
+    variableSpace.copyVariablesFrom( this.getKettlePropertiesVariables() );
+    this.setVariableSpace( variableSpace );
+
     this.createPanel();
+
   }
 
   // region Properties
+  public VariableSpace getVariableSpace() {
+    return this.variableSpace;
+  }
+  public PentahoSolutionVfsFileChooserPanel setVariableSpace( VariableSpace variableSpace ) {
+    this.variableSpace = variableSpace;
+    return this;
+  }
+  private VariableSpace variableSpace;
+
+
   private Button connectionButton;
   public Button getConnectionButton() {
     return this.connectionButton;
   }
 
   private TextVar serverUrl;
-  private URL getServerUrl() throws MalformedURLException {
+  public URL getServerUrl() throws MalformedURLException {
     String resolvedUrl = this.resolveVariable( this.serverUrl.getText() );
     URL url = new URL( resolvedUrl );
     return url;
   }
 
   private TextVar userName;
-  private String getUserName() {
+  public String getUserName() {
     String resolvedUserName = this.resolveVariable( this.userName.getText() );
     return resolvedUserName;
   }
 
   private TextVar password;
-  private String getPassword() {
+  public String getPassword() {
     String resolvedPassword = this.resolveVariable( this.password.getText() );
     return resolvedPassword;
   }
@@ -132,16 +152,13 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
   }
   // endregion
 
-  private VariableSpace getVariableSpace() {
-    VariableSpace environmentVariables = this.getEnvironmentVariables();
-    VariableSpace kettlePropertiesVariables = this.getKettlePropertiesVariables();
 
-    kettlePropertiesVariables.copyVariablesFrom( environmentVariables );
-    return kettlePropertiesVariables;
-  }
-
-  private VariableSpace getEnvironmentVariables() {
-    Spoon spoon = this.getSpoon();
+  /***
+   * Gets the Spoon environment variables space
+   * @param spoon
+   * @return
+   */
+  private VariableSpace getEnvironmentVariables( Spoon spoon ) {
     VariableSpace variables = new Variables();
 
     RowMetaAndData envVariables = spoon.variables;
@@ -161,6 +178,10 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return variables;
   }
 
+  /***
+   * Gets the kettle properties file variables space
+   * @return
+   */
   private VariableSpace getKettlePropertiesVariables() {
     VariableSpace variables = new Variables();
     //vars.initializeVariablesFrom( null );
@@ -178,6 +199,11 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return variables;
   }
 
+  /***
+   * Resolves a string with variables in the panel variable space
+   * @param variable
+   * @return The resolved string
+   */
   private String resolveVariable( String variable ) {
     return this.getVariableSpace().environmentSubstitute( variable );
   }
@@ -187,7 +213,6 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     this.serverUrl.setVariables( variableSpace );
     this.userName.setVariables( variableSpace );
     this.password.setVariables( variableSpace );
-    //this.webAppName.setVariables( variableSpace );
   }
 
   // region create View

@@ -26,8 +26,12 @@ import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.spoon.Spoon;
+import org.pentaho.di.ui.spoon.SpoonLifecycleListener;
+import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
+import org.pentaho.xul.swt.tab.TabItem;
+import org.pentaho.xul.swt.tab.TabListener;
 
 public class ToolbarEventHandler extends AbstractXulEventHandler {
 
@@ -54,6 +58,42 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
   }
   // endregion
 
+  // region Constructors
+  public ToolbarEventHandler() {
+    final ToolbarEventHandler toolbarEventHandler = this;
+
+    // lifecycle listener to add tab select listener when spoon starts up
+    // it is necessary to do it only on startup to make sure that the tabs were created
+    this.spoonLifecycleListener = new SpoonLifecycleListener() {
+      @Override public void onEvent( SpoonLifeCycleEvent evt ) {
+        if ( evt.equals( SpoonLifeCycleEvent.STARTUP ) ) {
+          final XulComponent saveVFSButton = toolbarEventHandler
+            .getXulDomContainer()
+            .getDocumentRoot()
+            .getElementById( "toolbar-file-save-url" );
+          final Spoon spoon = Spoon.getInstance();
+
+          spoon.getTabSet().addListener( new TabListener() {
+            @Override public void tabSelected( TabItem item ) {
+              TransMeta activeTransformation = spoon.getActiveTransformation();
+              JobMeta activeJob = spoon.getActiveJob();
+              boolean buttonEnabled = activeTransformation != null || activeJob != null;
+
+              // disable save file on VFS button if no transformation or job is active
+              saveVFSButton.setDisabled( !buttonEnabled );
+            }
+
+            @Override public void tabDeselected( TabItem item ) { }
+
+            @Override public boolean tabClose( TabItem item ) {
+              return false; }
+          } );
+        }
+      }
+    };
+  }
+  // endregion
+
   // region properties
   public String getName() {
     return "toolbarEventHandler";
@@ -62,6 +102,11 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
   private Spoon getSpoon() {
     return Spoon.getInstance();
   }
+
+  public SpoonLifecycleListener getSpoonLifeCycleListener() {
+    return this.spoonLifecycleListener;
+  }
+  private SpoonLifecycleListener spoonLifecycleListener;
 
   private Constants getConstants() {
     return Constants.getInstance();
@@ -83,8 +128,9 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
         Const.STRING_TRANS_AND_JOB_FILTER_EXT, Const.getTransformationAndJobFilterNames(), VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );
 
     if ( selectedFile != null ) {
-      spoon.setLastFileOpened( selectedFile.getName().getFriendlyURI() );
-      spoon.openFile( selectedFile.getName().getFriendlyURI(), false );
+      String uri = selectedFile.getName().getFriendlyURI();
+      spoon.setLastFileOpened( uri );
+      spoon.openFile( uri, false );
     }
   }
   // endregion
@@ -105,7 +151,6 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
   }
 
   // end region
-
 
   private boolean saveXMLFileToVfs() {
     Spoon spoon = this.getSpoon();
@@ -190,7 +235,7 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
   }
 
   /***
-   *
+   * Prompts the user with a dialog asking if the file should be overriden
    * @return if the the file should be overriden
    */
   private boolean promptShouldOverrideFile() {
