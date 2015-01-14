@@ -28,6 +28,7 @@ import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.spoon.SpoonLifecycleListener;
 import org.pentaho.ui.xul.XulComponent;
+import org.pentaho.ui.xul.components.XulButton;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import org.pentaho.xul.swt.tab.TabItem;
@@ -67,26 +68,15 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
     this.spoonLifecycleListener = new SpoonLifecycleListener() {
       @Override public void onEvent( SpoonLifeCycleEvent evt ) {
         if ( evt.equals( SpoonLifeCycleEvent.STARTUP ) ) {
-          final XulComponent saveVFSButton = toolbarEventHandler
-            .getXulDomContainer()
-            .getDocumentRoot()
-            .getElementById( "toolbar-file-save-url" );
-          final Spoon spoon = Spoon.getInstance();
-
-          spoon.getTabSet().addListener( new TabListener() {
+          toolbarEventHandler.getSpoon().getTabSet().addListener( new TabListener() {
             @Override public void tabSelected( TabItem item ) {
-              TransMeta activeTransformation = spoon.getActiveTransformation();
-              JobMeta activeJob = spoon.getActiveJob();
-              boolean buttonEnabled = activeTransformation != null || activeJob != null;
-
-              // disable save file on VFS button if no transformation or job is active
-              saveVFSButton.setDisabled( !buttonEnabled );
+              toolbarEventHandler.updateSaveVFSButtonEnableStatus();
             }
 
             @Override public void tabDeselected( TabItem item ) { }
 
             @Override public boolean tabClose( TabItem item ) {
-              return false; }
+                return false; }
           } );
         }
       }
@@ -111,6 +101,18 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
   private Constants getConstants() {
     return Constants.getInstance();
   }
+
+  private XulButton getSaveVfsButton() {
+    if ( this.saveVfsButton == null ) {
+      XulComponent saveVfsButton = this
+        .getXulDomContainer()
+        .getDocumentRoot()
+        .getElementById( "toolbar-file-save-url" );
+      this.saveVfsButton = (XulButton) saveVfsButton;
+    }
+    return this.saveVfsButton;
+  }
+  private XulButton saveVfsButton;
   // endregion
 
   // region event handlers
@@ -133,9 +135,19 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
       spoon.openFile( uri, false );
     }
   }
+
+  protected void updateSaveVFSButtonEnableStatus() {
+    Spoon spoon = this.getSpoon();
+    TransMeta activeTransformation = spoon.getActiveTransformation();
+    JobMeta activeJob = spoon.getActiveJob();
+    boolean buttonEnabled = activeTransformation != null || activeJob != null;
+
+    // disable save file on VFS button if no transformation or job is active
+    this.getSaveVfsButton().setDisabled( !buttonEnabled );
+  }
   // endregion
 
-  // region aux methods
+  // region Methods
   private VfsDialogFileInfo getLastOpenedFile() {
     VfsDialogFileInfo fileInfo = new VfsDialogFileInfo();
     Spoon spoon = this.getSpoon();
@@ -149,8 +161,6 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
 
     return fileInfo;
   }
-
-  // end region
 
   private boolean saveXMLFileToVfs() {
     Spoon spoon = this.getSpoon();
@@ -246,5 +256,6 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
     int result = mb.open();
     return result == SWT.YES;
   }
+  // end region
 
 }

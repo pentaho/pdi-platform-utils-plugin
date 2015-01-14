@@ -50,7 +50,8 @@ public class PentahoSolutionVfsFileChooserController {
         controller.connect();
       }
 
-      @Override public void widgetDefaultSelected( SelectionEvent selectionEvent ) {}
+      @Override public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
+      }
     } );
 
   }
