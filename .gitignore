@@ -1,3 +1,6 @@
 /lib
 /bin
 /dist
+/.idea
+/out
+test-lib

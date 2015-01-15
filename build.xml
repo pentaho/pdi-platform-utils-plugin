@@ -17,6 +17,7 @@
   <property name="project.zipfile" value="${ivy.artifact.id}-${project.revision}.zip"/>
   <property name="stage.dir" value="${bin.dir}/stage" description="stage directory"/>
   <property name="samples.dir" value="${basedir}/samples" description="samples directory"/>
+  <property name="lib.dir" value="${basedir}/lib" description="lib directory"/>
 
   <!--==========================================================================================
       target: stage
@@ -35,7 +36,20 @@
     <jar jarfile="${stage.dir}/${project.id}/${project.jarfile}">
       <fileset dir="${classes.dir}"/>
       <fileset dir="${res.dir}" includes="**/*.png"/>
+      <fileset dir="${res.dir}" includes="**/*.xul"/>
     </jar>
+
+    <!-- copy libs to stage dir -->
+    <copy todir="${stage.dir}/${project.id}/lib" overwrite="true">
+      <fileset dir="${basedir}/dist">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${basedir}/lib">
+        <include name="libpensol*.jar" />
+        <include name="pentaho-platform-core*.jar" />
+        <include name="pentaho-platform-repository*.jar" />
+      </fileset>
+    </copy>
 
     <!-- copy samples to stage -->
     <copy todir="${stage.dir}/${project.id}/samples" overwrite="true">
