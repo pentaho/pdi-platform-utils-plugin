@@ -35,6 +35,9 @@ import org.pentaho.xul.swt.tab.TabItem;
 import org.pentaho.xul.swt.tab.TabListener;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.Constants;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class ToolbarController extends AbstractXulEventHandler {
 
   // region inner definitions
@@ -212,7 +215,17 @@ public class ToolbarController extends AbstractXulEventHandler {
     }
 
     if ( filename != null ) {
-      filename = this.addDefaultExtensionIfMissing( filename, meta.getFilterExtensions(), meta.getDefaultExtension() );
+      Collection<String> extensionMasks = new ArrayList<String>( );
+      for ( String composedExtension : meta.getFilterExtensions() ) {
+        // extension given by meta.getFilterExtensions may contain elements
+        // with more than one extension mask separated by ';'.  E.g. "*.ktr;*.kjb"
+        String[] extensions = composedExtension.split( ";" );
+        for( String simpleExtension : extensions ) {
+          extensionMasks.add( simpleExtension );
+        }
+      }
+
+      filename = this.addDefaultExtensionIfMissing( filename, extensionMasks, meta.getDefaultExtension() );
       // See if the file already exists...
       boolean overrideFile = true;
       try {
@@ -231,11 +244,18 @@ public class ToolbarController extends AbstractXulEventHandler {
     return false;
   }
 
-  protected String addDefaultExtensionIfMissing( String fileName, String[] extensions, String defaultExtension ) {
+  /**
+   *
+   * @param fileName the FileName
+   * @param extensionMasks The allowed / known extension masks. E.g. [ "*.ktr", "*.kjb" ]
+   * @param defaultExtension The default extension to append to the filename. E.g. "ktr"
+   * @return The filename with the default extension if the filename originally did not have one of the allowed extensions
+   */
+  protected String addDefaultExtensionIfMissing( String fileName, Iterable<String> extensionMasks, String defaultExtension ) {
     String resultFileName = fileName;
     // Is the filename ending on .ktr, .xml?
     boolean ending = false;
-    for ( String extension : extensions ) {
+    for ( String extension : extensionMasks ) {
       if ( fileName.endsWith( extension.substring( 1 ) ) ) {
         ending = true;
       }

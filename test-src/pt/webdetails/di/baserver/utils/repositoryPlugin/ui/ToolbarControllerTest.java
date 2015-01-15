@@ -15,6 +15,8 @@ package pt.webdetails.di.baserver.utils.repositoryPlugin.ui;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -29,7 +31,7 @@ public class ToolbarControllerTest {
     ToolbarController controller = new ToolbarController();
 
     String expectedFileName = fileNameWithoutExtension + "." + defaultExtension;
-    String actualFileName = controller.addDefaultExtensionIfMissing( fileNameWithoutExtension, extensions, defaultExtension  );
+    String actualFileName = controller.addDefaultExtensionIfMissing( fileNameWithoutExtension, Arrays.asList( extensions ), defaultExtension  );
 
     assertThat( actualFileName, is( equalTo( expectedFileName )) );
   }
@@ -42,7 +44,7 @@ public class ToolbarControllerTest {
     ToolbarController controller = new ToolbarController();
 
     String expectedFileName = fileNameWithUnknownExtension + "." + defaultExtension;
-    String actualFileName = controller.addDefaultExtensionIfMissing( fileNameWithUnknownExtension, extensions, defaultExtension  );
+    String actualFileName = controller.addDefaultExtensionIfMissing( fileNameWithUnknownExtension, Arrays.asList( extensions ), defaultExtension  );
 
     assertThat( actualFileName, is( equalTo( expectedFileName )) );
   }
@@ -55,7 +57,7 @@ public class ToolbarControllerTest {
     ToolbarController controller = new ToolbarController();
 
     String expectedFileName = fileNameWithKnownExtension;
-    String actualFileName = controller.addDefaultExtensionIfMissing( fileNameWithKnownExtension, extensions, defaultExtension  );
+    String actualFileName = controller.addDefaultExtensionIfMissing( fileNameWithKnownExtension, Arrays.asList( extensions ), defaultExtension  );
 
     assertThat( actualFileName, is( equalTo( expectedFileName )) );
   }
