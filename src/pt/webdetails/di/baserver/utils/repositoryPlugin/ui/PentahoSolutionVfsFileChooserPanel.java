@@ -82,20 +82,20 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return this.connectionButton;
   }
 
-  private TextVar serverUrl;
+  protected TextVar serverUrl;
   public URL getServerUrl() throws MalformedURLException {
     String resolvedUrl = this.resolveVariable( this.serverUrl.getText() );
     URL url = new URL( resolvedUrl );
     return url;
   }
 
-  private TextVar userName;
+  protected TextVar userName;
   public String getUserName() {
     String resolvedUserName = this.resolveVariable( this.userName.getText() );
     return resolvedUserName;
   }
 
-  private TextVar password;
+  protected TextVar password;
   public String getPassword() {
     String resolvedPassword = this.resolveVariable( this.password.getText() );
     return resolvedPassword;
@@ -105,38 +105,7 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return Constants.getInstance();
   }
 
-  /***
-   *
-   * @return the file URI constructed from the dialog input
-   * @throws MalformedURLException when the specified Server URL is invalid
-   */
-  public String getPentahoConnectionString() throws MalformedURLException {
-    StringBuffer urlString = new StringBuffer( this.getConstants().getVfsScheme() );
-    urlString.append( ":" );
 
-    URL serverUrl = this.getServerUrl();
-    urlString.append( serverUrl.getProtocol() );
-    urlString.append( "://" );
-
-    String username = this.getUserName();
-    if ( !nullOrEmpty( username ) ) {
-      urlString.append( this.getUserName() );
-      urlString.append( ":" );
-      urlString.append( this.getPassword() );
-      urlString.append( "@" );
-    }
-
-    urlString.append( serverUrl.getHost() );
-    int port = serverUrl.getPort();
-    if ( port != -1 ) { // if port is specified
-      urlString.append( ":" );
-      urlString.append( port );
-    }
-
-    urlString.append( serverUrl.getPath() );
-
-    return urlString.toString();
-  }
 
 
   private Spoon getSpoon() {
@@ -146,11 +115,7 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
 
   // region Methods
 
-  // region aux
-  private static boolean nullOrEmpty( String string ) {
-    return string == null || string.isEmpty();
-  }
-  // endregion
+
 
 
   /***

@@ -7,10 +7,10 @@
   <toolbar id="main-toolbar" >
     <toolbarseparator insertafter="toolbar-file-save-as" />
     <toolbarbutton id="toolbar-file-open-url" image="pt/webdetails/di/baserver/utils/repositoryPlugin/ui/img/Open_BAserver.png"
-                   tooltiptext="${PentahoSolutionVfsFileChooserPanel.Toolbar.OpenFromPentahoRepository.Tooltip}" onclick="toolbarEventHandler.openFileFromPentahoRepository()" />
+                   tooltiptext="${PentahoSolutionVfsFileChooserPanel.Toolbar.OpenFromPentahoRepository.Tooltip}" onclick="toolbarController.openFileFromPentahoRepository()" />
 
     <toolbarbutton id="toolbar-file-save-url" image="pt/webdetails/di/baserver/utils/repositoryPlugin/ui/img/Save_BAserver.png"
-                   tooltiptext="${PentahoSolutionVfsFileChooserPanel.Toolbar.SaveToPentahoRepository.Tooltip}" onclick="toolbarEventHandler.saveFileToPentahoRepository()" />
+                   tooltiptext="${PentahoSolutionVfsFileChooserPanel.Toolbar.SaveToPentahoRepository.Tooltip}" onclick="toolbarController.saveFileToPentahoRepository()" />
   </toolbar>
 
 </overlay>

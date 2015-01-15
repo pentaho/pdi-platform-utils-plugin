@@ -33,6 +33,7 @@ import org.pentaho.ui.xul.XulException;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.ui.PentahoSolutionVfsFileChooserController;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.ui.PentahoSolutionVfsFileChooserPanel;
+import pt.webdetails.di.baserver.utils.repositoryPlugin.ui.ToolbarController;
 
 import java.util.ResourceBundle;
 
@@ -44,8 +45,6 @@ public class RepositoryPlugin implements SpoonPluginInterface {
   // endregion
 
   // region properties
-  private XulDomContainer container;
-
   private Log getLogger() {
     return logger;
   }
@@ -86,14 +85,34 @@ public class RepositoryPlugin implements SpoonPluginInterface {
     return defaultFileSystemManager;
   }
 
-  protected ToolbarEventHandler getToolbarEventHandler() {
-    return this.toolbarEventHandler;
+  protected ToolbarController getToolbarController() {
+    return this.toolbarController;
   }
-  protected RepositoryPlugin setToolbarEventHandler( ToolbarEventHandler toolbarEventHandler ) {
-    this.toolbarEventHandler = toolbarEventHandler;
+  protected RepositoryPlugin setToolbarController( ToolbarController toolbarController ) {
+    this.toolbarController = toolbarController;
     return this;
   }
-  private ToolbarEventHandler toolbarEventHandler;
+  private ToolbarController toolbarController;
+
+  protected PentahoSolutionVfsFileChooserController getVfsChooserController() {
+    return this.vfsChooserController;
+  }
+  protected RepositoryPlugin setVfsChooserController( PentahoSolutionVfsFileChooserController controller ) {
+    this.vfsChooserController = controller;
+    return this;
+  }
+  private PentahoSolutionVfsFileChooserController vfsChooserController;
+
+  @Override
+  public SpoonLifecycleListener getLifecycleListener() {
+    return this.lifecycleListener;
+  }
+  private SpoonLifecycleListener lifecycleListener;
+
+  @Override
+  public SpoonPerspective getPerspective() {
+    return null;
+  }
   // endregion
 
   // region Constructors
@@ -104,6 +123,7 @@ public class RepositoryPlugin implements SpoonPluginInterface {
     if ( fileSystemManager == null ) {
       fileSystemManager = this.getKettleVFSFileSystemManager();
     }
+
     this.setFileSystemManager( fileSystemManager );
 
     String vfsScheme = this.getConstants().getVfsScheme();
@@ -117,12 +137,11 @@ public class RepositoryPlugin implements SpoonPluginInterface {
 
     this.registerJCRFileChooserDialog();
 
-    this.setToolbarEventHandler( new ToolbarEventHandler() );
-
+    this.setToolbarController( new ToolbarController() );
     final RepositoryPlugin repositoryPlugin = this;
     this.lifecycleListener = new SpoonLifecycleListener() {
       @Override public void onEvent( SpoonLifeCycleEvent evt ) {
-        repositoryPlugin.getToolbarEventHandler().getSpoonLifeCycleListener().onEvent( evt );
+        repositoryPlugin.getToolbarController().getSpoonLifeCycleListener().onEvent( evt );
       }
     };
 
@@ -137,24 +156,12 @@ public class RepositoryPlugin implements SpoonPluginInterface {
   // region Methods
   @Override
   public void applyToContainer( String category, final XulDomContainer container ) throws XulException {
-    this.container = container;
     container.registerClassLoader( getClass().getClassLoader() );
     if ( category.equals( "spoon" ) ) {
       ResourceBundle i18nBundle = ResourceBundle.getBundle( "pt/webdetails/di/baserver/utils/repositoryPlugin/messages/messages" );
       container.loadOverlay( "pt/webdetails/di/baserver/utils/repositoryPlugin/ui/spoon_overlays.xul", i18nBundle );
-      container.addEventHandler( this.getToolbarEventHandler() );
+      container.addEventHandler( this.getToolbarController() );
     }
-  }
-
-  @Override
-  public SpoonLifecycleListener getLifecycleListener() {
-    return this.lifecycleListener;
-  }
-  private SpoonLifecycleListener lifecycleListener;
-
-  @Override
-  public SpoonPerspective getPerspective() {
-    return null;
   }
 
   /***
@@ -168,6 +175,7 @@ public class RepositoryPlugin implements SpoonPluginInterface {
     try {
       Thread.currentThread().setContextClassLoader( LibPensolBoot.class.getClassLoader() );
       LibPensolBoot libPensolBoot = LibPensolBoot.getInstance();
+      // force config load
       Configuration configuration = libPensolBoot.getGlobalConfig();
     } catch ( Exception e ) {
       this.getLogger().error( "Failed to force LibPensol configuration initialization." );
@@ -182,7 +190,7 @@ public class RepositoryPlugin implements SpoonPluginInterface {
     final PentahoSolutionVfsFileChooserPanel vfsPanel = new PentahoSolutionVfsFileChooserPanel( vfsFileChooserDialog );
     vfsFileChooserDialog.addVFSUIPanel( vfsPanel );
 
-    PentahoSolutionVfsFileChooserController controller = new PentahoSolutionVfsFileChooserController( vfsPanel );
+    this.setVfsChooserController( new PentahoSolutionVfsFileChooserController( vfsPanel ) );
   }
   // endregion
 

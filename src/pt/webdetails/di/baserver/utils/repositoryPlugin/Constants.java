@@ -41,7 +41,6 @@ public final class Constants {
   }
   // endregion
 
-  private Constants() {}
-
+  private Constants() { }
 
 }

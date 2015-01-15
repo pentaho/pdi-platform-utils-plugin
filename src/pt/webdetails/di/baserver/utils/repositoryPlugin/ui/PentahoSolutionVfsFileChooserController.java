@@ -23,6 +23,7 @@ import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 
 public class PentahoSolutionVfsFileChooserController {
 
@@ -30,32 +31,33 @@ public class PentahoSolutionVfsFileChooserController {
   public PentahoSolutionVfsFileChooserPanel getView() {
     return this.view;
   }
+  protected PentahoSolutionVfsFileChooserController setView( PentahoSolutionVfsFileChooserPanel view ) {
+    this.view = view;
+    if ( this.view != null ) {
+      final PentahoSolutionVfsFileChooserController controller = this;
+      this.view.getConnectionButton().addSelectionListener( new SelectionListener() {
+
+        @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+          controller.connect();
+        }
+
+        @Override public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
+        }
+      } );
+    }
+    return this;
+  }
   private PentahoSolutionVfsFileChooserPanel view;
   // endregion
 
-
   public PentahoSolutionVfsFileChooserController( PentahoSolutionVfsFileChooserPanel view ) {
-    this.view = view;
-
-    this.registerEventHandlers();
+    this.setView( view );
   }
+
+  // constructor for unit tests
+  protected PentahoSolutionVfsFileChooserController() { }
 
   // region Methods
-  private void registerEventHandlers() {
-    final PentahoSolutionVfsFileChooserController controller = this;
-
-    this.getView().getConnectionButton().addSelectionListener( new SelectionListener() {
-
-      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
-        controller.connect();
-      }
-
-      @Override public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
-      }
-    } );
-
-  }
-
   private FileObject getFileObject( String vfsFileUri ) throws KettleFileException {
     FileObject file;
     file = KettleVFS.getFileObject( vfsFileUri );
@@ -63,24 +65,59 @@ public class PentahoSolutionVfsFileChooserController {
   }
 
   /***
+   *
+   * @return the file URI constructed from the dialog input
+   */
+  protected String getPentahoConnectionString( String vfsScheme, URL serverUrl, String username, String password ) {
+    StringBuilder urlString = new StringBuilder( vfsScheme );
+    urlString.append( ":" );
+
+    urlString.append( serverUrl.getProtocol() );
+    urlString.append( "://" );
+
+    if ( !nullOrEmpty( username ) ) {
+      urlString.append( username );
+      urlString.append( ":" );
+      urlString.append( password );
+      urlString.append( "@" );
+    }
+
+    urlString.append( serverUrl.getHost() );
+    int port = serverUrl.getPort();
+    if ( port != -1 ) { // if port is specified
+      urlString.append( ":" );
+      urlString.append( port );
+    }
+
+    urlString.append( serverUrl.getPath() );
+
+    return urlString.toString();
+  }
+
+  /***
    * Shows a message box to the user
    * @param message
    * @param shell
    */
-  private void showMessage( String message, Shell shell) {
+  private void showMessage( String message, Shell shell ) {
     MessageBox box = new MessageBox( shell );
     box.setText( "BOX TEXT" ); //$NON-NLS-1$
     box.setMessage( message );
     box.open();
-    return;
   }
 
   /***
-   * Connects to the Pentaho repository specified by the information of the vfs panel
+   * Connects to the Pentaho repository specified by the information
+   * in the view associated with the controller
    */
-  public void connect() {
+  protected void connect() {
     try {
-      String connectionString = this.getView().getPentahoConnectionString();
+      URL serverUrl = this.getView().getServerUrl();
+      String userName = this.getView().getUserName();
+      String password = this.getView().getPassword();
+      String vfsScheme = this.getView().getVfsScheme();
+      String connectionString = this.getPentahoConnectionString( vfsScheme, serverUrl, userName, password );
+
       FileObject file = this.getFileObject( connectionString );
       VfsFileChooserDialog vfsFileChooserDialog = this.getView().getVfsFileChooserDialog();
       vfsFileChooserDialog.setSelectedFile( file );
@@ -93,6 +130,11 @@ public class PentahoSolutionVfsFileChooserController {
     }
   }
 
+  // region aux
+  private static boolean nullOrEmpty( String string ) {
+    return string == null || string.isEmpty();
+  }
+  // endregion
   // endregion
 
 

@@ -11,7 +11,7 @@
 * the license for the specific language governing your rights and limitations.
 */
 
-package pt.webdetails.di.baserver.utils.repositoryPlugin;
+package pt.webdetails.di.baserver.utils.repositoryPlugin.ui;
 
 import org.apache.commons.vfs.FileObject;
 import org.eclipse.swt.SWT;
@@ -33,8 +33,9 @@ import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import org.pentaho.xul.swt.tab.TabItem;
 import org.pentaho.xul.swt.tab.TabListener;
+import pt.webdetails.di.baserver.utils.repositoryPlugin.Constants;
 
-public class ToolbarEventHandler extends AbstractXulEventHandler {
+public class ToolbarController extends AbstractXulEventHandler {
 
   // region inner definitions
   private static class VfsDialogFileInfo {
@@ -60,23 +61,24 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
   // endregion
 
   // region Constructors
-  public ToolbarEventHandler() {
-    final ToolbarEventHandler toolbarEventHandler = this;
+  public ToolbarController() {
+    final ToolbarController toolbarController = this;
 
     // lifecycle listener to add tab select listener when spoon starts up
     // it is necessary to do it only on startup to make sure that the tabs were created
     this.spoonLifecycleListener = new SpoonLifecycleListener() {
       @Override public void onEvent( SpoonLifeCycleEvent evt ) {
         if ( evt.equals( SpoonLifeCycleEvent.STARTUP ) ) {
-          toolbarEventHandler.getSpoon().getTabSet().addListener( new TabListener() {
+          toolbarController.getSpoon().getTabSet().addListener( new TabListener() {
             @Override public void tabSelected( TabItem item ) {
-              toolbarEventHandler.updateSaveVFSButtonEnableStatus();
+              toolbarController.updateSaveVFSButtonEnableStatus();
             }
 
             @Override public void tabDeselected( TabItem item ) { }
 
             @Override public boolean tabClose( TabItem item ) {
-                return false; }
+              return false;
+            }
           } );
         }
       }
@@ -85,12 +87,20 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
   // endregion
 
   // region properties
+
+  /**
+   * @return the name of the controller to be used in the XUL views
+   */
   public String getName() {
-    return "toolbarEventHandler";
+    return "toolbarController";
   }
 
   private Spoon getSpoon() {
     return Spoon.getInstance();
+  }
+
+  private Constants getConstants() {
+    return Constants.getInstance();
   }
 
   public SpoonLifecycleListener getSpoonLifeCycleListener() {
@@ -98,21 +108,31 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
   }
   private SpoonLifecycleListener spoonLifecycleListener;
 
-  private Constants getConstants() {
-    return Constants.getInstance();
-  }
-
   private XulButton getSaveVfsButton() {
     if ( this.saveVfsButton == null ) {
       XulComponent saveVfsButton = this
-        .getXulDomContainer()
-        .getDocumentRoot()
-        .getElementById( "toolbar-file-save-url" );
+          .getXulDomContainer()
+          .getDocumentRoot()
+          .getElementById( "toolbar-file-save-url" );
       this.saveVfsButton = (XulButton) saveVfsButton;
     }
     return this.saveVfsButton;
   }
   private XulButton saveVfsButton;
+
+  private VfsDialogFileInfo getLastOpenedFile() {
+    VfsDialogFileInfo fileInfo = new VfsDialogFileInfo();
+    Spoon spoon = this.getSpoon();
+    try {
+      fileInfo.setInitialFile( KettleVFS.getFileObject( spoon.getLastFileOpened() ) );
+      fileInfo.setRootFile( fileInfo.getInitialFile().getFileSystem().getRoot() );
+    } catch ( Exception e ) {
+      String message = Const.getStackTracker( e );
+      new ErrorDialog( spoon.getShell(), BaseMessages.getString( Spoon.class, "Spoon.Error" ), message, e );
+    }
+
+    return fileInfo;
+  }
   // endregion
 
   // region event handlers
@@ -135,7 +155,9 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
       spoon.openFile( uri, false );
     }
   }
+  // endregion
 
+  // region Methods
   protected void updateSaveVFSButtonEnableStatus() {
     Spoon spoon = this.getSpoon();
     TransMeta activeTransformation = spoon.getActiveTransformation();
@@ -144,22 +166,6 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
 
     // disable save file on VFS button if no transformation or job is active
     this.getSaveVfsButton().setDisabled( !buttonEnabled );
-  }
-  // endregion
-
-  // region Methods
-  private VfsDialogFileInfo getLastOpenedFile() {
-    VfsDialogFileInfo fileInfo = new VfsDialogFileInfo();
-    Spoon spoon = this.getSpoon();
-    try {
-      fileInfo.setInitialFile( KettleVFS.getFileObject( spoon.getLastFileOpened() ) );
-      fileInfo.setRootFile( fileInfo.getInitialFile().getFileSystem().getRoot() );
-    } catch ( Exception e ) {
-      String message = Const.getStackTracker( e );
-      new ErrorDialog( spoon.getShell(), BaseMessages.getString( Spoon.class, "Spoon.Error" ), message, e );
-    }
-
-    return fileInfo;
   }
 
   private boolean saveXMLFileToVfs() {
@@ -190,16 +196,16 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
     VfsDialogFileInfo fileInfo = this.getLastOpenedFile();
     FileObject rootFile = fileInfo.getRootFile();
     FileObject initialFile = fileInfo.getInitialFile();
-    if( rootFile == null || initialFile == null ) {
+    if ( rootFile == null || initialFile == null ) {
       return false;
     }
 
     String filename = null;
     FileObject selectedFile = spoon
-      .getVfsFileChooserDialog( rootFile, initialFile )
-      .open( spoonShell, null, this.getConstants().getVfsScheme(), true, "Untitled",
-        Const.STRING_TRANS_AND_JOB_FILTER_EXT, Const.getTransformationAndJobFilterNames(),
-        VfsFileChooserDialog.VFS_DIALOG_SAVEAS );
+        .getVfsFileChooserDialog( rootFile, initialFile )
+        .open( spoonShell, null, this.getConstants().getVfsScheme(), true, "Untitled",
+          Const.STRING_TRANS_AND_JOB_FILTER_EXT, Const.getTransformationAndJobFilterNames(),
+          VfsFileChooserDialog.VFS_DIALOG_SAVEAS );
 
     if ( selectedFile != null ) {
       filename = selectedFile.getName().getFriendlyURI();
@@ -225,12 +231,12 @@ public class ToolbarEventHandler extends AbstractXulEventHandler {
     return false;
   }
 
-  private String addDefaultExtensionIfMissing( String fileName, String[] extensions, String defaultExtension ) {
+  protected String addDefaultExtensionIfMissing( String fileName, String[] extensions, String defaultExtension ) {
     String resultFileName = fileName;
     // Is the filename ending on .ktr, .xml?
     boolean ending = false;
-    for ( int i = 0; i < extensions.length - 1; i++ ) {
-      if ( fileName.endsWith( extensions[i].substring( 1 ) ) ) {
+    for ( String extension : extensions ) {
+      if ( fileName.endsWith( extension.substring( 1 ) ) ) {
         ending = true;
       }
     }
