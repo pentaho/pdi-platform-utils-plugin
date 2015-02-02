@@ -20,7 +20,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.core.exception.KettleFileException;
 import org.pentaho.di.core.vfs.KettleVFS;
+import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
+import pt.webdetails.di.baserver.utils.repositoryPlugin.PentahoConnectionConfiguration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,6 +44,16 @@ public class PentahoSolutionVfsFileChooserController {
         }
 
         @Override public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
+        }
+      } );
+
+      this.view.getNewConnectionButton().addSelectionListener( new SelectionListener() {
+        @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+          controller.newConnection();
+        }
+
+        @Override public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
+
         }
       } );
     }
@@ -128,6 +140,17 @@ public class PentahoSolutionVfsFileChooserController {
     } catch ( KettleFileException e ) {
       showMessage( "ERROR FILE", this.getView().getShell() );
     }
+  }
+
+  protected void newConnection() {
+    PentahoConnectionConfiguration configuration = new PentahoConnectionConfiguration()
+      .setName( "amazing" );
+
+    Shell spoonShell = Spoon.getInstance().getShell();
+    PentahoConnectionConfigurationDialog dialog = new PentahoConnectionConfigurationDialog(  spoonShell , configuration );
+    PentahoConnectionConfigurationDialogController controller = new PentahoConnectionConfigurationDialogController( dialog );
+
+    dialog.open();
   }
 
   // region aux

@@ -76,6 +76,10 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
   }
   private VariableSpace variableSpace;
 
+  public Button getNewConnectionButton() {
+    return this.newConnectionButton;
+  }
+  private Button newConnectionButton;
 
   private Button connectionButton;
   public Button getConnectionButton() {
@@ -195,6 +199,8 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
 
     this.buildEmptyWidget( group );
     this.connectionButton = this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.ConnectButton.Text" );
+
+    this.newConnectionButton = this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.NewConnectionButton.Text" );
   }
 
   private Composite buildGroup( Composite parent, int numberOfColumns ) {
