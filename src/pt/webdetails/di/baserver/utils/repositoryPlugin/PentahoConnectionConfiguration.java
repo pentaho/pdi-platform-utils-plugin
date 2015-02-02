@@ -39,6 +39,7 @@ public final class PentahoConnectionConfiguration implements IPentahoConnectionC
     this.serverUrl = serverUrl;
     return this;
   }
+  @MetaStoreAttribute()
   private String serverUrl;
 
   @Override
@@ -50,6 +51,7 @@ public final class PentahoConnectionConfiguration implements IPentahoConnectionC
     this.userName = userName;
     return this;
   }
+  @MetaStoreAttribute()
   private String userName;
 
   @Override

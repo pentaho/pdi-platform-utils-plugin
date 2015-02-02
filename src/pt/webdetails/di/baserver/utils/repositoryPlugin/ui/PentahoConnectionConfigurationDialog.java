@@ -35,7 +35,7 @@ import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.gui.WindowProperty;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.reporting.libraries.base.util.ArgumentNullException;
-import pt.webdetails.di.baserver.utils.repositoryPlugin.IPentahoConnectionConfiguration;
+import pt.webdetails.di.baserver.utils.repositoryPlugin.PentahoConnectionConfiguration;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.RepositoryPlugin;
 
 import java.util.Map;
@@ -69,14 +69,14 @@ public class PentahoConnectionConfigurationDialog extends Dialog {
   }
   private Shell shell;
 
-  public IPentahoConnectionConfiguration getEditedConfiguration() {
+  public PentahoConnectionConfiguration getEditedConfiguration() {
     return this.getConfigurationComposite().getPentahoConnectionConfiguration();
   }
 
-  public IPentahoConnectionConfiguration getOriginalConfiguration() {
+  public PentahoConnectionConfiguration getOriginalConfiguration() {
     return this.originalConfiguration;
   }
-  private IPentahoConnectionConfiguration originalConfiguration;
+  private PentahoConnectionConfiguration originalConfiguration;
 
   protected PropsUI getPropsUI() {
     return this.propsUI;
@@ -91,7 +91,7 @@ public class PentahoConnectionConfigurationDialog extends Dialog {
 
   // region Constructors
   public PentahoConnectionConfigurationDialog( Shell parent,
-                                               IPentahoConnectionConfiguration pentahoConnectionConfiguration ) {
+                                               PentahoConnectionConfiguration pentahoConnectionConfiguration ) {
     super( parent );
 
     if ( pentahoConnectionConfiguration == null ) {
@@ -138,26 +138,27 @@ public class PentahoConnectionConfigurationDialog extends Dialog {
     shell.setSize( 480, 550 );
     this.getPropsUI().setLook( shell );
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    //FormLayout layout = new FormLayout();
+    GridLayout layout = new GridLayout( 2, false );
+    layout.marginWidth = Const.FORM_MARGIN;
+    layout.marginHeight = Const.FORM_MARGIN;
 
     //TODO: i18n
     shell.setText( "Pentaho Configs" );
-    shell.setLayout( new FormLayout() );
+    shell.setLayout( layout );
 
     Composite group = this.buildGroup( shell, 2 );
 
-    /*
+
     //TODO: Change this to another place?
     // Set panel variable space to use by default the
     // environment and kettle properties file variables
     VariableSpace variableSpace = new Variables();
     variableSpace.copyVariablesFrom( this.getEnvironmentVariables( Spoon.getInstance() ) );
     variableSpace.copyVariablesFrom( this.getKettlePropertiesVariables() );
-    IPentahoConnectionConfiguration configurationToEdit = this.getOriginalConfiguration().clone();
+    PentahoConnectionConfiguration configurationToEdit = this.getOriginalConfiguration().clone();
     this.configurationComposite = new PentahoConnectionConfigurationComposite( group, this.getPropsUI(), variableSpace , configurationToEdit );
-    */
+
 
     this.okButton = this.buildButton( group, "System.Button.OK" );
     this.cancelButton = this.buildButton( group, "System.Button.Cancel" );

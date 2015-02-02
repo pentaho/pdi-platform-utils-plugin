@@ -29,6 +29,7 @@ import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.TextVar;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.IPentahoConnectionConfiguration;
+import pt.webdetails.di.baserver.utils.repositoryPlugin.PentahoConnectionConfiguration;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.RepositoryPlugin;
 
 
@@ -44,10 +45,10 @@ public class PentahoConnectionConfigurationComposite extends Composite {
   private static Class<?> PKG = RepositoryPlugin.class;
 
   // region Properties
-  public IPentahoConnectionConfiguration getPentahoConnectionConfiguration() {
+  public PentahoConnectionConfiguration getPentahoConnectionConfiguration() {
     return this.pentahoConnectionConfiguration;
   }
-  private IPentahoConnectionConfiguration pentahoConnectionConfiguration;
+  private PentahoConnectionConfiguration pentahoConnectionConfiguration;
 
   public VariableSpace getVariableSpace() {
     return this.variableSpace;
@@ -69,7 +70,7 @@ public class PentahoConnectionConfigurationComposite extends Composite {
   public PentahoConnectionConfigurationComposite( Composite parent,
                                                   PropsUI propsUI,
                                                   VariableSpace variableSpace,
-                                                  IPentahoConnectionConfiguration pentahoConnectionConfiguration ) {
+                                                  PentahoConnectionConfiguration pentahoConnectionConfiguration ) {
     super( parent, SWT.NONE );
 
     propsUI.setLook( this );

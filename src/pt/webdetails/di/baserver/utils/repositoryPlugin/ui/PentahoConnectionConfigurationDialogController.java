@@ -20,12 +20,12 @@ import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import org.pentaho.metastore.persist.MetaStoreFactory;
 import org.pentaho.metastore.util.PentahoDefaults;
-import pt.webdetails.di.baserver.utils.repositoryPlugin.IPentahoConnectionConfiguration;
+import pt.webdetails.di.baserver.utils.repositoryPlugin.PentahoConnectionConfiguration;
 
 public class PentahoConnectionConfigurationDialogController {
 
-  private static MetaStoreFactory<IPentahoConnectionConfiguration> metaStoreFactory =
-    new MetaStoreFactory<IPentahoConnectionConfiguration>( IPentahoConnectionConfiguration.class,
+  private static MetaStoreFactory<PentahoConnectionConfiguration> metaStoreFactory =
+    new MetaStoreFactory<PentahoConnectionConfiguration>( PentahoConnectionConfiguration.class,
       Spoon.getInstance().getMetaStore(), PentahoDefaults.NAMESPACE );
 
   // region Properties
@@ -60,8 +60,8 @@ public class PentahoConnectionConfigurationDialogController {
   }
 
   public void okClicked() {
-    IPentahoConnectionConfiguration originalConfig = this.getDialog().getOriginalConfiguration();
-    IPentahoConnectionConfiguration editedConfig = this.getDialog().getEditedConfiguration();
+    PentahoConnectionConfiguration originalConfig = this.getDialog().getOriginalConfiguration();
+    PentahoConnectionConfiguration editedConfig = this.getDialog().getEditedConfiguration();
 
     boolean newConfiguration = !this.configurationExists( editedConfig.getName() );
     // if nothing has changed and not a new configuration do nothing
@@ -78,7 +78,7 @@ public class PentahoConnectionConfigurationDialogController {
     this.getDialog().dispose();
   }
 
-  private void updateConfiguration( IPentahoConnectionConfiguration updatedConfiguration, String originalName ) {
+  private void updateConfiguration( PentahoConnectionConfiguration updatedConfiguration, String originalName ) {
     // remove original configuration if it exits
     try {
       this.metaStoreFactory.deleteElement( originalName );
