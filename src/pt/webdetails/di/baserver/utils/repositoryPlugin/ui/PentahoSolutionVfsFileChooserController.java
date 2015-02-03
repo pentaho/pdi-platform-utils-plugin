@@ -146,7 +146,6 @@ public class PentahoSolutionVfsFileChooserController {
     PentahoConnectionConfiguration configuration = new PentahoConnectionConfiguration()
       .setName( "amazing" );
 
-    Shell spoonShell = Spoon.getInstance().getShell();
     Shell openUrlShell = this.getView().getVfsFileChooserDialog().dialog;
     PentahoConnectionConfigurationDialog dialog = new PentahoConnectionConfigurationDialog(  openUrlShell , configuration );
     PentahoConnectionConfigurationDialogController controller = new PentahoConnectionConfigurationDialogController( dialog );
