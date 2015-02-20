@@ -1,15 +1,20 @@
-/*!
-* Copyright 2002 - 2014 Webdetails, a Pentaho company.  All rights reserved.
-*
-* This software was developed by Webdetails and is provided under the terms
-* of the Mozilla Public License, Version 2.0, or any later version. You may not use
-* this file except in compliance with the license. If you need a copy of the license,
-* please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
-*
-* Software distributed under the Mozilla Public License is distributed on an "AS IS"
-* basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
-* the license for the specific language governing your rights and limitations.
-*/
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ */
 
 package org.pentaho.di.baserver.utils;
 
@@ -47,9 +52,6 @@ import org.pentaho.di.ui.trans.step.BaseStepDialog;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Marco Vala
- */
 public class SetSessionVariableDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SetSessionVariableMeta.class; // for i18n purposes, needed by Translator2!!
 
