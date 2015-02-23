@@ -45,5 +45,8 @@
 
     <!-- Linux dependency used just for compilation -->
     <dependency org="org.eclipse.swt" name="swt-linux-x86_64" rev="3.7"/>
+
+    <dependency org="junit"         name="junit"         rev='4.10'  conf="test->default" />
+    <dependency org="org.mockito"   name="mockito-all"   rev="1.8.4" conf="test, default->default"/>
   </dependencies>
 </ivy-module>
