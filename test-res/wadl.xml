@@ -1,0 +1,1420 @@
+<application xmlns="http://wadl.dev.java.net/2009/02">
+  <resources base="http://localhost:8080/pentaho/api/">
+    <resource path="">
+      <method id="doGetRoot" name="GET">
+        <response>
+          <representation mediaType="*/*"/>
+        </response>
+      </method>
+      <resource path="docs">
+        <method id="doGetDocs" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/emailconfig/">
+      <resource path="/resetEmailConfig">
+        <method id="deleteEmailConfig" name="GET">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="emailConfiguration" mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/isValid">
+        <method id="isValid" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/sendEmailTest">
+        <method id="sendEmailTest" name="PUT">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="emailConfiguration" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/setEmailConfig">
+        <method id="setEmailConfig" name="PUT">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="emailConfiguration" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/getEmailConfig">
+        <method id="getEmailConfig" name="GET">
+          <response>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/users">
+      <method id="getUsers" name="GET">
+        <response>
+          <representation mediaType="application/xml"/>
+        </response>
+      </method>
+    </resource>
+    <resource path="/plugin-manager/">
+      <resource path="/perspectives">
+        <method id="getPluginPerpectives" name="GET">
+          <response>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/ids">
+        <method id="getPluginIds" name="GET">
+          <response>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/{pluginId}/setting/{settingName}">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pluginId" style="template" type="xs:string"/>
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="settingName" style="template" type="xs:string"/>
+        <method id="getPluginSetting" name="GET">
+          <response>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/overlays">
+        <method id="getOverlays" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="id" style="query" type="xs:string" default=""/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="overlay" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/settings/{settingName}">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="settingName" style="template" type="xs:string"/>
+        <method id="getPluginSettings" name="GET">
+          <response>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/user-settings">
+      <resource path="/list">
+        <method id="getUserSettings" name="GET">
+          <response>
+            <representation mediaType="application/json"/>
+            <representation mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{setting : .+}">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="setting" style="template" type="xs:string"/>
+        <method id="getUserSetting" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="setUserSetting" name="POST">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/session/">
+      <resource path="/userWorkspaceDir">
+        <method id="doGetCurrentUserDir" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/workspaceDirForUser/{user}">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="template" type="xs:string"/>
+        <method id="doGetUserDir" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/setredirect">
+        <method id="setredirect" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/repos">
+      <resource path="{pathId : .+}/content">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetFileOrDir" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/{contextId}/{resourceId : .+}">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="contextId" style="template" type="xs:string"/>
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="resourceId" style="template" type="xs:string"/>
+        <method id="doFormPost" name="POST">
+          <request>
+            <representation mediaType="application/x-www-form-urlencoded"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="doGet" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/default">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doExecuteDefault" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/executableTypes">
+        <method id="getExecutableTypes" name="GET">
+          <response>
+            <representation mediaType="application/xml"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/mantle/">
+      <resource path="/getAdminContent">
+        <method id="getAdminContent" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/settings">
+        <method id="getMantleSettings" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/cubes">
+        <method id="getMondrianCatalogs" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="cube" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="cube" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/session-variable">
+        <method id="setSessionVariable" name="POST">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="value" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="getSessionVariable" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="clearSessionVariable" name="DELETE">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/locale">
+        <method id="getLocale" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="setLocaleOverride" name="POST">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/isAuthenticated">
+        <method id="isAuthenticated" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/isAdministrator">
+        <method id="isAdministrator" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/system/refresh">
+      <resource path="/metadata">
+        <method id="refreshMetadata" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/globalActions">
+        <method id="executeGlobalActions" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/systemSettings">
+        <method id="refreshSystemSettings" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/mondrianSchemaCache">
+        <method id="flushMondrianSchemaCache" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/reportingDataCache">
+        <method id="purgeReportingDataCache" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/theme">
+      <resource path="/active">
+        <method id="getActiveTheme" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/set">
+        <method id="setTheme" name="POST">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/list">
+        <method id="getSystemThemes" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="theme" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="theme" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/repo/dirs/">
+      <resource path="{pathId : .+}">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="createDirs" name="PUT">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/repo/files/import">
+      <method id="doPostImport" name="POST">
+        <request>
+          <representation mediaType="multipart/form-data"/>
+        </request>
+        <response>
+          <representation mediaType="text/html"/>
+        </response>
+      </method>
+    </resource>
+    <resource path="/userrolelist/">
+      <resource path="/permission-users">
+        <method id="getPermissionUsers" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/permission-roles">
+        <method id="getPermissionRoles" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/roles">
+        <method id="getRoles" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/users">
+        <method id="getUsers" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/allRoles">
+        <method id="getAllRoles" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/extraRoles">
+        <method id="getExtraRoles" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/getUsersInRole">
+        <method id="getUsersInRole" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="role" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="application/xml"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/getRolesForUser">
+        <method id="getRolesForUser" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="application/xml"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/systemRoles">
+        <method id="getSystemRoles" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/repo/publish">
+      <resource path="/publishfile">
+        <method id="writeFile" name="POST">
+          <request>
+            <representation mediaType="multipart/form-data"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/version">
+      <resource path="/softwareUpdates">
+        <method id="getSoftwareUpdatesDocument" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/show">
+        <method id="getVersion" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/userroledao/">
+      <resource path="/removeRoleFromUser">
+        <method id="removeRoleFromUser" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/assignAllRolesToUser">
+        <method id="assignAllRolesToUser" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/removeAllRolesFromUser">
+        <method id="removeAllRolesFromUser" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/assignUserToRole">
+        <method id="assignUserToRole" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/removeUserFromRole">
+        <method id="removeUserFromRole" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/assignAllUsersToRole">
+        <method id="assignAllUsersToRole" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/removeAllUsersFromRole">
+        <method id="removeAllUsersFromRole" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/updatePassword">
+        <method id="updatePassword" name="PUT">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="user" mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/roleAssignments">
+        <method id="setLogicalRoles" name="PUT">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="logicalRoleAssignments" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="logicalRoleAssignments" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/assignRoleToUser">
+        <method id="assignRoleToUser" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/roles">
+        <method id="getRoles" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/users">
+        <method id="getUsers" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/logicalRoleMap">
+        <method id="getRoleBindingStruct" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="systemRolesMap" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="systemRolesMap" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/createUser">
+        <method id="createUser" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="user" mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/createRole">
+        <method id="createRole" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/deleteRoles">
+        <method id="deleteRole" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/deleteUsers">
+        <method id="deleteUser" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/userRoles">
+        <method id="getUserRoles" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/roleMembers">
+        <method id="getRoleMembers" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/repo/files/">
+      <resource path="{pathId : .+}/move">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doMove" name="PUT">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/deletepermanent">
+        <method id="doDeleteFilesPermanent" name="PUT">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/delete">
+        <method id="doDeleteFiles" name="PUT">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/restore">
+        <method id="doRestore" name="PUT">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/children">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doCopyFiles" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="mode" style="query" type="xs:int"/>
+            <representation mediaType="text/plain"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="doGetChildren" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetFileOrDir" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="createFile" name="PUT">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/parameterizable">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doIsParameterizable" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/download">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetFileOrDirAsDownload" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user-agent" style="header" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="withManifest" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/inline">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetFileAsInline" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/acl">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="setFileAcls" name="PUT">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileAclDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileAclDto" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="doGetFileAcl" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileAclDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileAclDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/creator">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doSetContentCreator" name="PUT">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="doGetContentCreator" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/locales">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetFileLocales" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="localeMapDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="localeMapDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/localeProperties">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetLocaleProperties" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="application/json"/>
+          </response>
+        </method>
+        <method id="doSetLocaleProperties" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="application/xml"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/deleteLocale">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doDeleteLocale" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="application/xml"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/properties">
+        <method id="doGetRootProperties" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/canAccessMap">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetCanAccessList" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="permissions" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/pathsAccessList">
+        <method id="doGetPathsAccessList" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringListWrapper" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringListWrapper" mediaType="application/json"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/canAccess">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetCanAccess" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="permissions" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/canAdminister">
+        <method id="doGetCanAdminister" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/reservedCharacters">
+        <method id="doGetReservedChars" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/canCreate">
+        <method id="doGetCanCreate" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/properties">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetProperties" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/generatedContent">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetGeneratedContent" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/generatedContentForUser">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetGeneratedContentForUser" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/tree">
+        <method id="doGetRootTree" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="depth" style="query" type="xs:int"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileTreeDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileTreeDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/children">
+        <method id="doGetRootChildren" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/tree">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetTree" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="depth" style="query" type="xs:int"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileTreeDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileTreeDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/deleted">
+        <method id="doGetDeletedFiles" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/metadata">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doGetMetadata" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="application/json"/>
+          </response>
+        </method>
+        <method id="doSetMetadata" name="PUT">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="application/xml"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/createDir">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doCreateDirs" name="PUT">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/generatedContentForSchedule">
+        <method id="doGetGeneratedContentForSchedule" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lineageId" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="{pathId : .+}/rename">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <method id="doRename" name="PUT">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="newName" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/reservedCharactersDisplay">
+        <method id="doGetReservedCharactersDisplay" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/scheduler">
+      <resource path="/blockout/hasblockouts">
+        <method id="hasBlockouts" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/blockout/add">
+        <method id="addBlockout" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/blockout/update">
+        <method id="updateBlockout" name="POST">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="jobid" style="query" type="xs:string"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/blockout/willFire">
+        <method id="blockoutWillFire" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/blockout/blockstatus">
+        <method id="getBlockStatus" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
+          </request>
+          <response>
+            <representation mediaType="application/json"/>
+            <representation mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/getContentCleanerJob">
+        <method id="getContentCleanerJob" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/getJobs">
+        <method id="getAllJobs" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/isScheduleAllowed">
+        <method id="isScheduleAllowed" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="id" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/canSchedule">
+        <method id="doGetCanSchedule" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/jobState">
+        <method id="getJobState" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/jobinfotest">
+        <method id="getJobInfo" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/blockout/blockoutjobs">
+        <method id="getBlockoutJobs" name="GET">
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/generatedContentForSchedule">
+        <method id="doGetGeneratedContentForSchedule" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lineageId" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/pauseJob">
+        <method id="pauseJob" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/removeJob">
+        <method id="removeJob" name="DELETE">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/resumeJob">
+        <method id="resumeJob" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/pause">
+        <method id="pause" name="POST">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/job">
+        <method id="createJob" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/triggerNow">
+        <method id="triggerNow" name="POST">
+          <request>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/jobinfo">
+        <method id="getJob" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="jobId" style="query" type="xs:string"/>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="asCronString" style="query" type="xs:string" default="false"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/jobs">
+        <method id="getJobs" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="asCronString" style="query" type="xs:boolean" default="false"/>
+          </request>
+          <response>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
+            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/blockout/shouldFireNow">
+        <method id="shouldFireNow" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/shutdown">
+        <method id="shutdown" name="POST">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/start">
+        <method id="start" name="POST">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/state">
+        <method id="getState" name="GET">
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/system/">
+      <method id="getAll" name="GET">
+        <response>
+          <representation mediaType="application/xml"/>
+        </response>
+      </method>
+      <resource path="/executableTypes">
+        <method id="getExecutableTypes" name="GET">
+          <response>
+            <representation mediaType="application/xml"/>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/authentication-provider">
+        <method id="getAuthenticationProvider" name="GET">
+          <response>
+            <representation mediaType="application/json"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/locale">
+        <method id="getLocale" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+        <method id="setLocaleOverride" name="POST">
+          <request>
+            <representation mediaType="*/*"/>
+          </request>
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+      <resource path="/timezones">
+        <method id="getTimeZones" name="GET">
+          <response>
+            <representation mediaType="application/json"/>
+            <representation mediaType="application/xml"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/legacy/permissions">
+      <method id="getLegacyPermissions" name="GET">
+        <response>
+          <representation mediaType="application/xml"/>
+        </response>
+      </method>
+    </resource>
+    <resource path="/authorization/action">
+      <resource path="/isauthorized">
+        <method id="validateAuth" name="GET">
+          <request>
+            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="authAction" style="query" type="xs:string"/>
+          </request>
+          <response>
+            <representation mediaType="text/plain"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/plugins/{pluginId}">
+      <resource path="/files/{path : .+}">
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pluginId" style="template" type="xs:string"/>
+        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="path" style="template" type="xs:string"/>
+        <method id="readFile" name="GET">
+          <response>
+            <representation mediaType="*/*"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/password">
+      <resource path="/encrypt">
+        <method id="encryptionForm" name="GET">
+          <response>
+            <representation mediaType="text/html"/>
+          </response>
+        </method>
+        <method id="encryptPassword" name="POST">
+          <request>
+            <representation mediaType="application/x-www-form-urlencoded">
+              <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="password" style="query" type="xs:string"/>
+            </representation>
+          </request>
+          <response>
+            <representation mediaType="text/html"/>
+          </response>
+        </method>
+      </resource>
+    </resource>
+    <resource path="/roles">
+      <method id="getRoles" name="GET">
+        <response>
+          <representation mediaType="application/xml"/>
+        </response>
+      </method>
+    </resource>
+  </resources>
+</application>
