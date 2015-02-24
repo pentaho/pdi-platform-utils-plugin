@@ -22,7 +22,7 @@
       target: stage
       prepare this project for distribution / installation
   ===========================================================================================-->
-  <target name="stage" depends="clean,resolve,compile.compile" description="prepares files for distribution">
+  <target name="stage" depends="clean,resolve,compile.compile,jar" description="prepares files for distribution">
 
     <!-- create the stage folder tree -->
     <mkdir dir="${stage.dir}"/>

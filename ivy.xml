@@ -11,9 +11,8 @@
     <conf name="dev" visibility="private"/>
   </configurations>
   <publications>
-    <artifact name="${ivy.artifact.id}" type="jar" conf="default"/>
-    <artifact name="${ivy.artifact.id}" type="zip" conf="zip"/>
-    <artifact name="${ivy.artifact.id}" m:classifier="sources" type="source" ext="jar" conf="source"/>
+    <artifact name="${ivy.artifact.id}" type="jar" conf="default" />
+    <artifact name="${package.id}" type="zip" conf="zip" />
   </publications>
   <dependencies defaultconf="default->default">
     <dependency org="pentaho" name="pentaho-platform-core" rev="${dependency.pentaho-platform.revision}" transitive="false" changing="true"/>
