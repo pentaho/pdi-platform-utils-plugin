@@ -39,7 +39,7 @@ public class WadlParser {
   }
 
 
-  private Collection<Endpoint> parseResources( Node resourceNode, final String parentPath ) {
+  protected Collection<Endpoint> parseResources( Node resourceNode, final String parentPath ) {
 
     String path = resourceNode.valueOf( "@path" );
     if ( path.isEmpty() ) {
@@ -54,12 +54,6 @@ public class WadlParser {
       endpoints.add( parseMethod( (Node) methodNode, path ) );
     }
 
-    /*
-    Node methodNode = resourceNode.selectSingleNode( "*[name() = 'method']" );
-    if ( methodNode != null ) {
-    }
-    */
-
     for ( Object innerResourceNode : resourceNode.selectNodes( "*[name() = 'resource']" ) ) {
       endpoints.addAll( parseResources( (Node) innerResourceNode, path ) );
     }
@@ -67,7 +61,7 @@ public class WadlParser {
     return endpoints;
   }
 
-  private Endpoint parseMethod( Node methodNode, final String path ) {
+  protected Endpoint parseMethod( Node methodNode, final String path ) {
     Endpoint endpoint = new Endpoint();
     endpoint.setId( methodNode.valueOf( "@id" ) );
     endpoint.setHttpMethod( HttpMethod.valueOf( methodNode.valueOf( "@name" ) ) );
@@ -83,21 +77,21 @@ public class WadlParser {
     return endpoint;
   }
 
-  private QueryParam parseQueryParam( Node queryParamNode ) {
+  protected QueryParam parseQueryParam( Node queryParamNode ) {
     QueryParam queryParam = new QueryParam();
     queryParam.setName( queryParamNode.valueOf( "@name" ) );
     queryParam.setType( queryParamNode.valueOf( "@type" ) );
     return queryParam;
   }
 
-  private String sanitizePath( String path ) {
+  protected String sanitizePath( String path ) {
     // trim off leading and trailing slashes
-    path = ( path.startsWith( "/" )) ? path.substring( 1 ) : path;
-    path = ( path.endsWith( "/" )) ? path.substring( 0, path.length() - 1 ) : path;
+    path = ( path.startsWith( "/" ) ) ? path.substring( 1 ) : path;
+    path = ( path.endsWith( "/" ) ) ? path.substring( 0, path.length() - 1 ) : path;
     return path;
   }
 
-  private String shortPath( String path ) {
+  protected String shortPath( String path ) {
     return path.substring( path.indexOf( "api" ) + 3 );
   }
 }
