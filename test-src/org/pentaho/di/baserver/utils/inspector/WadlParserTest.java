@@ -1,3 +1,21 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ */
+
 package org.pentaho.di.baserver.utils.inspector;
 
 import org.dom4j.Document;
@@ -9,10 +27,9 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import static org.hamcrest.core.IsAnything.any;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -66,4 +83,99 @@ public class WadlParserTest {
 
     assertEquals( wadlParserSpy.getEndpoints( mock( Document.class ) ).size(), 0 );
   }
+
+  @Test
+  public void testParseResources() throws Exception {
+    final Node resourceNode = mock( Node.class );
+    final String parentPath = "parentPath";
+
+    when( resourceNode.valueOf( "@path" ) ).thenReturn( "" );
+
+    final String id = "id";
+    final HttpMethod httpMethod = HttpMethod.GET;
+    final Node mockNode = createMockNode( id, httpMethod );
+    when( resourceNode.selectNodes( anyString() ) ).thenReturn(
+        new ArrayList() {{
+          add( mockNode );
+        }}, new ArrayList()
+    );
+    final Collection<Endpoint> endpoints = wadlParserSpy.parseResources( resourceNode, parentPath );
+
+    verify( wadlParserSpy, times( 1 ) ).parseMethod( any( Node.class ), eq( parentPath ) );
+    assertNotNull( endpoints );
+    assertEquals( endpoints.size(), 1 );
+    final Endpoint endpoint = endpoints.iterator().next();
+    assertEquals( endpoint.getId(), id );
+    assertEquals( endpoint.getHttpMethod(), httpMethod );
+    assertEquals( endpoint.getPath(), parentPath );
+  }
+
+  @Test
+  public void testParseMethod() {
+    final String id = "id";
+    final HttpMethod httpMethod = HttpMethod.GET;
+    final String path = "path";
+
+    final Endpoint endpoint = wadlParserSpy.parseMethod( createMockNode( id, httpMethod ), path );
+    assertNotNull( endpoint );
+    assertEquals( endpoint.getId(), id );
+    assertEquals( endpoint.getHttpMethod(), httpMethod );
+    assertEquals( endpoint.getPath(), path );
+  }
+
+  @Test
+  public void testParseQueryParam() {
+    final String id = "id";
+    final HttpMethod httpMethod = HttpMethod.GET;
+    final Node mockNode = createMockNode( id, httpMethod );
+
+    final String name = "name";
+    final String type = "type";
+    doReturn( name ).when( mockNode ).valueOf( "@name" );
+    doReturn( type ).when( mockNode ).valueOf( "@type" );
+
+    final QueryParam queryParam = wadlParserSpy.parseQueryParam( mockNode );
+    assertNotNull( queryParam );
+    assertEquals( queryParam.getName(), name );
+    assertEquals( queryParam.getType(), type );
+  }
+
+  @Test
+  public void testSanitizePath() {
+    final String path = "path";
+    String sanitizePath = wadlParserSpy.sanitizePath( path );
+    assertEquals( path, sanitizePath );
+
+    final String path1 = "/path";
+    sanitizePath = wadlParserSpy.sanitizePath( path1 );
+    assertEquals( path, sanitizePath );
+
+    final String path2 = "path/";
+    sanitizePath = wadlParserSpy.sanitizePath( path2 );
+    assertEquals( path, sanitizePath );
+
+    final String path3 = "/path/";
+    sanitizePath = wadlParserSpy.sanitizePath( path3 );
+    assertEquals( path, sanitizePath );
+  }
+
+  @Test
+  public void testShortPath() {
+    final String path = "/path";
+    String shortPath = wadlParserSpy.shortPath( path );
+    assertEquals( path, shortPath);
+
+    String apiPath = "somePath/api" + path;
+    shortPath = wadlParserSpy.shortPath( apiPath );
+    assertEquals( path, shortPath);
+  }
+
+  private Node createMockNode( String id, HttpMethod httpMethod ) {
+    final Node node = mock( Node.class );
+    doReturn( id ).when( node ).valueOf( "@id" );
+    doReturn( httpMethod.toString() ).when( node ).valueOf( "@name" );
+
+    return node;
+  }
 }
+

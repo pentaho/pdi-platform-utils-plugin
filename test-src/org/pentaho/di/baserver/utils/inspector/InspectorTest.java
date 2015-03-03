@@ -1,3 +1,21 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ */
+
 package org.pentaho.di.baserver.utils.inspector;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -9,7 +27,6 @@ import org.pentaho.di.baserver.utils.web.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -235,5 +252,13 @@ public class InspectorTest {
         SERVER_URL + "/plugin/" + moduleName + "/api/application.wadl" );
     assertEquals( inspectorSpy.getApplicationWadlEndpoint( DEFAULT_PLATFORM_NAME ),
         SERVER_URL + "/api/application.wadl" );
+  }
+
+  @Test
+  public void testCallHttp() {
+    inspectorSpy.callHttp( "test" );
+
+    verify( inspectorSpy ).getUserName();
+    verify( inspectorSpy ).getPassword();
   }
 }
