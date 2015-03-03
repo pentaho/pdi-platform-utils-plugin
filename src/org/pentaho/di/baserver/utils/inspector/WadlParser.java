@@ -92,6 +92,6 @@ public class WadlParser {
   }
 
   protected String shortPath( String path ) {
-    return path.substring( path.indexOf( "api" ) + 3 );
+    return path.contains( "/api/") ? path.substring( path.indexOf( "/api/" ) + 4 ) : path;
   }
 }
