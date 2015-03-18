@@ -19,40 +19,39 @@
 package org.pentaho.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.pentaho.di.core.Const;
 import org.pentaho.di.ui.core.PropsUI;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public final class CheckBoxBuilder extends WidgetBuilder<Button> {
-
+public final class TabItemBuilder extends WidgetBuilder<Composite> {
   private String text;
-  private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
 
-  public CheckBoxBuilder( Composite parent, PropsUI props ) {
-    super( parent, props );
-  }
-
-  public CheckBoxBuilder setText( String text ) {
+  public TabItemBuilder setText( String text ) {
     this.text = text;
     return this;
   }
 
-  public CheckBoxBuilder addSelectionListener( SelectionListener selectionListener ) {
-    selectionListeners.add( selectionListener );
-    return this;
+  public TabItemBuilder( CTabFolder parent, PropsUI props ) {
+    super( parent, props );
   }
 
   @Override
-  protected Button createWidget( Composite parent ) {
-    Button checkBox = new Button( parent, SWT.CHECK );
-    checkBox.setText( text );
-    for ( SelectionListener selectionListener : selectionListeners ) {
-      checkBox.addSelectionListener( selectionListener );
-    }
-    return checkBox;
+  protected Composite createWidget( Composite parent ) {
+    setTopPlacement( 0 );
+    setBottomPlacement( 100 );
+    setLeftPlacement( 0 );
+    setRightPlacement( 100 );
+    Composite serverTabItemControl = new Composite( parent, SWT.NONE );
+    serverTabItemControl.setLayout( new FormLayout() );
+    // create group
+    CTabItem tabItem = new CTabItem( (CTabFolder) parent, SWT.NONE );
+    tabItem.setText( this.text );
+    tabItem.setControl( serverTabItemControl );
+
+    return serverTabItemControl;
   }
 }

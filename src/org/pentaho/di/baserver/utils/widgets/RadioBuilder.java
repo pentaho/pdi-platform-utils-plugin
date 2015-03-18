@@ -27,32 +27,32 @@ import org.pentaho.di.ui.core.PropsUI;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CheckBoxBuilder extends WidgetBuilder<Button> {
+public final class RadioBuilder extends WidgetBuilder<Button> {
 
   private String text;
   private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
 
-  public CheckBoxBuilder( Composite parent, PropsUI props ) {
+  public RadioBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
   }
 
-  public CheckBoxBuilder setText( String text ) {
+  public RadioBuilder setText( String text ) {
     this.text = text;
     return this;
   }
 
-  public CheckBoxBuilder addSelectionListener( SelectionListener selectionListener ) {
+  public RadioBuilder addSelectionListener( SelectionListener selectionListener ) {
     selectionListeners.add( selectionListener );
     return this;
   }
 
   @Override
   protected Button createWidget( Composite parent ) {
-    Button checkBox = new Button( parent, SWT.CHECK );
-    checkBox.setText( text );
+    Button radio = new Button( parent, SWT.RADIO );
+    radio.setText( text );
     for ( SelectionListener selectionListener : selectionListeners ) {
-      checkBox.addSelectionListener( selectionListener );
+      radio.addSelectionListener( selectionListener );
     }
-    return checkBox;
+    return radio;
   }
 }

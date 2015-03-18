@@ -15,23 +15,34 @@
  *
  * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.di.baserver.utils.widgets;
+
+package org.pentaho.di.baserver.utils.widgets.fields;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.pentaho.di.baserver.utils.widgets.LabelBuilder;
+import org.pentaho.di.baserver.utils.widgets.TextAreaBuilder;
+import org.pentaho.di.baserver.utils.widgets.TextBoxBuilder;
+import org.pentaho.di.baserver.utils.widgets.WidgetBuilder;
 import org.pentaho.di.ui.core.PropsUI;
 
-public final class TabFolderBuilder extends WidgetBuilder<CTabFolder> {
+public class TextAreaFieldBuilder extends FieldBuilder<Text> {
 
-  public TabFolderBuilder( Composite parent, PropsUI props ) {
+
+  public TextAreaFieldBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
   }
 
-  @Override
-  protected CTabFolder createWidget( Composite parent ) {
-    // create tab folder
-    CTabFolder tabFolder = new CTabFolder( this.parent, SWT.BORDER );
-    return tabFolder;
+  @Override protected Field<Text> createWidget( Composite parent ) {
+    final Field<Text> field = new Field<Text>( parent, SWT.NONE );
+    prepareControl( field, new TextAreaBuilder( field, props ).setBottomPlacement( 100 ) );
+    for ( ModifyListener ml : listeners ) {
+      field.getControl().addModifyListener( ml );
+    }
+
+    return field;
   }
 }
