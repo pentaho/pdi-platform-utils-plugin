@@ -19,40 +19,28 @@
 package org.pentaho.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.ui.core.PropsUI;
 
-import java.util.ArrayList;
-import java.util.List;
+public final class ImageBuilder extends WidgetBuilder<Label> {
 
-public final class CheckBoxBuilder extends WidgetBuilder<Button> {
+  private Image image;
 
-  private String text;
-  private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
+  public ImageBuilder setImage ( final Image image ) {
+    this.image = image;
+    return this;
+  }
 
-  public CheckBoxBuilder( Composite parent, PropsUI props ) {
+  public ImageBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
   }
 
-  public CheckBoxBuilder setText( String text ) {
-    this.text = text;
-    return this;
-  }
-
-  public CheckBoxBuilder addSelectionListener( SelectionListener selectionListener ) {
-    selectionListeners.add( selectionListener );
-    return this;
-  }
-
   @Override
-  protected Button createWidget( Composite parent ) {
-    Button checkBox = new Button( parent, SWT.CHECK );
-    checkBox.setText( text );
-    for ( SelectionListener selectionListener : selectionListeners ) {
-      checkBox.addSelectionListener( selectionListener );
-    }
-    return checkBox;
+  protected Label createWidget( Composite parent ) {
+    Label label = new Label( parent, SWT.RIGHT );
+    label.setImage( image );
+    return label;
   }
 }

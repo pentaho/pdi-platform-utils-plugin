@@ -19,40 +19,31 @@
 package org.pentaho.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.ui.core.PropsUI;
 
-import java.util.ArrayList;
-import java.util.List;
+public final class TextAreaBuilder extends WidgetBuilder<Text> {
 
-public final class CheckBoxBuilder extends WidgetBuilder<Button> {
+  private String defaultText = "";
 
-  private String text;
-  private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
+  public String getDefaultText() {
+    return this.defaultText;
+  }
 
-  public CheckBoxBuilder( Composite parent, PropsUI props ) {
+  public TextAreaBuilder setDefaultText( final String defaultText ) {
+    this.defaultText = defaultText;
+    return this;
+  }
+
+  public TextAreaBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
   }
 
-  public CheckBoxBuilder setText( String text ) {
-    this.text = text;
-    return this;
-  }
-
-  public CheckBoxBuilder addSelectionListener( SelectionListener selectionListener ) {
-    selectionListeners.add( selectionListener );
-    return this;
-  }
-
   @Override
-  protected Button createWidget( Composite parent ) {
-    Button checkBox = new Button( parent, SWT.CHECK );
-    checkBox.setText( text );
-    for ( SelectionListener selectionListener : selectionListeners ) {
-      checkBox.addSelectionListener( selectionListener );
-    }
-    return checkBox;
+  protected Text createWidget( Composite parent ) {
+    Text textBox = new Text( parent, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL );
+    textBox.setText( this.defaultText );
+    return textBox;
   }
 }

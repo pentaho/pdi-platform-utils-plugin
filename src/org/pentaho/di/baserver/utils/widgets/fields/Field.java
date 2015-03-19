@@ -15,23 +15,36 @@
  *
  * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.di.baserver.utils.widgets;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
+package org.pentaho.di.baserver.utils.widgets.fields;
+
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.pentaho.di.ui.core.PropsUI;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 
-public final class TabFolderBuilder extends WidgetBuilder<CTabFolder> {
+public class Field<T extends Control> extends Composite {
+  private Label label;
+  private T control;
 
-  public TabFolderBuilder( Composite parent, PropsUI props ) {
-    super( parent, props );
+  public Field( Composite composite, int i ) {
+    super( composite, i );
+    setLayout( new FormLayout() );
   }
 
-  @Override
-  protected CTabFolder createWidget( Composite parent ) {
-    // create tab folder
-    CTabFolder tabFolder = new CTabFolder( this.parent, SWT.BORDER );
-    return tabFolder;
+  public Label getLabel() {
+    return label;
+  }
+
+  public T getControl() {
+    return control;
+  }
+
+  public void setLabel( Label label ) {
+    this.label = label;
+  }
+
+  public void setControl( T control ) {
+    this.control = control;
   }
 }
