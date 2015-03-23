@@ -54,7 +54,8 @@ import java.util.List;
   description = "CallEndpointMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
   categoryDescription = "BAServerUtils.Category",
-  isSeparateClassLoaderNeeded = true )
+  isSeparateClassLoaderNeeded = true,
+  documentationUrl = "" ) // TODO: add documentation URL when it will be available in http://wiki.pentaho.com/display/EAI/Pentaho+Data+Integration+Steps
 public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -246,7 +247,7 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     this.httpMethod = "";
     this.isModuleFromField = false;
     this.isEndpointFromField = false;
-    this.resultField = "Result";
+    this.resultField = "";
     this.statusCodeField = "";
     this.responseTimeField = "";
     allocate( 0 );

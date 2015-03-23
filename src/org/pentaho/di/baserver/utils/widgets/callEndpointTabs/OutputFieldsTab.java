@@ -23,6 +23,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
 import org.pentaho.di.baserver.utils.widgets.fields.TextVarFieldBuilder;
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.ui.core.PropsUI;
@@ -75,5 +76,10 @@ public class OutputFieldsTab extends Tab {
     meta.setResultField( resultNameText.getText() );
     meta.setStatusCodeField( statusCodeNameText.getText() );
     meta.setResponseTimeField( responseTimeNameText.getText() );
+  }
+
+  @Override public boolean isValid() {
+    return !Const.isEmpty( resultNameText.getText() ) || !Const.isEmpty( statusCodeNameText.getText() )
+        || !Const.isEmpty( responseTimeNameText.getText() );
   }
 }

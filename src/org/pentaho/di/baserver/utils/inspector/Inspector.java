@@ -82,7 +82,7 @@ public class Inspector {
   }
   
   /**
-   * Inpects the a server *
+   * Inspects the BA server *
    *
    * @param serverUrl
    * @param userName
@@ -95,6 +95,21 @@ public class Inspector {
     this.password = password;
     return inspectModuleNames();
   }
+
+    /**
+     * Gets connection status to the BA server *
+     *
+     * @param serverUrl
+     * @param userName
+     * @param password
+     * @return
+     */
+    public int checkServerStatus( final String serverUrl, final String userName, final String password ) {
+        this.serverUrl = serverUrl;
+        this.userName = userName;
+        this.password = password;
+        return getConnectionStatus();
+    }
 
   /**
    * *
@@ -205,6 +220,13 @@ public class Inspector {
     }
 
     return false;
+  }
+
+  protected int getConnectionStatus() {
+    String endpointUrl = getBaseUrl( this.getServerUrl() ) + "/plugin-manager/ids";
+    Response response = callHttp( endpointUrl );
+
+    return response == null ? -1 : response.getStatusCode();
   }
 
   private String[] getModuleNames( String result ) {

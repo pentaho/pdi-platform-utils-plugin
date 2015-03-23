@@ -47,7 +47,6 @@ import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.EndpointTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.OutputFieldsTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.ParametersTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.ServerTab;
-import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.Tab;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
 import org.pentaho.di.baserver.utils.widgets.fields.TextBoxFieldBuilder;
 import org.pentaho.di.core.Const;
@@ -99,7 +98,8 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
 
   private void processInputChange() {
     this.metaInfo.setChanged( this.changed );
-    wOK.setEnabled( !Const.isEmpty( stepName.getText() ) );
+    wOK.setEnabled( !Const.isEmpty( stepName.getText() )
+        && serverTab.isValid() && endpointTab.isValid() && parametersTab.isValid() && outputFieldsTab.isValid());
   }
 
   private void ok() {
@@ -196,12 +196,6 @@ public class CallEndpointDialog extends BaseStepDialog implements StepDialogInte
         transMeta,
         changeListener
     );
-    tabFolder.addSelectionListener( new SelectionAdapter() {
-      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
-        super.widgetSelected( selectionEvent );
-        ((Tab) tabFolder.getSelection().getControl()).refresh();
-      }
-    } );
     tabFolder.setSelection( 0 );
   }
 

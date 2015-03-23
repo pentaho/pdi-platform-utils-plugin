@@ -18,12 +18,17 @@
 
 package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
+import org.apache.commons.httpclient.HttpStatus;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
+import org.pentaho.di.baserver.utils.inspector.Inspector;
+import org.pentaho.di.baserver.utils.widgets.ButtonBuilder;
 import org.pentaho.di.baserver.utils.widgets.CheckBoxBuilder;
 import org.pentaho.di.baserver.utils.widgets.GroupBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
@@ -54,36 +59,16 @@ public class ServerTab extends Tab {
         .build();
     urlText = urlField.getControl();
 
-    Group authenticationGroup = new GroupBuilder( this, props )
-        .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Authentication" ) )
+    final Field<TextVar> userNameField = new TextVarFieldBuilder( this, props )
+        .setVariableSpace( transMeta )
+        .addModifyListener( modifyListener )
+        .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.UserName" ) )
         .setTop( urlField )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
-    useSessionCB = new CheckBoxBuilder( authenticationGroup, props )
-        .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.UseSession" ) )
-        .addSelectionListener( selectionListener )
-        .addSelectionListener( new SelectionAdapter() {
-          @Override public void widgetSelected( SelectionEvent selectionEvent ) {
-            super.widgetSelected( selectionEvent );
-            final boolean useSessionCBSelection = useSessionCB.getSelection();
-            userNameText.setEnabled( !useSessionCBSelection );
-            passwordText.setEnabled( !useSessionCBSelection );
-          }
-        } )
-        .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
-        .build();
-    final Field<TextVar> userNameField = new TextVarFieldBuilder( authenticationGroup, props )
-        .setVariableSpace( transMeta )
-        .addModifyListener( modifyListener )
-        .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.UserName" ) )
-        .setTop( useSessionCB )
-        .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
-        .build();
     userNameText = userNameField.getControl();
-    final Field<TextVar> passwordField = new TextVarFieldBuilder( authenticationGroup, props )
+    final Field<TextVar> passwordField = new TextVarFieldBuilder( this, props )
         .setVariableSpace( transMeta )
         .addModifyListener( modifyListener )
         .addModifyListener( new ModifyListener() {
@@ -102,17 +87,63 @@ public class ServerTab extends Tab {
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
     passwordText = passwordField.getControl();
+
+    final Button testConnectionButton = new ButtonBuilder( this, props )
+        .setLabelText(BaseMessages.getString(PKG, "CallEndpointDialog.TabItem.Server.TestConnection"))
+        .setTop(passwordField)
+        .setLeftPlacement(LEFT_PLACEMENT)
+        .build();
+      testConnectionButton.addSelectionListener(new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent selectionEvent) {
+              super.widgetSelected(selectionEvent);
+              testConnection( true );
+          }
+      });
+
+    useSessionCB = new CheckBoxBuilder( this, props )
+        .setText( BaseMessages.getString(PKG, "CallEndpointDialog.TabItem.Server.UseSession"))
+        .addSelectionListener(selectionListener)
+        .setTop(testConnectionButton)
+        .setLeftPlacement(LEFT_PLACEMENT)
+        .setRightPlacement(RIGHT_PLACEMENT)
+        .build();
   }
 
-  @Override public void loadData( CallEndpointMeta meta ) {
+    public boolean testConnection( boolean showDialogOnSuccess ) {
+        String serverUrl = getServerUrl();
+        String userName = getUserName();
+        String password = getPassword();
+        int serverStatus = Inspector.getInstance().checkServerStatus(serverUrl, userName, password);
+        MessageBox messageBox = new MessageBox(getShell());
+        switch ( serverStatus ) {
+            case HttpStatus.SC_OK:
+              if ( !showDialogOnSuccess ) {
+                return true;
+              }
+              messageBox.setText( BaseMessages.getString(PKG, "CallEndpointDialog.TabItem.Server.Test.Success.Header") );
+              messageBox.setMessage( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.Success.Message" ) );
+              break;
+            case HttpStatus.SC_UNAUTHORIZED:
+              messageBox.setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableLogin.Header" ) );
+              messageBox.setMessage( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableLogin.Message" ) );
+              break;
+            default:
+              messageBox.setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableConnect.Header" ) );
+              messageBox.setMessage( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableConnect.Message" ) );
+              break;
+        }
+        messageBox.open();
+        return serverStatus == HttpStatus.SC_OK;
+    }
+
+    @Override public void loadData( CallEndpointMeta meta ) {
     urlText.setText( meta.getServerURL() );
     userNameText.setText( meta.getUserName() );
     passwordText.setText( meta.getPassword() );
 
     final boolean bypassingAuthentication = meta.isBypassingAuthentication();
-    useSessionCB.setSelection( bypassingAuthentication );
-    userNameText.setEnabled( !bypassingAuthentication );
-    passwordText.setEnabled( !bypassingAuthentication );
+    useSessionCB.setSelection(bypassingAuthentication );
   }
 
   @Override public void saveData( CallEndpointMeta meta ) {
