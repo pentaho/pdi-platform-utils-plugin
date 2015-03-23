@@ -52,9 +52,11 @@ public abstract class Tab extends Composite {
     tabItem.setControl( this );
   }
 
-  public abstract void loadData( CallEndpointMeta meta );
+  public boolean isValid() {
+    return true;
+  }
 
-  public void refresh() {}
+  public abstract void loadData( CallEndpointMeta meta );
 
   public abstract void saveData( CallEndpointMeta meta );
 }

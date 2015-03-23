@@ -37,6 +37,7 @@ import org.pentaho.di.baserver.utils.widgets.RadioBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.ComboVarFieldBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
 import org.pentaho.di.baserver.utils.widgets.fields.TextAreaFieldBuilder;
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -57,7 +58,6 @@ public class EndpointTab extends Tab {
   private final ServerTab serverTab;
   private ComboVar serverModule, resourcePath, httpMethod;
   private final Button fromServerRadio;
-  private final Label connectionStatus;
 
   public EndpointTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, ModifyListener modifyListener,
       SelectionListener selectionListener, String stepName, LogChannel log, ServerTab serverTab ) {
@@ -87,10 +87,6 @@ public class EndpointTab extends Tab {
         populateEndpoints();
       }
     } );
-    connectionStatus = new LabelBuilder( endpointLocationGroup, props )
-        .setLeft( getEndpointButton )
-        .setRightPlacement( RIGHT_PLACEMENT )
-        .build();
     final Button fieldsUpstreamRadio = new RadioBuilder( endpointLocationGroup, props )
         .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.FieldsUpstream" ) )
         .addSelectionListener( selectionListener )
@@ -178,27 +174,20 @@ public class EndpointTab extends Tab {
 
   public void populateEndpoints() {
     if ( fromServerRadio.getSelection() ) {
-      String serverUrl = serverTab.getServerUrl();
-      String userName = serverTab.getUserName();
-      String password = serverTab.getPassword();
-      if ( Inspector.getInstance().inspectServer( serverUrl, userName, password ) ) {
-        this.connectionStatus
-            .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.Status.Connected" ) );
-        this.connectionStatus.setForeground( getParent().getDisplay().getSystemColor( SWT.COLOR_DARK_GREEN ) );
-        updateModuleNamesComboBox();
-        updateEndpointPathsComboBox();
-        updateHttpMethodsComboBox();
-      } else {
-        this.connectionStatus
-            .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.Status.CannotConnect" ) );
-        this.connectionStatus.setForeground( getParent().getDisplay().getSystemColor( SWT.COLOR_RED ) );
-      }
+        String serverUrl = serverTab.getServerUrl();
+        String userName = serverTab.getUserName();
+        String password = serverTab.getPassword();
+        if ( serverTab.testConnection( false ) && Inspector.getInstance().inspectServer( serverUrl, userName, password ) ) {
+            updateModuleNamesComboBox();
+            updateEndpointPathsComboBox();
+            updateHttpMethodsComboBox();
+        }
     } else {
-      this.connectionStatus.setText( "" );
       updateModuleNamesComboBox();
       updateEndpointPathsComboBox();
       updateHttpMethodsComboBox();
     }
+    // TODO: update resourcePathDetailsField when WADL requests for endpoint description will be ready
   }
 
   @Override public void saveData( CallEndpointMeta meta ) {
@@ -206,6 +195,11 @@ public class EndpointTab extends Tab {
     meta.setModuleName( serverModule.getText() );
     meta.setEndpointPath( resourcePath.getText() );
     meta.setHttpMethod( httpMethod.getText() );
+  }
+
+  @Override public boolean isValid() {
+    return !Const.isEmpty( serverModule.getText() ) && !Const.isEmpty( resourcePath.getText() )
+        && !Const.isEmpty( httpMethod.getText() );
   }
 
   private void updateModuleNamesComboBox() {
