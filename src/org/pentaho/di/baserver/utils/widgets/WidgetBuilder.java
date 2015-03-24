@@ -45,6 +45,7 @@ public abstract class WidgetBuilder<T extends Control> {
   private int rightMargin = Const.MARGIN;
   private int bottomMargin = Const.MARGIN;
   private boolean isEnabled = true;
+  private String toolTipText;
 
   //endregion
 
@@ -191,6 +192,11 @@ public abstract class WidgetBuilder<T extends Control> {
     return this;
   }
 
+  public WidgetBuilder<T> setToolTipText( String toolTipText ) {
+    this.toolTipText = toolTipText;
+    return this;
+  }
+
   //endregion
 
   //region Constructors
@@ -206,6 +212,9 @@ public abstract class WidgetBuilder<T extends Control> {
 
   public T build() {
     this.widget = createWidget( this.parent );
+    if ( !Const.isEmpty( toolTipText ) ) {
+      this.widget.setToolTipText( toolTipText );
+    }
     this.props.setLook( this.widget );
     placeWidget( this.widget );
     this.widget.setEnabled( this.isEnabled );
