@@ -95,7 +95,7 @@ public class CallEndpointMetaTest {
     assertEquals( "", callEndpointMetaSpy.getHttpMethod() );
     assertEquals( false, callEndpointMetaSpy.isModuleFromField() );
     assertEquals( false, callEndpointMetaSpy.isEndpointFromField() );
-    assertEquals( "Result", callEndpointMetaSpy.getResultField() );
+    assertEquals( "", callEndpointMetaSpy.getResultField() );
     assertEquals( "", callEndpointMetaSpy.getStatusCodeField() );
     assertEquals( "", callEndpointMetaSpy.getResponseTimeField() );
 
