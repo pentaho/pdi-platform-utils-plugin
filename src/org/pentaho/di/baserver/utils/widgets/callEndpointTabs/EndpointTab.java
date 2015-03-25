@@ -24,9 +24,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.inspector.Endpoint;
 import org.pentaho.di.baserver.utils.inspector.Inspector;
@@ -81,6 +84,7 @@ public class EndpointTab extends Tab {
         .setLabelText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.GetEndpoint" ) )
         .setLeft( fromServerRadio )
         .build();
+    ( (FormData) getEndpointButton.getLayoutData() ).top = new FormAttachment( fromServerRadio, 0, SWT.CENTER );
     getEndpointButton.addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
@@ -92,6 +96,7 @@ public class EndpointTab extends Tab {
         .addSelectionListener( selectionListener )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setTop( fromServerRadio )
+        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .build();
     final SelectionAdapter switchEndpointLocation = new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
@@ -108,8 +113,10 @@ public class EndpointTab extends Tab {
     Group wsEndpointGroup = new GroupBuilder( this, props )
         .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.WebServiceEndpoint" ) )
         .setTop( endpointLocationGroup )
+        .setTopMargin( BAServerCommonDialog.LARGE_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( 50 )
+        .setBottomPlacement( 100 )
         .build();
 
     final Field<ComboVar> serverModuleField = new ComboVarFieldBuilder( wsEndpointGroup, props )
@@ -125,6 +132,7 @@ public class EndpointTab extends Tab {
         } )
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.BAServerModule" ) )
+        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
@@ -141,6 +149,7 @@ public class EndpointTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.ResourcePath" ) )
         .setTop( serverModuleField )
+        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
@@ -150,6 +159,7 @@ public class EndpointTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.HTTPMethod" ) )
         .setTop( resourcePathField )
+        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
@@ -158,7 +168,9 @@ public class EndpointTab extends Tab {
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.ResourcePathDetails" ) )
         .addModifyListener( modifyListener )
         .setTop( endpointLocationGroup )
+        .setTopMargin( BAServerCommonDialog.LARGE_MARGIN )
         .setLeft( wsEndpointGroup )
+        .setLeftMargin( BAServerCommonDialog.LARGE_MARGIN )
         .setRightPlacement( RIGHT_PLACEMENT )
         .setBottomPlacement( 100 )
         .build();

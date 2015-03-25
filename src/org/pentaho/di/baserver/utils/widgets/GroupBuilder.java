@@ -22,7 +22,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.pentaho.di.core.Const;
+import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.ui.core.PropsUI;
 
 public final class GroupBuilder extends WidgetBuilder<Group> {
@@ -50,8 +50,8 @@ public final class GroupBuilder extends WidgetBuilder<Group> {
 
     // create a new form layout for the group
     FormLayout layout = new FormLayout();
-    layout.marginWidth = Const.FORM_MARGIN;
-    layout.marginHeight = Const.FORM_MARGIN;
+    layout.marginWidth = BAServerCommonDialog.MEDUIM_MARGIN;
+    layout.marginHeight = BAServerCommonDialog.LARGE_MARGIN;
     group.setLayout( layout );
 
     return group;

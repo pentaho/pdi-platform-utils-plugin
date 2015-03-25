@@ -22,6 +22,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.widgets.LabelBuilder;
 import org.pentaho.di.baserver.utils.widgets.WidgetBuilder;
 import org.pentaho.di.ui.core.PropsUI;
@@ -63,6 +64,7 @@ public abstract class FieldBuilder<T extends Control> extends WidgetBuilder<Fiel
     field.setControl(
         controlBuilder
             .setTop( l )
+            .setTopMargin( BAServerCommonDialog.SMALL_MARGIN )
             .setLeftPlacement( 0 )
             .setRightPlacement( fieldRightPlacement )
             .build()
