@@ -40,10 +40,10 @@ public abstract class WidgetBuilder<T extends Control> {
   private int leftPlacement = -1;
   private int rightPlacement = -1;
   private int bottomPlacement = -1;
-  private int topMargin = Const.MARGIN;
-  private int leftMargin = Const.MARGIN;
-  private int rightMargin = Const.MARGIN;
-  private int bottomMargin = Const.MARGIN;
+  private int topMargin = 0;
+  private int leftMargin = 0;
+  private int rightMargin = 0;
+  private int bottomMargin = 0;
   private boolean isEnabled = true;
   private String toolTipText;
 

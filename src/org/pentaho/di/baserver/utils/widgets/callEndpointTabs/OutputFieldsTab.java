@@ -20,6 +20,7 @@ package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.ModifyListener;
+import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
 import org.pentaho.di.baserver.utils.widgets.fields.TextVarFieldBuilder;
@@ -51,6 +52,7 @@ public class OutputFieldsTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.OutputFields.StatusCodeName" ) )
         .setTop( resultNameField )
+        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
@@ -60,6 +62,7 @@ public class OutputFieldsTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.OutputFields.ResponseTimeName" ) )
         .setTop( statusCodeNameField )
+        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();

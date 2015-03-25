@@ -21,10 +21,9 @@ package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.ui.core.PropsUI;
 
@@ -36,16 +35,14 @@ public abstract class Tab extends Composite {
   public Tab( CTabFolder tabFolder, String label, PropsUI props ) {
     super( tabFolder, SWT.NONE );
 
-    setLayout( new FormLayout() );
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginLeft = BAServerCommonDialog.MEDUIM_MARGIN;
+    formLayout.marginRight = BAServerCommonDialog.MEDUIM_MARGIN;
+    formLayout.marginTop = BAServerCommonDialog.LARGE_MARGIN;
+    formLayout.marginBottom = BAServerCommonDialog.LARGE_MARGIN;
+    setLayout( formLayout );
 
     props.setLook( this );
-
-    final FormData formData = new FormData();
-    formData.top = new FormAttachment( 0 );
-    formData.bottom = new FormAttachment( 100 );
-    formData.left = new FormAttachment( 0 );
-    formData.right = new FormAttachment( 100 );
-    setLayoutData( formData );
 
     CTabItem tabItem = new CTabItem( tabFolder, SWT.NONE );
     tabItem.setText( label );

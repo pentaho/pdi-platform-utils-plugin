@@ -65,6 +65,9 @@ import java.util.ArrayList;
 public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseStepDialog implements StepDialogInterface {
   public static final int LEFT_PLACEMENT = 0;
   public static final int RIGHT_PLACEMENT = 100;
+  public static final int LARGE_MARGIN = 15;
+  public static final int MEDUIM_MARGIN = 10;
+  public static final int SMALL_MARGIN = 5;
   protected static Class<?> PKG = BAServerCommonDialog.class; // for i18n purposes, needed by Translator2!!
 
   protected final ModifyListener changeListener = new ModifyListener() {
@@ -99,9 +102,10 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
 
     // create form layout
     FormLayout formLayout = new FormLayout();
-    formLayout.marginHeight = Const.FORM_MARGIN;
-    formLayout.marginWidth = Const.FORM_MARGIN;
+    formLayout.marginHeight = LARGE_MARGIN;
+    formLayout.marginWidth = LARGE_MARGIN;
     shell.setLayout( formLayout );
+    shell.setSize( 664, 528 );
 
     props.setLook( shell );
     setShellImage( shell, (StepMetaInterface) metaInfo);
@@ -110,13 +114,21 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     final Composite container = new Composite( shell, SWT.NONE );
     container.setLayout( new FormLayout() );
     props.setLook( container );
+
+    buildContent( container );
+    final Label bottomSeparator = new SeparatorBuilder( shell, props )
+        .setBottomPlacement( 100 )
+        .setBottomMargin( 23 + LARGE_MARGIN )
+        .setLeftPlacement( LEFT_PLACEMENT )
+        .setRightPlacement( RIGHT_PLACEMENT )
+        .build();
+
     FormData containerLD = new FormData();
-    containerLD.top = new FormAttachment( top );
-    containerLD.bottom = new FormAttachment( 100, -30 );
+    containerLD.top = new FormAttachment( top, LARGE_MARGIN );
+    containerLD.bottom = new FormAttachment( bottomSeparator, -LARGE_MARGIN );
     containerLD.left = new FormAttachment( LEFT_PLACEMENT );
     containerLD.right = new FormAttachment( RIGHT_PLACEMENT );
     container.setLayoutData( containerLD );
-    buildContent( container );
 
     // buttons
     wOK = new Button( shell, SWT.PUSH );
@@ -252,6 +264,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
           .setImage( new Image( parent.getDisplay(), inputStream ) )
           .setRightPlacement( RIGHT_PLACEMENT )
           .build();
+      ( (FormData) icon.getLayoutData() ).top = new FormAttachment( field, 0, SWT.CENTER );
       ( (FormData) field.getLayoutData() ).right = new FormAttachment( icon );
     } catch ( KettlePluginException e ) {
       // do nothing
@@ -260,6 +273,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     // separator
     return new SeparatorBuilder( parent, this.props )
         .setTop( field )
+        .setTopMargin( LARGE_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
