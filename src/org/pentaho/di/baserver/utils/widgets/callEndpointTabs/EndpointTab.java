@@ -28,14 +28,12 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.inspector.Endpoint;
 import org.pentaho.di.baserver.utils.inspector.Inspector;
 import org.pentaho.di.baserver.utils.widgets.ButtonBuilder;
 import org.pentaho.di.baserver.utils.widgets.GroupBuilder;
-import org.pentaho.di.baserver.utils.widgets.LabelBuilder;
 import org.pentaho.di.baserver.utils.widgets.RadioBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.ComboVarFieldBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
@@ -55,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class EndpointTab extends Tab {
+  public static final int FIELD_WIDTH = 250;
   private final TransMeta transMeta;
   private final String stepName;
   private final LogChannel log;
@@ -134,7 +133,7 @@ public class EndpointTab extends Tab {
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.BAServerModule" ) )
         .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     serverModule = serverModuleField.getControl();
     final Field<ComboVar> resourcePathField = new ComboVarFieldBuilder( wsEndpointGroup, props )
@@ -151,7 +150,7 @@ public class EndpointTab extends Tab {
         .setTop( serverModuleField )
         .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     resourcePath = resourcePathField.getControl();
     final Field<ComboVar> httpMethodField = new ComboVarFieldBuilder( wsEndpointGroup, props )
@@ -161,7 +160,7 @@ public class EndpointTab extends Tab {
         .setTop( resourcePathField )
         .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     httpMethod = httpMethodField.getControl();
     final Field resourcePathDetailsField = new TextAreaFieldBuilder( this, props )

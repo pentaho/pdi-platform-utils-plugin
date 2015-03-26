@@ -33,7 +33,6 @@ import java.util.List;
 public abstract class FieldBuilder<T extends Control> extends WidgetBuilder<Field<T>> {
   protected String label;
   protected List<ModifyListener> listeners = new ArrayList<ModifyListener>();
-  protected int fieldRightPlacement = 100;
 
   protected FieldBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
@@ -49,11 +48,6 @@ public abstract class FieldBuilder<T extends Control> extends WidgetBuilder<Fiel
     return this;
   }
 
-  public FieldBuilder<T> setFieldRightPlacement( int fieldRightPlacement ) {
-    this.fieldRightPlacement = fieldRightPlacement;
-    return this;
-  }
-
   protected void prepareControl( Field<T> field, WidgetBuilder<T> controlBuilder ) {
     Label l = new LabelBuilder( field, props )
         .setText( label + ":" )
@@ -66,7 +60,7 @@ public abstract class FieldBuilder<T extends Control> extends WidgetBuilder<Fiel
             .setTop( l )
             .setTopMargin( BAServerCommonDialog.SMALL_MARGIN )
             .setLeftPlacement( 0 )
-            .setRightPlacement( fieldRightPlacement )
+            .setRightPlacement( 100 )
             .build()
     );
   }
