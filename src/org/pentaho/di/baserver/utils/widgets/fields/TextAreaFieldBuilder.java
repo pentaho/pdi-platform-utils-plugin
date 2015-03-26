@@ -21,12 +21,8 @@ package org.pentaho.di.baserver.utils.widgets.fields;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.pentaho.di.baserver.utils.widgets.LabelBuilder;
 import org.pentaho.di.baserver.utils.widgets.TextAreaBuilder;
-import org.pentaho.di.baserver.utils.widgets.TextBoxBuilder;
-import org.pentaho.di.baserver.utils.widgets.WidgetBuilder;
 import org.pentaho.di.ui.core.PropsUI;
 
 public class TextAreaFieldBuilder extends FieldBuilder<Text> {

@@ -34,11 +34,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.pentaho.di.baserver.utils.widgets.ButtonBuilder;
 import org.pentaho.di.baserver.utils.widgets.ImageBuilder;
 import org.pentaho.di.baserver.utils.widgets.SeparatorBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
@@ -68,6 +67,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
   public static final int LARGE_MARGIN = 15;
   public static final int MEDUIM_MARGIN = 10;
   public static final int SMALL_MARGIN = 5;
+  public static final int FIELD_WIDTH = 350;
   protected static Class<?> PKG = BAServerCommonDialog.class; // for i18n purposes, needed by Translator2!!
 
   protected final ModifyListener changeListener = new ModifyListener() {
@@ -84,6 +84,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
 
   private Text stepName;
   private T metaInfo;
+  private Button wOK;
 
   public BAServerCommonDialog( Shell parent, T baseStepMeta, TransMeta transMeta, String stepname ) {
     super( parent, baseStepMeta, transMeta, stepname );
@@ -105,7 +106,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     formLayout.marginHeight = LARGE_MARGIN;
     formLayout.marginWidth = LARGE_MARGIN;
     shell.setLayout( formLayout );
-    shell.setSize( 664, 528 );
+    shell.setMinimumSize( 664, 528 );
 
     props.setLook( shell );
     setShellImage( shell, (StepMetaInterface) metaInfo);
@@ -116,12 +117,14 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     props.setLook( container );
 
     buildContent( container );
+
+    Composite buttons = createButtons();
+
     final Label bottomSeparator = new SeparatorBuilder( shell, props )
-        .setBottomPlacement( 100 )
-        .setBottomMargin( 23 + LARGE_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
+    ( (FormData) bottomSeparator.getLayoutData() ).bottom = new FormAttachment( buttons, -LARGE_MARGIN );
 
     FormData containerLD = new FormData();
     containerLD.top = new FormAttachment( top, LARGE_MARGIN );
@@ -129,25 +132,6 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     containerLD.left = new FormAttachment( LEFT_PLACEMENT );
     containerLD.right = new FormAttachment( RIGHT_PLACEMENT );
     container.setLayoutData( containerLD );
-
-    // buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    lsOK = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    wOK.addListener( SWT.Selection, lsOK );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    wCancel.addListener( SWT.Selection, lsCancel );
-    setButtonPositions( new Button[] { wOK, wCancel }, Const.MARGIN, null );
 
     stepName.addModifyListener(changeListener);
 
@@ -177,6 +161,43 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
       }
     }
     return stepname;
+  }
+
+  private Composite createButtons() {
+    final Composite container = new Composite( shell, SWT.NONE );
+    container.setLayout( new FormLayout() );
+    FormData layoutData = new FormData();
+    layoutData.bottom = new FormAttachment( 100 );
+    layoutData.left = new FormAttachment( LEFT_PLACEMENT );
+    layoutData.right = new FormAttachment( RIGHT_PLACEMENT );
+    container.setLayoutData( layoutData );
+    props.setLook( container );
+
+    // buttons
+
+    Button wCancel = new ButtonBuilder( container, props )
+        .setLabelText( BaseMessages.getString( PKG, "System.Button.Cancel" ) )
+        .setRightPlacement( RIGHT_PLACEMENT )
+        .build();
+    wCancel.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        cancel();
+      }
+    } );
+
+    wOK = new ButtonBuilder( container, props )
+        .setLabelText( BaseMessages.getString( PKG, "System.Button.OK" ) )
+        .build();
+    ( (FormData) wOK.getLayoutData() ).right = new FormAttachment( wCancel, -Const.MARGIN, SWT.LEFT );
+    wOK.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        ok();
+      }
+    } );
+
+    return container;
   }
 
   public T getMetaInfo() {
@@ -241,7 +262,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     final Field<Text> field = new TextBoxFieldBuilder( parent, this.props )
         .setLabel( BaseMessages.getString( PKG, "BAServerUtils.Dialog.StepName" ) )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     stepName = field.getControl();
     stepName.addModifyListener(new ModifyListener() {
@@ -265,7 +286,6 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
           .setRightPlacement( RIGHT_PLACEMENT )
           .build();
       ( (FormData) icon.getLayoutData() ).top = new FormAttachment( field, 0, SWT.CENTER );
-      ( (FormData) field.getLayoutData() ).right = new FormAttachment( icon );
     } catch ( KettlePluginException e ) {
       // do nothing
     }

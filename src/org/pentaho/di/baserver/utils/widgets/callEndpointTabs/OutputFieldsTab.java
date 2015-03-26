@@ -32,6 +32,7 @@ import org.pentaho.di.ui.core.widget.TextVar;
 
 public class OutputFieldsTab extends Tab {
 
+  public static final int FIELD_WIDTH = 350;
   private final TextVar resultNameText;
   private final TextVar statusCodeNameText;
   private final TextVar responseTimeNameText;
@@ -44,7 +45,7 @@ public class OutputFieldsTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.OutputFields.ResultName" ) )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     resultNameText = resultNameField.getControl();
     final Field<TextVar> statusCodeNameField = new TextVarFieldBuilder( this, props )
@@ -54,7 +55,7 @@ public class OutputFieldsTab extends Tab {
         .setTop( resultNameField )
         .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     statusCodeNameText = statusCodeNameField.getControl();
     final Field<TextVar> responseTimeNameField = new TextVarFieldBuilder( this, props )
@@ -64,7 +65,7 @@ public class OutputFieldsTab extends Tab {
         .setTop( statusCodeNameField )
         .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     responseTimeNameText = responseTimeNameField.getControl();
   }
