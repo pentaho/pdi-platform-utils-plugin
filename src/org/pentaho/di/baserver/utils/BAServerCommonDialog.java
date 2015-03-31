@@ -108,6 +108,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     formLayout.marginWidth = LARGE_MARGIN;
     shell.setLayout( formLayout );
     shell.setMinimumSize( getMinimumWidth(), getMinimumHeight() );
+    shell.setSize( getMinimumWidth(), getMinimumHeight() );
 
     props.setLook( shell );
     setShellImage( shell, (StepMetaInterface) metaInfo);
@@ -146,9 +147,6 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
 
     // load information (based on previous usage)
     loadData( metaInfo );
-
-    // set the shell size (based on previous usage)
-    setSize();
 
     // set focus on step name
     stepName.selectAll();

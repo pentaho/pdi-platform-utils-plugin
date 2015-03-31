@@ -19,8 +19,12 @@
 package org.pentaho.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.ColumnInfo;
@@ -29,6 +33,7 @@ import org.pentaho.di.ui.core.widget.TableView;
 import java.util.ArrayList;
 
 public final class TableViewBuilder extends WidgetBuilder<TableView> {
+  public static final int MINIMUM_LAST_COLUMN_WIDTH = 20;
 
   private VariableSpace variableSpace;
   private ArrayList<ColumnInfo> columns = new ArrayList<ColumnInfo>();
@@ -59,8 +64,28 @@ public final class TableViewBuilder extends WidgetBuilder<TableView> {
   protected TableView createWidget( Composite parent ) {
     // create table view
     ColumnInfo[] columnsArray = columns.toArray( new ColumnInfo[ columns.size() ] );
-    TableView tableView = new TableView( this.variableSpace, this.parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-      columnsArray, this.rowsCount, this.modifyListener, this.props );
+    final TableView tableView = new TableView( this.variableSpace, this.parent, SWT.BORDER | SWT.FULL_SELECTION
+        | SWT.MULTI, columnsArray, this.rowsCount, this.modifyListener, this.props );
+    final Table table = tableView.getTable();
+    // resize last column to remove extra empty column
+    ControlAdapter columnResizeListener = new ControlAdapter() {
+      @Override public void controlResized( ControlEvent controlEvent ) {
+        super.controlResized( controlEvent );
+        TableColumn[] tableColumns = table.getColumns();
+        int columnsWidth = 0;
+        for ( int i = 0; i < tableColumns.length - 1; i++ ) {
+          TableColumn column = table.getColumn( i );
+          columnsWidth += column.getWidth();
+        }
+        int lastColumnWidth = table.getClientArea().width - columnsWidth;
+        tableColumns[tableColumns.length - 1].setWidth( lastColumnWidth < MINIMUM_LAST_COLUMN_WIDTH
+            ? MINIMUM_LAST_COLUMN_WIDTH : lastColumnWidth );
+      }
+    };
+    table.addControlListener( columnResizeListener );
+    for ( TableColumn column : table.getColumns() ) {
+      column.addControlListener( columnResizeListener );
+    }
     return tableView;
   }
 }
