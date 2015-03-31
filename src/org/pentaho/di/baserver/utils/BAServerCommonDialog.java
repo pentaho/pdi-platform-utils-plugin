@@ -68,6 +68,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
   public static final int MEDUIM_MARGIN = 10;
   public static final int SMALL_MARGIN = 5;
   public static final int FIELD_WIDTH = 350;
+  public static final int BOTTOM_BUTTON_WIDTH = 80;
   protected static Class<?> PKG = BAServerCommonDialog.class; // for i18n purposes, needed by Translator2!!
 
   protected final ModifyListener changeListener = new ModifyListener() {
@@ -106,7 +107,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     formLayout.marginHeight = LARGE_MARGIN;
     formLayout.marginWidth = LARGE_MARGIN;
     shell.setLayout( formLayout );
-    shell.setMinimumSize( 664, 528 );
+    shell.setMinimumSize( getMinimumWidth(), getMinimumHeight() );
 
     props.setLook( shell );
     setShellImage( shell, (StepMetaInterface) metaInfo);
@@ -188,8 +189,10 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
 
     wOK = new ButtonBuilder( container, props )
         .setLabelText( BaseMessages.getString( PKG, "System.Button.OK" ) )
+        .setWidth( BOTTOM_BUTTON_WIDTH )
         .build();
     ( (FormData) wOK.getLayoutData() ).right = new FormAttachment( wCancel, -Const.MARGIN, SWT.LEFT );
+    ( (FormData) wCancel.getLayoutData() ).width = BOTTOM_BUTTON_WIDTH;
     wOK.addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
@@ -297,6 +300,14 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
+  }
+
+  protected int getMinimumHeight() {
+    return 500;
+  }
+
+  protected int getMinimumWidth() {
+    return 600;
   }
 
   protected abstract String getTitleKey();

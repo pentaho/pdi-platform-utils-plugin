@@ -72,6 +72,7 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
         .addColumnInfo( variableColumn )
         .addColumnInfo( defaultValueColumn )
         .setTop( wApplyFormatting )
+        .setTopMargin( MEDUIM_MARGIN )
         .setBottomPlacement( 100 )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
@@ -110,5 +111,13 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
       meta.getVariableName()[ i ] = item.getText( ++index );
       meta.getDefaultValue()[ i ] = item.getText( ++index );
     }
+  }
+
+  @Override protected int getMinimumHeight() {
+    return 414;
+  }
+
+  @Override protected int getMinimumWidth() {
+    return 505;
   }
 }
