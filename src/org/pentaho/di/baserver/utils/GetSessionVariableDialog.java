@@ -109,4 +109,12 @@ public class GetSessionVariableDialog extends BAServerCommonDialog<GetSessionVar
       meta.getDefaultValue()[ i ] = item.getText( ++index );
     }
   }
+
+  @Override protected int getMinimumHeight() {
+    return 391;
+  }
+
+  @Override protected int getMinimumWidth() {
+    return 505;
+  }
 }

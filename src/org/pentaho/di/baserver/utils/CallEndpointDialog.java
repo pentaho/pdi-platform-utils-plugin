@@ -45,6 +45,14 @@ public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
         && serverTab.isValid() && endpointTab.isValid() && parametersTab.isValid() && outputFieldsTab.isValid();
   }
 
+  @Override protected int getMinimumHeight() {
+    return 528;
+  }
+
+  @Override protected int getMinimumWidth() {
+    return 664;
+  }
+
   @Override
   protected String getTitleKey() {
     return "CallEndpointDialog.DialogTitle";
