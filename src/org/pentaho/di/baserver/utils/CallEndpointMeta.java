@@ -247,7 +247,7 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     this.httpMethod = "";
     this.isModuleFromField = false;
     this.isEndpointFromField = false;
-    this.resultField = "";
+    this.resultField = "result";
     this.statusCodeField = "";
     this.responseTimeField = "";
     allocate( 0 );
