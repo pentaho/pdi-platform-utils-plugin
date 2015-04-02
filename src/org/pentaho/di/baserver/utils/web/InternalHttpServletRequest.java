@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -342,7 +343,7 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   }
 
   @Override public Locale getLocale() {
-    return null;
+    return Locale.getDefault();
   }
 
   @Override public Enumeration getLocales() {
@@ -370,11 +371,14 @@ public class InternalHttpServletRequest implements HttpServletRequest {
 
 
   public InternalHttpServletRequest( final String method,
-                                     final String contextPath,
-                                     final String servletPath,
-                                     final String pathInfo ) {
+      final URL fullyQualifiedServerURL,
+      final String servletPath,
+      final String pathInfo ) {
     this.method = method;
-    this.contextPath = contextPath;
+    this.scheme = fullyQualifiedServerURL.getProtocol();
+    this.serverName = fullyQualifiedServerURL.getHost();
+    this.serverPort = fullyQualifiedServerURL.getPort();
+    this.contextPath = fullyQualifiedServerURL.getPath();
     this.servletPath = servletPath;
     this.pathInfo = pathInfo;
     this.requestURI = contextPath + servletPath + pathInfo;

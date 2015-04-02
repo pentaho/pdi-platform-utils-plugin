@@ -44,6 +44,8 @@ import javax.servlet.ServletRequestEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 public final class HttpConnectionHelper {
@@ -142,8 +144,15 @@ public final class HttpConnectionHelper {
 
 
       // create servlet request
+      URL fullyQualifiedServerURL = null;
+      try {
+        fullyQualifiedServerURL = new URL( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
+      } catch ( MalformedURLException e ) {
+        logger.error( "FullyQualifiedServerURL is incorrect" );
+        return response;
+      }
       final InternalHttpServletRequest servletRequest =
-        new InternalHttpServletRequest( httpMethod, "/pentaho", "/api", endpointPath );
+        new InternalHttpServletRequest( httpMethod, fullyQualifiedServerURL, "/api", endpointPath );
       servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", 2 ); // FORWARD = 2
 
       for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
@@ -215,8 +224,15 @@ public final class HttpConnectionHelper {
     JAXRSPluginServlet pluginServlet = (JAXRSPluginServlet) beanFactory.getBean( "api", JAXRSPluginServlet.class );
 
     // create servlet request
-    final InternalHttpServletRequest servletRequest =
-      new InternalHttpServletRequest( httpMethod, "", "/plugin", "/" + pluginName + "/api" + endpointPath );
+    URL fullyQualifiedServerURL = null;
+    try {
+      fullyQualifiedServerURL = new URL( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
+    } catch ( MalformedURLException e ) {
+      logger.error( "FullyQualifiedServerURL is incorrect" );
+      return response;
+    }
+    final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
+        fullyQualifiedServerURL, "/plugin", "/" + pluginName + "/api" + endpointPath );
 
     for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
       servletRequest.setParameter( entry.getKey(), entry.getValue() );
