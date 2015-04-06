@@ -203,14 +203,8 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   @Override
   public String getQueryString() {
     String queryString = "";
-    boolean first = true;
     for ( Map.Entry<String, String[]> entry : this.parameters.entrySet() ) {
-      if ( first ) {
-        queryString = queryString + "?";
-        first = false;
-      } else {
-        queryString = queryString + "&";
-      }
+      queryString = queryString + "&";
       queryString = queryString + entry.getKey() + "=" + entry.getValue()[0];
     }
     return queryString;
@@ -478,5 +472,13 @@ public class InternalHttpServletRequest implements HttpServletRequest {
     } else {
       return null;
     }
+  }
+
+  public byte[] getContent() {
+    return content;
+  }
+
+  public void setContent( byte[] content ) {
+    this.content = content;
   }
 }
