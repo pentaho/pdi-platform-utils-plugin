@@ -48,18 +48,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
-public final class HttpConnectionHelper {
+public class HttpConnectionHelper {
 
   private static final Log logger = LogFactory.getLog( HttpConnectionHelper.class );
 
+  private static HttpConnectionHelper _instance = new HttpConnectionHelper();
 
-  public static Response invokeEndpoint( final String serverUrl,
-                                         final String userName,
-                                         final String password,
-                                         final String moduleName,
-                                         final String endpointPath,
-                                         final String httpMethod,
-                                         final Map<String, String> queryParameters ) {
+  public static HttpConnectionHelper getInstance() {
+    return _instance;
+  }
+
+  public Response invokeEndpoint( final String serverUrl, final String userName, final String password,
+      final String moduleName, final String endpointPath, final Map<String, String> queryParameters ) {
 
     Response response = new Response();
 
@@ -106,11 +106,8 @@ public final class HttpConnectionHelper {
     return response;
   }
 
-
-  public static Response invokeEndpoint( final String moduleName,
-                                         final String endpointPath,
-                                         final String httpMethod,
-                                         final Map<String, String> queryParameters ) {
+  public Response invokeEndpoint( final String moduleName, final String endpointPath, final String httpMethod,
+      final Map<String, String> queryParameters ) {
 
     if ( moduleName.equals( "platform" ) ) {
       return invokePlatformEndpoint( endpointPath, httpMethod, queryParameters );
@@ -119,10 +116,8 @@ public final class HttpConnectionHelper {
     }
   }
 
-
-  protected static Response invokePlatformEndpoint( final String endpointPath,
-                                                    final String httpMethod,
-                                                    final Map<String, String> queryParameters ) {
+  protected Response invokePlatformEndpoint( final String endpointPath, final String httpMethod,
+      final Map<String, String> queryParameters ) {
 
     Response response = new Response();
 
@@ -130,7 +125,7 @@ public final class HttpConnectionHelper {
     ServletContext servletContext = null;
     RequestDispatcher requestDispatcher = null;
     try {
-      Object context = PentahoSystem.getApplicationContext().getContext();
+      Object context = getContext();
       if ( context instanceof ServletContext ) {
         servletContext = (ServletContext) context;
         requestDispatcher = servletContext.getRequestDispatcher( "/api" + endpointPath );
@@ -141,28 +136,24 @@ public final class HttpConnectionHelper {
     }
 
     if ( requestDispatcher != null ) {
-
-
       // create servlet request
-      URL fullyQualifiedServerURL = null;
+      URL fullyQualifiedServerURL;
       try {
-        fullyQualifiedServerURL = new URL( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
+        fullyQualifiedServerURL = getUrl();
       } catch ( MalformedURLException e ) {
         logger.error( "FullyQualifiedServerURL is incorrect" );
         return response;
       }
-      final InternalHttpServletRequest servletRequest =
-        new InternalHttpServletRequest( httpMethod, fullyQualifiedServerURL, "/api", endpointPath );
-      servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", 2 ); // FORWARD = 2
 
-      for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
-        servletRequest.setParameter( entry.getKey(), entry.getValue() );
-      }
+      final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
+          fullyQualifiedServerURL, "/api", endpointPath );
+      servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", 2 ); //FORWARD = 2
+
+      insertParameters( httpMethod, queryParameters, servletRequest );
 
       ServletRequestEvent servletRequestEvent = new ServletRequestEvent( servletContext, servletRequest );
       RequestContextListener requestContextListener = new RequestContextListener();
       requestContextListener.requestInitialized( servletRequestEvent );
-
 
       // create servlet response
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -195,38 +186,69 @@ public final class HttpConnectionHelper {
     return response;
   }
 
-  protected static Response invokePluginEndpoint( final String pluginName,
-                                                  final String endpointPath,
-                                                  final String httpMethod,
-                                                  final Map<String, String> queryParameters ) {
+  protected void insertParameters( String httpMethod, Map<String, String> queryParameters,
+      InternalHttpServletRequest servletRequest ) {
+    if ( !httpMethod.equals( "GET" ) ) {
+      StringBuilder s = new StringBuilder();
+      boolean first = true;
+      for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
+        if ( !first ) {
+          s.append( "&" );
+        }
+        s.append( entry.getKey() ).append( "=" ).append( entry.getValue() );
+        first = false;
+      }
+      servletRequest.setContentType( "application/x-www-form-urlencoded" );
+      servletRequest.setContent( s.toString().getBytes( ) );
+    } else {
+      for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
+        servletRequest.setParameter( entry.getKey(), entry.getValue() );
+      }
+    }
+  }
+
+  protected URL getUrl() throws MalformedURLException {
+    return new URL( getFullyQualifiedServerURL() );
+  }
+
+  protected String getFullyQualifiedServerURL() {
+    return PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
+  }
+
+  protected Object getContext() {
+    return PentahoSystem.getApplicationContext().getContext();
+  }
+
+  protected Response invokePluginEndpoint( final String pluginName, final String endpointPath, final String httpMethod,
+      final Map<String, String> queryParameters ) {
 
     Response response = new Response();
 
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
+    IPluginManager pluginManager = getPluginManager();
     if ( pluginManager == null ) {
       logger.error( "Failed to get plugin manager" );
       return response;
     }
 
-    ClassLoader classLoader = pluginManager.getClassLoader( pluginName );
+    ClassLoader classLoader = getPluginClassLoader( pluginName, pluginManager );
     if ( classLoader == null ) {
       logger.error( "No such plugin: " + pluginName );
       return response;
     }
 
-    ListableBeanFactory beanFactory = pluginManager.getBeanFactory( pluginName );
+    ListableBeanFactory beanFactory = getListableBeanFactory( pluginName, pluginManager );
 
     if ( beanFactory == null || !beanFactory.containsBean( "api" ) ) {
       logger.error( "Bean not found for plugin: " + pluginName );
       return response;
     }
 
-    JAXRSPluginServlet pluginServlet = (JAXRSPluginServlet) beanFactory.getBean( "api", JAXRSPluginServlet.class );
+    JAXRSPluginServlet pluginServlet = getJAXRSPluginServlet( beanFactory );
 
     // create servlet request
-    URL fullyQualifiedServerURL = null;
+    URL fullyQualifiedServerURL;
     try {
-      fullyQualifiedServerURL = new URL( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL() );
+      fullyQualifiedServerURL = getUrl();
     } catch ( MalformedURLException e ) {
       logger.error( "FullyQualifiedServerURL is incorrect" );
       return response;
@@ -234,10 +256,7 @@ public final class HttpConnectionHelper {
     final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
         fullyQualifiedServerURL, "/plugin", "/" + pluginName + "/api" + endpointPath );
 
-    for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
-      servletRequest.setParameter( entry.getKey(), entry.getValue() );
-    }
-
+    insertParameters( httpMethod, queryParameters, servletRequest );
 
     // create servlet response
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -269,16 +288,31 @@ public final class HttpConnectionHelper {
     return response;
   }
 
+  protected JAXRSPluginServlet getJAXRSPluginServlet( ListableBeanFactory beanFactory ) {
+    return (JAXRSPluginServlet) beanFactory.getBean( "api", JAXRSPluginServlet.class );
+  }
 
-  public static Response callHttp( String url, String user, String password ) throws IOException, KettleStepException {
+  protected ListableBeanFactory getListableBeanFactory( String pluginName, IPluginManager pluginManager ) {
+    return pluginManager.getBeanFactory( pluginName );
+  }
+
+  protected ClassLoader getPluginClassLoader( String pluginName, IPluginManager pluginManager ) {
+    return pluginManager.getClassLoader( pluginName );
+  }
+
+  protected IPluginManager getPluginManager() {
+    return PentahoSystem.get( IPluginManager.class );
+  }
+
+  public Response callHttp( String url, String user, String password ) throws IOException, KettleStepException {
 
     // used for calculating the responseTime
     long startTime = System.currentTimeMillis();
 
-    HttpClient httpclient = SlaveConnectionManager.getInstance().createHttpClient();
-    HttpMethod method = new GetMethod( url );
+    HttpClient httpclient = getHttpClient();
+    HttpMethod method = getHttpMethod( url );
     httpclient.getParams().setAuthenticationPreemptive( true );
-    Credentials credentials = new UsernamePasswordCredentials( user, password );
+    Credentials credentials = getCredentials( user, password );
     httpclient.getState().setCredentials( AuthScope.ANY, credentials );
     HostConfiguration hostConfiguration = new HostConfiguration();
 
@@ -291,7 +325,7 @@ public final class HttpConnectionHelper {
 
     Response response = new Response();
     if ( status != -1 ) {
-      String body = null;
+      String body;
       String encoding = "";
       Header contentTypeHeader = method.getResponseHeader( "Content-Type" );
       if ( contentTypeHeader != null ) {
@@ -302,20 +336,7 @@ public final class HttpConnectionHelper {
       }
 
       // get the response
-      InputStreamReader inputStreamReader = null;
-      if ( !Const.isEmpty( encoding ) ) {
-        inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream(), encoding );
-      } else {
-        inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream() );
-      }
-      StringBuilder bodyBuffer = new StringBuilder();
-      int c;
-      while ( ( c = inputStreamReader.read() ) != -1 ) {
-        bodyBuffer.append( (char) c );
-      }
-      inputStreamReader.close();
-      body = bodyBuffer.toString();
-
+      body = getContent( method, encoding );
       // Get response time
       long responseTime = System.currentTimeMillis() - startTime;
 
@@ -324,5 +345,36 @@ public final class HttpConnectionHelper {
       response.setResponseTime( responseTime );
     }
     return response;
+  }
+
+  protected String getContent( HttpMethod method, String encoding ) throws IOException {
+    String body;
+    InputStreamReader inputStreamReader;
+
+    if ( !Const.isEmpty( encoding ) ) {
+      inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream(), encoding );
+    } else {
+      inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream() );
+    }
+    StringBuilder bodyBuffer = new StringBuilder();
+    int c;
+    while ( ( c = inputStreamReader.read() ) != -1 ) {
+      bodyBuffer.append( (char) c );
+    }
+    inputStreamReader.close();
+    body = bodyBuffer.toString();
+    return body;
+  }
+
+  protected Credentials getCredentials( String user, String password ) {
+    return new UsernamePasswordCredentials( user, password );
+  }
+
+  protected HttpMethod getHttpMethod( String url ) {
+    return new GetMethod( url );
+  }
+
+  protected HttpClient getHttpClient() {
+    return SlaveConnectionManager.getInstance().createHttpClient();
   }
 }

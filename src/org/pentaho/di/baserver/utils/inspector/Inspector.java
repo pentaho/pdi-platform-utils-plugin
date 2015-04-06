@@ -292,7 +292,7 @@ public class Inspector {
   protected Response callHttp( String endpointUrl ) {
     Response response = null;
     try {
-      response = HttpConnectionHelper.callHttp( endpointUrl, this.getUserName(), this.getPassword() );
+      response = HttpConnectionHelper.getInstance().callHttp( endpointUrl, this.getUserName(), this.getPassword() );
     } catch ( IOException e ) {
       // do nothing
     } catch ( KettleStepException e ) {
