@@ -1,7 +1,23 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License, version 2 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ *
+ * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ */
+
 package org.pentaho.di.baserver.utils.web;
 
-
-import com.sun.tools.doclets.internal.toolkit.util.DocFinder;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -21,11 +37,10 @@ import org.apache.commons.httpclient.HostConfiguration;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -143,35 +158,38 @@ public class HttpConnectionHelperTest {
   public void teatInsertParameters() throws Exception {
     String httpMethod = "GET";
     Map<String, String> queryParameters = new HashMap<String, String>();
-    queryParameters.put( "param1", "value1" );
-    queryParameters.put( "param2", "value2" );
-    queryParameters.put( "param3", "value3" );
+    queryParameters.put( "param1", "value1|" );
+    queryParameters.put( "param2", "value2\\/" );
+    queryParameters.put( "param3", "value3{}" );
     
     InternalHttpServletRequest request = new InternalHttpServletRequest( "", "" );
     
     httpConnectionHelperSpy.insertParameters( httpMethod, queryParameters, request );
     assertEquals( request.getParameterMap().size(), 3 );
-    assertEquals( request.getParameter( "param1" ), queryParameters.get( "param1" ) );
-    assertEquals( request.getParameter( "param2" ), queryParameters.get( "param2" ) );
-    assertEquals( request.getParameter( "param3" ), queryParameters.get( "param3" ) );
+    assertEquals( URLDecoder.decode( request.getParameter( "param1" ), HttpConnectionHelper.UTF_8 ),
+        queryParameters.get( "param1" ) );
+    assertEquals( URLDecoder.decode( request.getParameter( "param2" ), HttpConnectionHelper.UTF_8 ),
+        queryParameters.get( "param2" ) );
+    assertEquals( URLDecoder.decode( request.getParameter( "param3" ), HttpConnectionHelper.UTF_8 ),
+        queryParameters.get( "param3" ) );
     
     httpMethod = "PUT";
     request = new InternalHttpServletRequest( "", "" );
     httpConnectionHelperSpy.insertParameters( httpMethod, queryParameters, request );
     assertEquals( request.getContentType(), "application/x-www-form-urlencoded" );
-    assertEquals( new String( request.getContent() ), "param1=value1&param2=value2&param3=value3" );
+    assertEquals( new String( request.getContent() ), "param1=value1%7C&param2=value2%5C%2F&param3=value3%7B%7D" );
 
     httpMethod = "POST";
     request = new InternalHttpServletRequest( "", "" );
     httpConnectionHelperSpy.insertParameters( httpMethod, queryParameters, request );
     assertEquals( request.getContentType(), "application/x-www-form-urlencoded" );
-    assertEquals( new String( request.getContent() ), "param1=value1&param2=value2&param3=value3" );
+    assertEquals( new String( request.getContent() ), "param1=value1%7C&param2=value2%5C%2F&param3=value3%7B%7D" );
 
     httpMethod = "DELETE";
     request = new InternalHttpServletRequest( "", "" );
     httpConnectionHelperSpy.insertParameters( httpMethod, queryParameters, request );
     assertEquals( request.getContentType(), "application/x-www-form-urlencoded" );
-    assertEquals( new String( request.getContent() ), "param1=value1&param2=value2&param3=value3" );
+    assertEquals( new String( request.getContent() ), "param1=value1%7C&param2=value2%5C%2F&param3=value3%7B%7D" );
   }
 
   @Test 
