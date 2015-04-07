@@ -44,12 +44,15 @@ import javax.servlet.ServletRequestEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Map;
 
 public class HttpConnectionHelper {
 
+  public static final String UTF_8 = "UTF-8";
   private static final Log logger = LogFactory.getLog( HttpConnectionHelper.class );
 
   private static HttpConnectionHelper _instance = new HttpConnectionHelper();
@@ -81,15 +84,19 @@ public class HttpConnectionHelper {
     }
 
     String queryString = "";
-    boolean first = true;
-    for ( String parameterName : queryParameters.keySet() ) {
-      if ( first ) {
-        queryString = queryString + "?";
-        first = false;
-      } else {
-        queryString = queryString + "&";
+    try {
+      boolean first = true;
+      for ( String parameterName : queryParameters.keySet() ) {
+        if ( first ) {
+          queryString = queryString + "?";
+          first = false;
+        } else {
+          queryString = queryString + "&";
+        }
+        queryString = queryString + parameterName + "=" + URLEncoder.encode ( queryParameters.get( parameterName ), UTF_8 );
       }
-      queryString = queryString + parameterName + "=" + queryParameters.get( parameterName );
+    } catch ( UnsupportedEncodingException e ) {
+      logger.error( "Failed ", e );
     }
     requestUrl = requestUrl + queryString;
 
@@ -149,7 +156,12 @@ public class HttpConnectionHelper {
           fullyQualifiedServerURL, "/api", endpointPath );
       servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", 2 ); //FORWARD = 2
 
-      insertParameters( httpMethod, queryParameters, servletRequest );
+      try {
+        insertParameters( httpMethod, queryParameters, servletRequest );
+      } catch ( UnsupportedEncodingException e ) {
+        logger.error( "Can't encode parameters" );
+        return response;
+      }
 
       ServletRequestEvent servletRequestEvent = new ServletRequestEvent( servletContext, servletRequest );
       RequestContextListener requestContextListener = new RequestContextListener();
@@ -187,7 +199,7 @@ public class HttpConnectionHelper {
   }
 
   protected void insertParameters( String httpMethod, Map<String, String> queryParameters,
-      InternalHttpServletRequest servletRequest ) {
+      InternalHttpServletRequest servletRequest ) throws UnsupportedEncodingException {
     if ( !httpMethod.equals( "GET" ) ) {
       StringBuilder s = new StringBuilder();
       boolean first = true;
@@ -195,14 +207,15 @@ public class HttpConnectionHelper {
         if ( !first ) {
           s.append( "&" );
         }
-        s.append( entry.getKey() ).append( "=" ).append( entry.getValue() );
+        s.append( entry.getKey() ).append( "=" ).append( URLEncoder.encode( entry.getValue(), UTF_8 ) );
         first = false;
       }
       servletRequest.setContentType( "application/x-www-form-urlencoded" );
       servletRequest.setContent( s.toString().getBytes( ) );
     } else {
       for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
-        servletRequest.setParameter( entry.getKey(), entry.getValue() );
+        String value = URLEncoder.encode( entry.getValue(), UTF_8 );
+        servletRequest.setParameter( entry.getKey(), value );
       }
     }
   }
@@ -256,7 +269,12 @@ public class HttpConnectionHelper {
     final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
         fullyQualifiedServerURL, "/plugin", "/" + pluginName + "/api" + endpointPath );
 
-    insertParameters( httpMethod, queryParameters, servletRequest );
+    try {
+      insertParameters( httpMethod, queryParameters, servletRequest );
+    } catch ( UnsupportedEncodingException e ) {
+      logger.error( "Can't encode parameters" );
+      return response;
+    }
 
     // create servlet response
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
