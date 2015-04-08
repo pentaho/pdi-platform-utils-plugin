@@ -29,6 +29,7 @@ public class Endpoint implements Comparable<Endpoint> {
   private String path;
   private HttpMethod httpMethod;
   private ArrayList<QueryParam> queryParams;
+  private String doc;
 
   // endregion
 
@@ -60,6 +61,14 @@ public class Endpoint implements Comparable<Endpoint> {
 
   public Collection<QueryParam> getQueryParams() {
     return this.queryParams;
+  }
+
+  public String getDoc() {
+    return doc;
+  }
+
+  public void setDoc( String doc ) {
+    this.doc = doc;
   }
 
   // endregion

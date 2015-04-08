@@ -18,12 +18,16 @@
 
 package org.pentaho.di.baserver.utils.inspector;
 
-import org.dom4j.Document;
-import org.dom4j.Node;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.pentaho.di.baserver.utils.CallEndpointMeta;
+import org.pentaho.di.i18n.BaseMessages;
 
 public class WadlParser {
 
@@ -38,7 +42,6 @@ public class WadlParser {
     return Collections.emptySet();
   }
 
-
   protected Collection<Endpoint> parseResources( Node resourceNode, final String parentPath ) {
 
     String path = resourceNode.valueOf( "@path" );
@@ -50,11 +53,11 @@ public class WadlParser {
 
     TreeSet<Endpoint> endpoints = new TreeSet<Endpoint>();
 
-    for ( Object methodNode : resourceNode.selectNodes( "*[name() = 'method']" ) ) {
+    for ( Object methodNode : resourceNode.selectNodes( "*[local-name() = 'method']" ) ) {
       endpoints.add( parseMethod( (Node) methodNode, path ) );
     }
 
-    for ( Object innerResourceNode : resourceNode.selectNodes( "*[name() = 'resource']" ) ) {
+    for ( Object innerResourceNode : resourceNode.selectNodes( "*[local-name() = 'resource']" ) ) {
       endpoints.addAll( parseResources( (Node) innerResourceNode, path ) );
     }
 
@@ -67,13 +70,18 @@ public class WadlParser {
     endpoint.setHttpMethod( HttpMethod.valueOf( methodNode.valueOf( "@name" ) ) );
     endpoint.setPath( shortPath( path ) );
 
-    Node requestNode = methodNode.selectSingleNode( "*[name() = 'request']" );
+    Node requestNode = methodNode.selectSingleNode( "*[local-name() = 'request']" );
     if ( requestNode != null ) {
-      for ( Object queryParamNode : requestNode.selectNodes( "*[name() = 'param']" ) ) {
+      for ( Object queryParamNode : requestNode.selectNodes( "*[local-name() = 'param']" ) ) {
         endpoint.getQueryParams().add( parseQueryParam( (Node) queryParamNode ) );
       }
     }
 
+    Node nodeDoc = methodNode.selectSingleNode( "*[local-name() = 'doc']" );
+    if ( nodeDoc != null ) {
+      String doc = parseDoc( nodeDoc.getText() );
+      endpoint.setDoc( doc );
+    }
     return endpoint;
   }
 
@@ -92,6 +100,58 @@ public class WadlParser {
   }
 
   protected String shortPath( String path ) {
-    return path.contains( "/api/") ? path.substring( path.indexOf( "/api/" ) + 4 ) : path;
+    return path.contains( "/api/" ) ? path.substring( path.indexOf( "/api/" ) + 4 ) : path;
   }
+
+  protected String getVisibility( String in ) {
+    Pattern patern = Pattern.compile( "<visibility>(.*)<\\/visibility>.*", Pattern.DOTALL );
+    Matcher matcher = patern.matcher( in );
+    if ( matcher.matches() ) {
+      return matcher.group( 1 );
+    }
+    return "";
+  }
+
+  protected boolean isPublic( String in ) {
+    return "public".equalsIgnoreCase( getVisibility( in ) );
+  }
+
+  protected boolean isDeprecated( String in ) {
+    Pattern patern = Pattern.compile( ".*<deprecated>(true||TRUE||True)<\\/deprecated>.*", Pattern.DOTALL );
+    Matcher matcher = patern.matcher( in );
+    return matcher.matches();
+  }
+
+  protected String extractComment( String in ) {
+    Pattern patern = Pattern.compile( ".*<documentation>(.*)<\\/documentation>.*", Pattern.DOTALL );
+    Matcher matcher = patern.matcher( in );
+    if ( matcher.matches() ) {
+      return matcher.group( 1 );
+    }
+    return "";
+  }
+
+  protected boolean isDocWellFormatted( String doc ) {
+    return doc != null && !"".equals( getVisibility( doc ) );
+  }
+
+  protected String parseDoc( String doc ) {
+    if ( isDocWellFormatted( doc ) ) {
+      boolean isPublic = isPublic( doc );
+      boolean isDeprecated = isDeprecated( doc );
+      if ( isPublic ) {
+        String comment = extractComment( doc );
+        if ( isDeprecated ) {
+          String messageDeprecated = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" );
+          return messageDeprecated + comment;
+        }
+        return comment;
+      } else {
+        String messagePrivateEndpoint = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.private" );
+        return messagePrivateEndpoint;
+      }
+    }
+    return "";
+  }
+
 }

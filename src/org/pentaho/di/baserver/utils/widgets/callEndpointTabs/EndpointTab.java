@@ -18,6 +18,10 @@
 
 package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.ModifyListener;
@@ -28,6 +32,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.inspector.Endpoint;
@@ -48,10 +53,6 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.ComboVar;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class EndpointTab extends Tab {
   public static final int FIELD_WIDTH = 250;
   private final TransMeta transMeta;
@@ -59,6 +60,7 @@ public class EndpointTab extends Tab {
   private final LogChannel log;
   private final ServerTab serverTab;
   private ComboVar serverModule, resourcePath, httpMethod;
+  private Field<Text> resourcePathDetailsField;
   private final Button fromServerRadio;
 
   public EndpointTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, ModifyListener modifyListener,
@@ -127,6 +129,7 @@ public class EndpointTab extends Tab {
             setDefaultEndpointPath();
             updateHttpMethodsComboBox();
             setDefaultHttpMethod();
+            updateEndpointPathsDetailsField();
           }
         } )
         .addModifyListener( modifyListener )
@@ -143,6 +146,7 @@ public class EndpointTab extends Tab {
             super.widgetSelected( selectionEvent );
             updateHttpMethodsComboBox();
             setDefaultHttpMethod();
+            updateEndpointPathsDetailsField();
           }
         } )
         .addModifyListener( modifyListener )
@@ -163,7 +167,7 @@ public class EndpointTab extends Tab {
         .setWidth( FIELD_WIDTH )
         .build();
     httpMethod = httpMethodField.getControl();
-    final Field resourcePathDetailsField = new TextAreaFieldBuilder( this, props )
+    resourcePathDetailsField = new TextAreaFieldBuilder( this, props )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.ResourcePathDetails" ) )
         .addModifyListener( modifyListener )
         .setTop( endpointLocationGroup )
@@ -192,11 +196,13 @@ public class EndpointTab extends Tab {
             updateModuleNamesComboBox();
             updateEndpointPathsComboBox();
             updateHttpMethodsComboBox();
+            updateEndpointPathsDetailsField();
         }
     } else {
       updateModuleNamesComboBox();
       updateEndpointPathsComboBox();
       updateHttpMethodsComboBox();
+      updateEndpointPathsDetailsField();
     }
     // TODO: update resourcePathDetailsField when WADL requests for endpoint description will be ready
   }
@@ -274,6 +280,21 @@ public class EndpointTab extends Tab {
     } else {
       this.httpMethod.setItems( getFieldNames() );
     }
+  }
+  
+  private void updateEndpointPathsDetailsField() {
+    String newValue = "";
+    if ( fromServerRadio.getSelection() ) {
+      String moduleName = transMeta.environmentSubstitute( serverModule.getText() );
+      String endpointPath = transMeta.environmentSubstitute( resourcePath.getText() );
+      Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
+      for ( Endpoint endpoint : endpoints ) {
+        if ( endpoint.getDoc() != null ) {
+          newValue = endpoint.getDoc();
+        }
+      }
+    }
+    this.resourcePathDetailsField.getControl().setText( newValue );
   }
 
   private void setDefaultHttpMethod() {
