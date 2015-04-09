@@ -21,8 +21,11 @@ package org.pentaho.di.baserver.utils.inspector;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.di.baserver.utils.CallEndpointMeta;
+import org.pentaho.di.i18n.BaseMessages;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,46 +39,101 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class WadlParserTest {
-  
-  private WadlParser wadlParser, wadlParserSpy;
+
+  private WadlParser wadlParser, wadlParserSpy, testableWadlParser;
   private Document doc;
 
-  @Before 
+  private static String DEPRECATED = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" );
+  private static String PRIVATE = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.private" );
+
+  private static String TEST_DATA_DEPRECATED =
+      "<visibility>Public</visibility><deprecated>true</deprecated><documentation>Retrieve the all the job(s) visible to the current users.</documentation>";
+  private static String TEST_DATA_RESULT_DEPRECATED = DEPRECATED
+      + "Retrieve the all the job(s) visible to the current users.";
+
+  private static String TEST_DATA =
+      "<visibility>Public</visibility><documentation>Retrieve the all the job(s) visible to the current users.</documentation>";
+  private static String TEST_DATA_RESULT = "Retrieve the all the job(s) visible to the current users.";
+
+  private static String TEST_DATA_PRIVATE =
+      "<visibility>Private</visibility><deprecated>true</deprecated><documentation>Retrieve the all the job(s) visible to the current users.</documentation>";
+
+  private static String TEST_DATA_MULTILINE =
+      "<visibility>Public</visibility><deprecated>true</deprecated><documentation>Return a list of the permission roles in the platform.\r\n"
+          + "\r\n"
+          + " <p><b>Example Request:</b><br />\r\n"
+          + "    GET pentaho/api/userrolelist/permission-roles\r\n"
+          + " </p></documentation>";
+
+  private static String TEST_DATA_MULTILINE_RESULT = DEPRECATED
+      + "Return a list of the permission roles in the platform.\r\n" + "\r\n" + " <p><b>Example Request:</b><br />\r\n"
+      + "    GET pentaho/api/userrolelist/permission-roles\r\n" + " </p>";
+
+  private static class TestableWadlParser extends WadlParser {
+
+    @Override
+    public boolean isPublic( String in ) {
+      return super.isPublic( in );
+    }
+
+    @Override
+    public boolean isDeprecated( String in ) {
+      return super.isDeprecated( in );
+    }
+
+    @Override
+    public String extractComment( String in ) {
+      return super.extractComment( in );
+    }
+
+    @Override
+    public String parseDoc( String doc ) {
+      return super.parseDoc( doc );
+    }
+
+    @Override
+    protected String getVisibility( String in ) {
+      return super.getVisibility( in );
+    }
+  }
+
+  @Before
   public void setUp() throws Exception {
     wadlParser = new WadlParser();
     wadlParserSpy = spy( wadlParser );
-    
+    testableWadlParser = new TestableWadlParser();
+
     InputStream is = new FileInputStream( new File( "test-res/wadl.xml" ) );
     SAXReader reader = new SAXReader();
     doc = reader.read( is );
   }
 
-  @Test 
+  @Test
   public void testGetEndpoints() throws Exception {
     Collection<Endpoint> endpointList = wadlParserSpy.getEndpoints( doc );
     Node resources = doc.selectSingleNode( "/application/child::*[local-name() = 'resources' ]" );
-    
+
     verify( wadlParserSpy, times( 1 ) ).parseResources( eq( resources ), anyString() );
     assertEquals( endpointList.size(), 142 );
-   
-    Endpoint endpoint = ( Endpoint ) endpointList.toArray()[0];
+
+    Endpoint endpoint = (Endpoint) endpointList.toArray()[0];
     assertEquals( endpoint.getHttpMethod(), HttpMethod.POST );
     assertEquals( endpoint.getId(), "addBlockout" );
     assertEquals( endpoint.getPath(), "/scheduler/blockout/add" );
     assertEquals( endpoint.getQueryParams().size(), 0 );
 
-    endpoint = ( Endpoint ) endpointList.toArray()[1];
+    endpoint = (Endpoint) endpointList.toArray()[1];
     assertEquals( endpoint.getHttpMethod(), HttpMethod.PUT );
     assertEquals( endpoint.getId(), "assignAllRolesToUser" );
     assertEquals( endpoint.getPath(), "/userroledao/assignAllRolesToUser" );
     Collection<QueryParam> queryParamList = endpoint.getQueryParams();
     assertEquals( queryParamList.size(), 2 );
-    assertEquals( ( ( QueryParam ) queryParamList.toArray()[0] ).getName(), "tenant" );
-    assertEquals( ( ( QueryParam ) queryParamList.toArray()[0] ).getType(), "xs:string" );
-    assertEquals( ( ( QueryParam ) queryParamList.toArray()[1] ).getName(), "userName" );
-    assertEquals( ( ( QueryParam ) queryParamList.toArray()[1] ).getType(), "xs:string" );
+    assertEquals( ( (QueryParam) queryParamList.toArray()[0] ).getName(), "tenant" );
+    assertEquals( ( (QueryParam) queryParamList.toArray()[0] ).getType(), "xs:string" );
+    assertEquals( ( (QueryParam) queryParamList.toArray()[1] ).getName(), "userName" );
+    assertEquals( ( (QueryParam) queryParamList.toArray()[1] ).getType(), "xs:string" );
 
-    endpoint = ( Endpoint ) endpointList.toArray()[69];
+    endpoint = (Endpoint) endpointList.toArray()[69];
     assertEquals( endpoint.getHttpMethod(), HttpMethod.GET );
     assertEquals( endpoint.getId(), "getAllRoles" );
     assertEquals( endpoint.getPath(), "/userrolelist/allRoles" );
@@ -94,11 +152,11 @@ public class WadlParserTest {
     final String id = "id";
     final HttpMethod httpMethod = HttpMethod.GET;
     final Node mockNode = createMockNode( id, httpMethod );
-    when( resourceNode.selectNodes( anyString() ) ).thenReturn(
-        new ArrayList() {{
-          add( mockNode );
-        }}, new ArrayList()
-    );
+    when( resourceNode.selectNodes( anyString() ) ).thenReturn( new ArrayList() {
+      {
+        add( mockNode );
+      }
+    }, new ArrayList() );
     final Collection<Endpoint> endpoints = wadlParserSpy.parseResources( resourceNode, parentPath );
 
     verify( wadlParserSpy, times( 1 ) ).parseMethod( any( Node.class ), eq( parentPath ) );
@@ -163,11 +221,11 @@ public class WadlParserTest {
   public void testShortPath() {
     final String path = "/path";
     String shortPath = wadlParserSpy.shortPath( path );
-    assertEquals( path, shortPath);
+    assertEquals( path, shortPath );
 
     String apiPath = "somePath/api" + path;
     shortPath = wadlParserSpy.shortPath( apiPath );
-    assertEquals( path, shortPath);
+    assertEquals( path, shortPath );
   }
 
   private Node createMockNode( String id, HttpMethod httpMethod ) {
@@ -177,5 +235,44 @@ public class WadlParserTest {
 
     return node;
   }
-}
 
+  @Test
+  public void testParseDoc() throws Exception {
+    String resInNull = testableWadlParser.parseDoc( null );
+    Assert.assertEquals( "", resInNull );
+
+    String resInEmpty = testableWadlParser.parseDoc( "" );
+    Assert.assertEquals( "", resInEmpty );
+
+    String resInTestDataDeprecated = testableWadlParser.parseDoc( TEST_DATA_DEPRECATED );
+    Assert.assertEquals( TEST_DATA_RESULT_DEPRECATED, resInTestDataDeprecated );
+
+    String resInTestData = testableWadlParser.parseDoc( TEST_DATA );
+    Assert.assertEquals( TEST_DATA_RESULT, resInTestData );
+
+    String resInTestDataPrivate = testableWadlParser.parseDoc( TEST_DATA_PRIVATE );
+    Assert.assertEquals( PRIVATE, resInTestDataPrivate );
+  }
+
+  @Test
+  public void testParseDocMultiline() throws Exception {
+    Assert.assertTrue( "public".equalsIgnoreCase( testableWadlParser.getVisibility( TEST_DATA_MULTILINE ) ) );
+
+    String res = testableWadlParser.parseDoc( TEST_DATA_MULTILINE );
+    Assert.assertEquals( TEST_DATA_MULTILINE_RESULT, res );
+  }
+
+  @Test
+  public void testParseDocDeprecated() throws Exception {
+    TestableWadlParser testableWadlParser = new TestableWadlParser();
+
+    Assert.assertEquals( true, testableWadlParser.isDeprecated( "<deprecated>true</deprecated>" ) );
+    Assert.assertEquals( true, testableWadlParser.isDeprecated( "<deprecated>TRUE</deprecated>" ) );
+    Assert.assertEquals( true, testableWadlParser.isDeprecated( "<deprecated>True</deprecated>" ) );
+    Assert.assertEquals( false, testableWadlParser.isDeprecated( "<deprecated>TrUe</deprecated>" ) );
+    Assert.assertEquals( false, testableWadlParser.isDeprecated( "<deprecated>false</deprecated>" ) );
+    Assert.assertEquals( false, testableWadlParser.isDeprecated( "" ) );
+    Assert.assertEquals( true, testableWadlParser.isDeprecated( TEST_DATA_MULTILINE ) );
+  }
+
+}
