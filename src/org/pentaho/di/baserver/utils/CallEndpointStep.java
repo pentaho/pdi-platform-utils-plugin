@@ -114,8 +114,8 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       String username = environmentSubstitute( meta.getUserName() );
       String password = environmentSubstitute( meta.getPassword() );
 
-      response =
-          connectionHelper.invokeEndpoint( serverUrl, username, password, moduleName, endpointPath, queryParameters );
+      response = connectionHelper.invokeEndpoint( serverUrl, username, password, moduleName, endpointPath, httpMethod,
+              queryParameters );
     }
 
     int index = getInputRowMeta().size();

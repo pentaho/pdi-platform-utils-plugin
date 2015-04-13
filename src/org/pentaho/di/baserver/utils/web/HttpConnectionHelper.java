@@ -18,16 +18,12 @@
 
 package org.pentaho.di.baserver.utils.web;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONObject;
 import org.pentaho.di.cluster.SlaveConnectionManager;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleStepException;
@@ -62,7 +58,8 @@ public class HttpConnectionHelper {
   }
 
   public Response invokeEndpoint( final String serverUrl, final String userName, final String password,
-      final String moduleName, final String endpointPath, final Map<String, String> queryParameters ) {
+      final String moduleName, final String endpointPath, final String httpMethod,
+      final Map<String, String> queryParameters ) {
 
     Response response = new Response();
 
@@ -83,27 +80,10 @@ public class HttpConnectionHelper {
       requestUrl = requestUrl + "/" + endpointPath;
     }
 
-    String queryString = "";
-    try {
-      boolean first = true;
-      for ( String parameterName : queryParameters.keySet() ) {
-        if ( first ) {
-          queryString = queryString + "?";
-          first = false;
-        } else {
-          queryString = queryString + "&";
-        }
-        queryString = queryString + parameterName + "=" + URLEncoder.encode ( queryParameters.get( parameterName ), UTF_8 );
-      }
-    } catch ( UnsupportedEncodingException e ) {
-      logger.error( "Failed ", e );
-    }
-    requestUrl = requestUrl + queryString;
-
     logger.info( "requestUrl = " + requestUrl );
 
     try {
-      response = callHttp( requestUrl, userName, password );
+      response = callHttp( requestUrl, queryParameters, httpMethod, userName, password );
     } catch ( IOException ex ) {
       logger.error( "Failed ", ex );
     } catch ( KettleStepException ex ) {
@@ -322,13 +302,15 @@ public class HttpConnectionHelper {
     return PentahoSystem.get( IPluginManager.class );
   }
 
-  public Response callHttp( String url, String user, String password ) throws IOException, KettleStepException {
+  public Response callHttp( String url, Map<String, String> queryParameters, String httpMethod, String user,
+      String password )
+      throws IOException, KettleStepException {
 
     // used for calculating the responseTime
     long startTime = System.currentTimeMillis();
 
     HttpClient httpclient = getHttpClient();
-    HttpMethod method = getHttpMethod( url );
+    HttpMethod method = getHttpMethod( url, queryParameters, httpMethod );
     httpclient.getParams().setAuthenticationPreemptive( true );
     Credentials credentials = getCredentials( user, password );
     httpclient.getState().setCredentials( AuthScope.ANY, credentials );
@@ -388,8 +370,71 @@ public class HttpConnectionHelper {
     return new UsernamePasswordCredentials( user, password );
   }
 
-  protected HttpMethod getHttpMethod( String url ) {
-    return new GetMethod( url );
+  protected HttpMethod getHttpMethod( String url, Map<String, String> queryParameters, String httpMethod ) {
+    org.pentaho.di.baserver.utils.inspector.HttpMethod method;
+    if ( httpMethod == null ) {
+      httpMethod = "";
+    }
+    try {
+      method = org.pentaho.di.baserver.utils.inspector.HttpMethod.valueOf( httpMethod );
+    } catch ( IllegalArgumentException e ) {
+      logger.warn( "Method '" + httpMethod + "' is not supported - using 'GET'" );
+      method = org.pentaho.di.baserver.utils.inspector.HttpMethod.GET;
+    }
+
+    switch ( method ) {
+      case GET:
+        return new GetMethod( url + constructQueryString( queryParameters ) );
+      case POST:
+        PostMethod postMethod = new PostMethod( url );
+        setRequestEntity( postMethod, queryParameters );
+        return postMethod;
+      case PUT:
+        PutMethod putMethod = new PutMethod( url );
+        setRequestEntity( putMethod, queryParameters );
+        return putMethod;
+      case DELETE:
+        return new DeleteMethod( url + constructQueryString( queryParameters ) );
+      case HEAD:
+        return new HeadMethod( url + constructQueryString( queryParameters ) );
+      case OPTIONS:
+        return new OptionsMethod( url + constructQueryString( queryParameters ) );
+      default:
+        return new GetMethod( url + constructQueryString( queryParameters ) );
+    }
+  }
+
+  private void setRequestEntity( EntityEnclosingMethod method, Map<String, String> queryParameters ) {
+    final JSONObject jsonObject = new JSONObject();
+    if ( queryParameters != null ) {
+      jsonObject.putAll( queryParameters );
+    }
+    try {
+      method.setRequestEntity( new StringRequestEntity( jsonObject.toString(), "application/json", UTF_8 ) );
+    } catch ( UnsupportedEncodingException e ) {
+      logger.error( "Failed", e );
+    }
+  }
+
+  private String constructQueryString( Map<String, String> queryParameters ) {
+    StringBuilder queryString = new StringBuilder();
+    if ( queryParameters != null && !queryParameters.isEmpty() ) {
+      try {
+        boolean first = true;
+        for ( String parameterName : queryParameters.keySet() ) {
+          if ( first ) {
+            queryString.append( "?" );
+            first = false;
+          } else {
+            queryString.append( "&" );
+          }
+          queryString.append( parameterName ).append( "=" ).append( URLEncoder.encode( queryParameters.get( parameterName ), UTF_8 ) );
+        }
+      } catch ( UnsupportedEncodingException e ) {
+        logger.error( "Failed ", e );
+      }
+    }
+    return queryString.toString();
   }
 
   protected HttpClient getHttpClient() {
