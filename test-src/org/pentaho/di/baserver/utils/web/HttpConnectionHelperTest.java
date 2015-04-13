@@ -21,6 +21,7 @@ package org.pentaho.di.baserver.utils.web;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,22 +69,24 @@ public class HttpConnectionHelperTest {
     
     Response r = mock( Response.class );
     
-    doReturn( r ).when( httpConnectionHelperSpy ).callHttp( anyString(), anyString(), anyString() );
-    httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath,
+    doReturn( r ).when( httpConnectionHelperSpy ).callHttp( anyString(), anyMap(), anyString(),
+        anyString(), anyString() );
+    httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath, httpMethod,
         queryParameters );
 
     serverUrl = "http://localhost:8080/pentaho/";
     endpointPath = "/myEndpoint";
-    httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath,
+    httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath, httpMethod,
         queryParameters );
-    verify( httpConnectionHelperSpy, times( 2 ) ).callHttp( "http://localhost:8080/pentaho/api/myEndpoint?param1=value1&param2=value2&param3=value3", userName, password );
+    verify( httpConnectionHelperSpy, times( 2 ) ).callHttp(
+        "http://localhost:8080/pentaho/api/myEndpoint", queryParameters, httpMethod, userName, password );
     
     moduleName = "data-access";
-    httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath,
+    httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath, httpMethod,
         queryParameters );
     verify( httpConnectionHelperSpy ).callHttp(
-        "http://localhost:8080/pentaho/plugin/data-access/api/myEndpoint?param1=value1&param2=value2&param3=value3",
-        userName, password );
+        "http://localhost:8080/pentaho/plugin/data-access/api/myEndpoint", queryParameters, httpMethod, userName,
+        password );
     
   }
 
@@ -253,7 +256,9 @@ public class HttpConnectionHelperTest {
   public void testCallHttp() throws Exception {
     String url = "http://localhost:8080/pentaho",
         user = "admin",
-        password = "password";
+        password = "password",
+        method = "GET";
+    Map<String, String> parameters = null;
 
     Response r;
 
@@ -269,30 +274,75 @@ public class HttpConnectionHelperTest {
 
     doReturn( httpClient ).when( httpConnectionHelperSpy ).getHttpClient();
     HttpMethod httpMethod = mock( HttpMethod.class );
-    doReturn( httpMethod ).when( httpConnectionHelperSpy ).getHttpMethod( url );
+    doReturn( httpMethod ).when( httpConnectionHelperSpy ).getHttpMethod( url, parameters, method );
     
     doThrow( new IllegalArgumentException() ).when( httpClient ).executeMethod( any( HostConfiguration.class ),
         eq( httpMethod ) );
-    r = httpConnectionHelperSpy.callHttp( url, user, password );
+    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
     assertEquals( r.getStatusCode(), new Response().getStatusCode() );
 
     doReturn( 1 ).when( httpClient ).executeMethod( any( HostConfiguration.class ), eq( httpMethod ) );
     doReturn( null ).when( httpMethod ).getResponseHeaders( "Content-Type" );
     doReturn( "content" ).when( httpConnectionHelperSpy ).getContent( eq( httpMethod ), anyString() );
-    r = httpConnectionHelperSpy.callHttp( url, user, password );
+    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
     assertEquals( r.getResult(), "content" );
 
     Header header = mock( Header.class );
     doReturn( null ).when( header ).getValue();
-    r = httpConnectionHelperSpy.callHttp( url, user, password );
+    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
     assertEquals( r.getResult(), "content" );
 
     doReturn( "test" ).when( header ).getValue();
-    r = httpConnectionHelperSpy.callHttp( url, user, password );
+    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
     assertEquals( r.getResult(), "content" );
 
     doReturn( "charset=utf8" ).when( header ).getValue();
-    r = httpConnectionHelperSpy.callHttp( url, user, password );
+    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
     assertEquals( r.getResult(), "content" );
+  }
+
+  @Test
+  public void testGetHttpMethod() throws Exception {
+    Map<String, String> queryParameters = new HashMap<String, String>();
+    queryParameters.put( "param1", "value1" );
+    queryParameters.put( "param2", "value2" );
+    queryParameters.put( "param3", "value3" );
+    String url = "http://localhost:8080/pentaho";
+
+    HttpMethod method = httpConnectionHelperSpy.getHttpMethod( url, queryParameters, "GET" );
+    assertEquals( method.getClass(), GetMethod.class );
+    assertTrue( method.getURI().toString().startsWith( url ) );
+    assertNotNull( method.getQueryString() );
+
+    method = httpConnectionHelperSpy.getHttpMethod( url, queryParameters, "PUT" );
+    assertEquals( method.getClass(), PutMethod.class );
+    assertTrue( method.getURI().toString().startsWith( url ) );
+    RequestEntity requestEntity = ( (PutMethod) method ).getRequestEntity();
+    assertNotNull( requestEntity );
+    assertEquals( requestEntity.getContentType(), "application/json; charset=UTF-8" );
+    assertNull( method.getQueryString() );
+
+    method = httpConnectionHelperSpy.getHttpMethod( url, queryParameters, "POST" );
+    assertEquals( method.getClass(), PostMethod.class );
+    assertTrue( method.getURI().toString().startsWith( url ) );
+    requestEntity = ( (PostMethod) method ).getRequestEntity();
+    assertNotNull( requestEntity );
+    assertEquals( requestEntity.getContentType(), "application/json; charset=UTF-8" );
+    assertNull( method.getQueryString() );
+
+    method = httpConnectionHelperSpy.getHttpMethod( url, queryParameters, "DELETE" );
+    assertEquals( method.getClass(), DeleteMethod.class );
+    assertTrue( method.getURI().toString().startsWith( url ) );
+    assertNotNull( method.getQueryString() );
+
+    method = httpConnectionHelperSpy.getHttpMethod( url, queryParameters, "HEAD" );
+    assertEquals( method.getClass(), HeadMethod.class );
+    assertTrue( method.getURI().toString().startsWith( url ) );
+    assertNotNull( method.getQueryString() );
+
+    method = httpConnectionHelperSpy.getHttpMethod( url, queryParameters, "OPTIONS" );
+    assertEquals( method.getClass(), OptionsMethod.class );
+    assertTrue( method.getURI().toString().startsWith( url ) );
+    assertNotNull( method.getQueryString() );
   }
 }
