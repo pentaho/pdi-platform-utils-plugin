@@ -22,14 +22,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class Endpoint implements Comparable<Endpoint> {
-
+  public enum Visibility { PUBLIC, PRIVATE }
   // region Fields
 
   private String id;
   private String path;
   private HttpMethod httpMethod;
   private ArrayList<QueryParam> queryParams;
-  private String doc;
+  private boolean deprecated;
+  private Visibility visibility;
+  private String documentation;
 
   // endregion
 
@@ -63,12 +65,28 @@ public class Endpoint implements Comparable<Endpoint> {
     return this.queryParams;
   }
 
-  public String getDoc() {
-    return doc;
+  public boolean isDeprecated() {
+    return deprecated;
   }
 
-  public void setDoc( String doc ) {
-    this.doc = doc;
+  public void setDeprecated( boolean deprecated ) {
+    this.deprecated = deprecated;
+  }
+
+  public Visibility getVisibility() {
+    return visibility;
+  }
+
+  public void setVisibility( Visibility visiblity ) {
+    this.visibility = visiblity;
+  }
+
+  public String getDocumentation() {
+    return documentation;
+  }
+
+  public void setDocumentation( String doc ) {
+    this.documentation = doc;
   }
 
   // endregion

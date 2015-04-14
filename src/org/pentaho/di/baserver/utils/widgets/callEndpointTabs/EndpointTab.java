@@ -18,10 +18,14 @@
 
 package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -36,7 +40,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.inspector.Endpoint;
@@ -48,11 +51,13 @@ import org.pentaho.di.baserver.utils.widgets.LabelBuilder;
 import org.pentaho.di.baserver.utils.widgets.RadioBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.ComboVarFieldBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
-import org.pentaho.di.baserver.utils.widgets.fields.TextAreaFieldBuilder;
+
 import org.pentaho.di.core.Const;
+import org.pentaho.di.core.Props;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
@@ -61,6 +66,7 @@ import org.pentaho.di.ui.core.widget.ComboVar;
 
 public class EndpointTab extends Tab {
   public static final int FIELD_WIDTH = 250;
+  public static final int BOTTOM_PLACEMENT = 100;
   private static final String HTML_DOC = "<html>\n" + "<head>\n"
       + "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
       + "<style> * '{' font-family: Helvetica; font-size: {0} '}' </style>"
@@ -128,8 +134,8 @@ public class EndpointTab extends Tab {
         .setTop( endpointLocationGroup )
         .setTopMargin( BAServerCommonDialog.LARGE_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( 50 )
-        .setBottomPlacement( 100 )
+        .setRightPlacement( RIGHT_PLACEMENT/2 )
+        .setBottomPlacement( RIGHT_PLACEMENT )
         .build();
 
     final Field<ComboVar> serverModuleField = new ComboVarFieldBuilder( wsEndpointGroup, props )
@@ -195,7 +201,7 @@ public class EndpointTab extends Tab {
         .setLeft( wsEndpointGroup )
         .setLeftMargin( BAServerCommonDialog.LARGE_MARGIN )
         .setRightPlacement( RIGHT_PLACEMENT )
-        .setBottomPlacement( 100 )
+        .setBottomPlacement( BOTTOM_PLACEMENT )
         .build();
   }
 
@@ -259,12 +265,24 @@ public class EndpointTab extends Tab {
   private void updateEndpointPathsComboBox() {
     String endpointPath = transMeta.environmentSubstitute( resourcePath.getText() );
     resourcePath.removeAll();
+    Inspector inspector = Inspector.getInstance();
     if ( fromServerRadio.getSelection() ) {
       String moduleName = transMeta.environmentSubstitute( serverModule.getText() );
-      for ( String path : Inspector.getInstance().getEndpointPaths( moduleName ) ) {
-        resourcePath.add( path );
+      for ( String path : inspector.getEndpointPaths( moduleName ) ) {
+        Iterable<Endpoint> endpoints = inspector.getEndpoints( moduleName, path );
+        boolean add = false;
+        for ( Endpoint endpoint : endpoints ) {
+          if ( endpoint.getVisibility() == Endpoint.Visibility.PUBLIC || (
+              isShowingPrivateEndpoints() && endpoint.getVisibility() == Endpoint.Visibility.PRIVATE ) ) {
+            add = true;
+          }
+        }
+
+        if ( add ) {
+          resourcePath.add( path );
+        }
       }
-      if ( endpointPath.equals( "" )  ) {
+      if ( endpointPath.equals( "" ) ) {
         endpointPath = Inspector.getInstance().getDefaultEndpointPath( moduleName );
       }
       resourcePath.setText( endpointPath );
@@ -288,7 +306,10 @@ public class EndpointTab extends Tab {
       String endpointPath = transMeta.environmentSubstitute( resourcePath.getText() );
       Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
       for ( Endpoint endpoint : endpoints ) {
-        this.httpMethod.add( endpoint.getHttpMethod().name() );
+        if ( endpoint.getVisibility() == Endpoint.Visibility.PUBLIC || (
+            isShowingPrivateEndpoints() && endpoint.getVisibility() == Endpoint.Visibility.PRIVATE ) ) {
+          this.httpMethod.add( endpoint.getHttpMethod().name() );
+        }
       }
       if ( httpMethod.equals( "" ) ) {
         Endpoint endpoint = Inspector.getInstance().getDefaultEndpoint( moduleName, endpointPath );
@@ -301,6 +322,15 @@ public class EndpointTab extends Tab {
       this.httpMethod.setItems( getFieldNames() );
     }
   }
+
+  private boolean isShowingPrivateEndpoints() {
+    String value = Variables.getADefaultVariableSpace().environmentSubstitute( "${ShowPrivateEndpoints}" );
+    if ( value == null ) {
+      return false;
+    }
+
+    return new Boolean( value );
+  }
   
   private void updateEndpointPathsDetailsField() {
     String newValue = "";
@@ -309,8 +339,15 @@ public class EndpointTab extends Tab {
       String endpointPath = transMeta.environmentSubstitute( resourcePath.getText() );
       Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
       for ( Endpoint endpoint : endpoints ) {
-        if ( endpoint.getDoc() != null ) {
-          newValue = endpoint.getDoc();
+        if ( endpoint.getVisibility() == Endpoint.Visibility.PUBLIC ) {
+          String messageDeprecated = "";
+          if ( endpoint.isDeprecated() ) {
+            messageDeprecated = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" )
+                + "<br/>";
+          }
+          newValue = messageDeprecated + endpoint.getDocumentation();
+        } else {
+          newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.private" );
         }
       }
     }

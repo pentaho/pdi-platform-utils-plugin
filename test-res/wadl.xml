@@ -1,1420 +1,2168 @@
-<application xmlns="http://wadl.dev.java.net/2009/02">
-  <resources base="http://localhost:8080/pentaho/api/">
-    <resource path="">
-      <method id="doGetRoot" name="GET">
-        <response>
-          <representation mediaType="*/*"/>
-        </response>
-      </method>
-      <resource path="docs">
-        <method id="doGetDocs" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/emailconfig/">
-      <resource path="/resetEmailConfig">
-        <method id="deleteEmailConfig" name="GET">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="emailConfiguration" mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/isValid">
-        <method id="isValid" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/sendEmailTest">
-        <method id="sendEmailTest" name="PUT">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="emailConfiguration" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/setEmailConfig">
-        <method id="setEmailConfig" name="PUT">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="emailConfiguration" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/getEmailConfig">
-        <method id="getEmailConfig" name="GET">
-          <response>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/users">
-      <method id="getUsers" name="GET">
-        <response>
-          <representation mediaType="application/xml"/>
-        </response>
-      </method>
-    </resource>
-    <resource path="/plugin-manager/">
-      <resource path="/perspectives">
-        <method id="getPluginPerpectives" name="GET">
-          <response>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/ids">
-        <method id="getPluginIds" name="GET">
-          <response>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/{pluginId}/setting/{settingName}">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pluginId" style="template" type="xs:string"/>
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="settingName" style="template" type="xs:string"/>
-        <method id="getPluginSetting" name="GET">
-          <response>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/overlays">
-        <method id="getOverlays" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="id" style="query" type="xs:string" default=""/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="overlay" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/settings/{settingName}">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="settingName" style="template" type="xs:string"/>
-        <method id="getPluginSettings" name="GET">
-          <response>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/user-settings">
-      <resource path="/list">
-        <method id="getUserSettings" name="GET">
-          <response>
-            <representation mediaType="application/json"/>
-            <representation mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{setting : .+}">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="setting" style="template" type="xs:string"/>
-        <method id="getUserSetting" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="setUserSetting" name="POST">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/session/">
-      <resource path="/userWorkspaceDir">
-        <method id="doGetCurrentUserDir" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/workspaceDirForUser/{user}">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="template" type="xs:string"/>
-        <method id="doGetUserDir" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/setredirect">
-        <method id="setredirect" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/repos">
-      <resource path="{pathId : .+}/content">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetFileOrDir" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/{contextId}/{resourceId : .+}">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="contextId" style="template" type="xs:string"/>
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="resourceId" style="template" type="xs:string"/>
-        <method id="doFormPost" name="POST">
-          <request>
-            <representation mediaType="application/x-www-form-urlencoded"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="doGet" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/default">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doExecuteDefault" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/executableTypes">
-        <method id="getExecutableTypes" name="GET">
-          <response>
-            <representation mediaType="application/xml"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/mantle/">
-      <resource path="/getAdminContent">
-        <method id="getAdminContent" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/settings">
-        <method id="getMantleSettings" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/cubes">
-        <method id="getMondrianCatalogs" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="cube" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="cube" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/session-variable">
-        <method id="setSessionVariable" name="POST">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="value" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="getSessionVariable" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="clearSessionVariable" name="DELETE">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/locale">
-        <method id="getLocale" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="setLocaleOverride" name="POST">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/isAuthenticated">
-        <method id="isAuthenticated" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/isAdministrator">
-        <method id="isAdministrator" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/system/refresh">
-      <resource path="/metadata">
-        <method id="refreshMetadata" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/globalActions">
-        <method id="executeGlobalActions" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/systemSettings">
-        <method id="refreshSystemSettings" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/mondrianSchemaCache">
-        <method id="flushMondrianSchemaCache" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/reportingDataCache">
-        <method id="purgeReportingDataCache" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/theme">
-      <resource path="/active">
-        <method id="getActiveTheme" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/set">
-        <method id="setTheme" name="POST">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/list">
-        <method id="getSystemThemes" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="theme" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="theme" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/repo/dirs/">
-      <resource path="{pathId : .+}">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="createDirs" name="PUT">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/repo/files/import">
-      <method id="doPostImport" name="POST">
-        <request>
-          <representation mediaType="multipart/form-data"/>
-        </request>
-        <response>
-          <representation mediaType="text/html"/>
-        </response>
-      </method>
-    </resource>
-    <resource path="/userrolelist/">
-      <resource path="/permission-users">
-        <method id="getPermissionUsers" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/permission-roles">
-        <method id="getPermissionRoles" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/roles">
-        <method id="getRoles" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/users">
-        <method id="getUsers" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/allRoles">
-        <method id="getAllRoles" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/extraRoles">
-        <method id="getExtraRoles" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/getUsersInRole">
-        <method id="getUsersInRole" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="role" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="application/xml"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/getRolesForUser">
-        <method id="getRolesForUser" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="application/xml"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/systemRoles">
-        <method id="getSystemRoles" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/repo/publish">
-      <resource path="/publishfile">
-        <method id="writeFile" name="POST">
-          <request>
-            <representation mediaType="multipart/form-data"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/version">
-      <resource path="/softwareUpdates">
-        <method id="getSoftwareUpdatesDocument" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/show">
-        <method id="getVersion" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/userroledao/">
-      <resource path="/removeRoleFromUser">
-        <method id="removeRoleFromUser" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/assignAllRolesToUser">
-        <method id="assignAllRolesToUser" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/removeAllRolesFromUser">
-        <method id="removeAllRolesFromUser" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/assignUserToRole">
-        <method id="assignUserToRole" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/removeUserFromRole">
-        <method id="removeUserFromRole" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/assignAllUsersToRole">
-        <method id="assignAllUsersToRole" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/removeAllUsersFromRole">
-        <method id="removeAllUsersFromRole" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/updatePassword">
-        <method id="updatePassword" name="PUT">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="user" mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/roleAssignments">
-        <method id="setLogicalRoles" name="PUT">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="logicalRoleAssignments" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="logicalRoleAssignments" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/assignRoleToUser">
-        <method id="assignRoleToUser" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/roles">
-        <method id="getRoles" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/users">
-        <method id="getUsers" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/logicalRoleMap">
-        <method id="getRoleBindingStruct" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="systemRolesMap" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="systemRolesMap" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/createUser">
-        <method id="createUser" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="user" mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/createRole">
-        <method id="createRole" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/deleteRoles">
-        <method id="deleteRole" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/deleteUsers">
-        <method id="deleteUser" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/userRoles">
-        <method id="getUserRoles" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="roleList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/roleMembers">
-        <method id="getRoleMembers" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="userList" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/repo/files/">
-      <resource path="{pathId : .+}/move">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doMove" name="PUT">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/deletepermanent">
-        <method id="doDeleteFilesPermanent" name="PUT">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/delete">
-        <method id="doDeleteFiles" name="PUT">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/restore">
-        <method id="doRestore" name="PUT">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/children">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doCopyFiles" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="mode" style="query" type="xs:int"/>
-            <representation mediaType="text/plain"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="doGetChildren" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetFileOrDir" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="createFile" name="PUT">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/parameterizable">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doIsParameterizable" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/download">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetFileOrDirAsDownload" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user-agent" style="header" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="withManifest" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/inline">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetFileAsInline" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/acl">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="setFileAcls" name="PUT">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileAclDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileAclDto" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="doGetFileAcl" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileAclDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileAclDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/creator">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doSetContentCreator" name="PUT">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="doGetContentCreator" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/locales">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetFileLocales" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="localeMapDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="localeMapDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/localeProperties">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetLocaleProperties" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="application/json"/>
-          </response>
-        </method>
-        <method id="doSetLocaleProperties" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="application/xml"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/deleteLocale">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doDeleteLocale" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="application/xml"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/properties">
-        <method id="doGetRootProperties" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/canAccessMap">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetCanAccessList" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="permissions" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/pathsAccessList">
-        <method id="doGetPathsAccessList" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringListWrapper" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringListWrapper" mediaType="application/json"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="setting" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/canAccess">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetCanAccess" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="permissions" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/canAdminister">
-        <method id="doGetCanAdminister" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/reservedCharacters">
-        <method id="doGetReservedChars" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/canCreate">
-        <method id="doGetCanCreate" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/properties">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetProperties" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/generatedContent">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetGeneratedContent" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/generatedContentForUser">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetGeneratedContentForUser" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/tree">
-        <method id="doGetRootTree" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="depth" style="query" type="xs:int"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileTreeDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileTreeDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/children">
-        <method id="doGetRootChildren" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/tree">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetTree" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="depth" style="query" type="xs:int"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileTreeDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileTreeDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/deleted">
-        <method id="doGetDeletedFiles" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/metadata">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doGetMetadata" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="application/json"/>
-          </response>
-        </method>
-        <method id="doSetMetadata" name="PUT">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="stringKeyStringValueDto" mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="application/xml"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/createDir">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doCreateDirs" name="PUT">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/generatedContentForSchedule">
-        <method id="doGetGeneratedContentForSchedule" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lineageId" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="{pathId : .+}/rename">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
-        <method id="doRename" name="PUT">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="newName" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/reservedCharactersDisplay">
-        <method id="doGetReservedCharactersDisplay" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/scheduler">
-      <resource path="/blockout/hasblockouts">
-        <method id="hasBlockouts" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/blockout/add">
-        <method id="addBlockout" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/blockout/update">
-        <method id="updateBlockout" name="POST">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="jobid" style="query" type="xs:string"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/blockout/willFire">
-        <method id="blockoutWillFire" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/blockout/blockstatus">
-        <method id="getBlockStatus" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
-          </request>
-          <response>
-            <representation mediaType="application/json"/>
-            <representation mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/getContentCleanerJob">
-        <method id="getContentCleanerJob" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/getJobs">
-        <method id="getAllJobs" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/isScheduleAllowed">
-        <method id="isScheduleAllowed" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="id" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/canSchedule">
-        <method id="doGetCanSchedule" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/jobState">
-        <method id="getJobState" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/jobinfotest">
-        <method id="getJobInfo" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/blockout/blockoutjobs">
-        <method id="getBlockoutJobs" name="GET">
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/generatedContentForSchedule">
-        <method id="doGetGeneratedContentForSchedule" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lineageId" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="repositoryFileDto" mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/pauseJob">
-        <method id="pauseJob" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/removeJob">
-        <method id="removeJob" name="DELETE">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/resumeJob">
-        <method id="resumeJob" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/pause">
-        <method id="pause" name="POST">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/job">
-        <method id="createJob" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobScheduleRequest" mediaType="application/xml"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/triggerNow">
-        <method id="triggerNow" name="POST">
-          <request>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/xml"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="jobRequest" mediaType="application/json"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/jobinfo">
-        <method id="getJob" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="jobId" style="query" type="xs:string"/>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="asCronString" style="query" type="xs:string" default="false"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/jobs">
-        <method id="getJobs" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="asCronString" style="query" type="xs:boolean" default="false"/>
-          </request>
-          <response>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/json"/>
-            <ns2:representation xmlns:ns2="http://wadl.dev.java.net/2009/02" xmlns="" element="job" mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/blockout/shouldFireNow">
-        <method id="shouldFireNow" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/shutdown">
-        <method id="shutdown" name="POST">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/start">
-        <method id="start" name="POST">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/state">
-        <method id="getState" name="GET">
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/system/">
-      <method id="getAll" name="GET">
-        <response>
-          <representation mediaType="application/xml"/>
-        </response>
-      </method>
-      <resource path="/executableTypes">
-        <method id="getExecutableTypes" name="GET">
-          <response>
-            <representation mediaType="application/xml"/>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/authentication-provider">
-        <method id="getAuthenticationProvider" name="GET">
-          <response>
-            <representation mediaType="application/json"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/locale">
-        <method id="getLocale" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-        <method id="setLocaleOverride" name="POST">
-          <request>
-            <representation mediaType="*/*"/>
-          </request>
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-      <resource path="/timezones">
-        <method id="getTimeZones" name="GET">
-          <response>
-            <representation mediaType="application/json"/>
-            <representation mediaType="application/xml"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/legacy/permissions">
-      <method id="getLegacyPermissions" name="GET">
-        <response>
-          <representation mediaType="application/xml"/>
-        </response>
-      </method>
-    </resource>
-    <resource path="/authorization/action">
-      <resource path="/isauthorized">
-        <method id="validateAuth" name="GET">
-          <request>
-            <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="authAction" style="query" type="xs:string"/>
-          </request>
-          <response>
-            <representation mediaType="text/plain"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/plugins/{pluginId}">
-      <resource path="/files/{path : .+}">
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pluginId" style="template" type="xs:string"/>
-        <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="path" style="template" type="xs:string"/>
-        <method id="readFile" name="GET">
-          <response>
-            <representation mediaType="*/*"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/password">
-      <resource path="/encrypt">
-        <method id="encryptionForm" name="GET">
-          <response>
-            <representation mediaType="text/html"/>
-          </response>
-        </method>
-        <method id="encryptPassword" name="POST">
-          <request>
-            <representation mediaType="application/x-www-form-urlencoded">
-              <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="password" style="query" type="xs:string"/>
-            </representation>
-          </request>
-          <response>
-            <representation mediaType="text/html"/>
-          </response>
-        </method>
-      </resource>
-    </resource>
-    <resource path="/roles">
-      <method id="getRoles" name="GET">
-        <response>
-          <representation mediaType="application/xml"/>
-        </response>
-      </method>
-    </resource>
-  </resources>
-</application>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:application xmlns:ns2="http://wadl.dev.java.net/2009/02">
+  <ns2:doc xmlns:jersey="http://jersey.java.net/" jersey:generatedBy="Jersey: 1.16 11/28/2012 03:18 PM"/>
+  <ns2:grammars>
+    <ns2:include href="application.wadl/xsd0.xsd">
+      <ns2:doc title="Generated" xml:lang="en"/>
+    </ns2:include>
+  </ns2:grammars>
+  <ns2:resources base="http://localhost:8080/pentaho/api/">
+    <ns2:resource path="/authorization/action">
+      <ns2:doc>Resource deals with the Authorization Action in the BA Platform. This service validates if a current user is authorized to perform a specific action.</ns2:doc>
+      <ns2:resource path="/isauthorized">
+        <ns2:method id="validateAuth" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Validates if a current user is authorized to perform a specific action.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/authorization/action/isauthorized
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="authAction" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/password">
+      <ns2:doc>provides a resource for encrypting a password using the configured IPasswordService</ns2:doc>
+      <ns2:resource path="/encrypt">
+        <ns2:method id="encryptPassword" name="POST">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="application/x-www-form-urlencoded">
+              <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="password" style="query" type="xs:string"/>
+            </ns2:representation>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/html"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="encryptionForm" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/html"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/version">
+      <ns2:doc>This resource manages version checking capability of the platform</ns2:doc>
+      <ns2:resource path="/show">
+        <ns2:method id="getVersion" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the current version of the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/softwareUpdates">
+        <ns2:method id="getSoftwareUpdatesDocument" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return software update document to the user&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/users">
+      <ns2:doc>This service allows for listing system users in the BA Platform.</ns2:doc>
+      <ns2:method id="getUsers" name="GET">
+        <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the list of users in the platform, this list is in an xml format as shown in the example response.
+
+          &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+          &lt;pre function=&quot;syntax.xml&quot;&gt;
+          GET pentaho/api/users
+          &lt;/pre&gt;&lt;/documentation&gt;</ns2:doc>
+        <ns2:response>
+          <ns2:representation mediaType="application/xml"/>
+        </ns2:response>
+      </ns2:method>
+    </ns2:resource>
+    <ns2:resource path="/roles">
+      <ns2:method id="getRoles" name="GET">
+        <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the roles in the platform&lt;/documentation&gt;</ns2:doc>
+        <ns2:response>
+          <ns2:representation mediaType="application/xml"/>
+        </ns2:response>
+      </ns2:method>
+    </ns2:resource>
+    <ns2:resource path="/userroledao/">
+      <ns2:doc>UserRoleDao manage pentaho security user and roles in the platform.</ns2:doc>
+      <ns2:resource path="/roles">
+        <ns2:method id="getRoles" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the list of roles in the platform's repository&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="roleList" mediaType="application/xml"/>
+            <ns2:representation element="roleList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/users">
+        <ns2:method id="getUsers" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the list of users in the platform's repository&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="userList" mediaType="application/xml"/>
+            <ns2:representation element="userList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/createRole">
+        <ns2:method id="createRole" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Create a new role with the provided information&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/createUser">
+        <ns2:method id="createUser" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Create a new user with provided information.&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:representation element="user" mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/deleteRoles">
+        <ns2:method id="deleteRole" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Delete role(s) from the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/deleteUsers">
+        <ns2:method id="deleteUser" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Delete user(s) from the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/roleMembers">
+        <ns2:method id="getRoleMembers" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves list of users for the selected role&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="userList" mediaType="application/xml"/>
+            <ns2:representation element="userList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/userRoles">
+        <ns2:method id="getUserRoles" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves a selected user's roles&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="roleList" mediaType="application/xml"/>
+            <ns2:representation element="roleList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/logicalRoleMap">
+        <ns2:method id="getRoleBindingStruct" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of logical roles in the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="systemRolesMap" mediaType="application/xml"/>
+            <ns2:representation element="systemRolesMap" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/assignRoleToUser">
+        <ns2:method id="assignRoleToUser" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Associates selected role(s) to a user&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/removeRoleFromUser">
+        <ns2:method id="removeRoleFromUser" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Remove selected roles(s) from a selected user&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleNames" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/assignAllRolesToUser">
+        <ns2:method id="assignAllRolesToUser" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Associate all roles to the selected user&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/removeAllRolesFromUser">
+        <ns2:method id="removeAllRolesFromUser" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Remove all roles from the selected user&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/assignUserToRole">
+        <ns2:method id="assignUserToRole" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Associate list of users to the selected role&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/removeUserFromRole">
+        <ns2:method id="removeUserFromRole" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Remove user(s) from a particular role&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="userNames" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/assignAllUsersToRole">
+        <ns2:method id="assignAllUsersToRole" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Associates all user to a particular role&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/removeAllUsersFromRole">
+        <ns2:method id="removeAllUsersFromRole" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Removes all users from a particular role&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="tenant" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="roleName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/updatePassword">
+        <ns2:method id="updatePassword" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Update the password of a selected user&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="user" mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/roleAssignments">
+        <ns2:method id="setLogicalRoles" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Associate a particular runtime role to list of logical role in the repository&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="logicalRoleAssignments" mediaType="application/xml"/>
+            <ns2:representation element="logicalRoleAssignments" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/plugin-manager/">
+      <ns2:resource path="/settings/{settingName}">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="settingName" style="template" type="xs:string"/>
+        <ns2:method id="getPluginSettings" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of setting of a selected setting name from all registered plugins.&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/{pluginId}/setting/{settingName}">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pluginId" style="template" type="xs:string"/>
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="settingName" style="template" type="xs:string"/>
+        <ns2:method id="getPluginSetting" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the plugins setting with a provided setting name. This will search the plugins's settings.xml and return
+            the selected setting&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/overlays">
+        <ns2:method id="getOverlays" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of XUL overlays for the provided id&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="id" style="query" type="xs:string" default=""/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="overlay" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/perspectives">
+        <ns2:method id="getPluginPerpectives" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of plugin perspective in the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/ids">
+        <ns2:method id="getPluginIds" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of registered plugin IDs&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/user-settings">
+      <ns2:doc>This resource manages the user settings of the platform</ns2:doc>
+      <ns2:resource path="{setting : .+}">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="setting" style="template" type="xs:string"/>
+        <ns2:method id="getUserSetting" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve a particular user setting for the current user&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="setUserSetting" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Save the value of a particular setting for the current user&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/list">
+        <ns2:method id="getUserSettings" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the global settings and the user settings for the current user&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+            <ns2:representation mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/mantle/">
+      <ns2:doc>The UserConsoleResource service provides the ability to check whether the current user is authenticated and/or is an administrator.</ns2:doc>
+      <ns2:resource path="/locale">
+        <ns2:method id="setLocaleOverride" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Apply the selected locale to the user console&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="getLocale" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return the server side locale&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/isAdministrator">
+        <ns2:method id="isAdministrator" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns whether the current user is an administrator.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/mantle/isAdministrator
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/isAuthenticated">
+        <ns2:method id="isAuthenticated" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns whether the user is sn authenticated user or not.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/mantle/isAuthenticated
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/getAdminContent">
+        <ns2:method id="getAdminContent" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the list of admin related settings&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="setting" mediaType="application/json"/>
+            <ns2:representation element="setting" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/settings">
+        <ns2:method id="getMantleSettings" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return the current user console settings&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="setting" mediaType="application/json"/>
+            <ns2:representation element="setting" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/cubes">
+        <ns2:method id="getMondrianCatalogs" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return the list of mondrian cubes in the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="cube" mediaType="application/json"/>
+            <ns2:representation element="cube" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/session-variable">
+        <ns2:method id="setSessionVariable" name="POST">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="value" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="getSessionVariable" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="clearSessionVariable" name="DELETE">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="key" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="">
+      <ns2:method id="doGetRoot" name="GET">
+        <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+        <ns2:response>
+          <ns2:representation mediaType="*/*"/>
+        </ns2:response>
+      </ns2:method>
+      <ns2:resource path="docs">
+        <ns2:method id="doGetDocs" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/emailconfig/">
+      <ns2:doc>Configures and manage the Email configuration in the platform</ns2:doc>
+      <ns2:resource path="/isValid">
+        <ns2:method id="isValid" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks whether the current email configuration is valid&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/setEmailConfig">
+        <ns2:method id="setEmailConfig" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Stores the email configuration in the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="emailConfiguration" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/getEmailConfig">
+        <ns2:method id="getEmailConfig" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the email configuration&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/sendEmailTest">
+        <ns2:method id="sendEmailTest" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Process the current email configuration&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="emailConfiguration" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/resetEmailConfig">
+        <ns2:method id="deleteEmailConfig" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Delete the stored email configuration from the platform.&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="emailConfiguration" mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/session/">
+      <ns2:doc>The SessionResource service lists the user's current workspace as well as the workspace folder path.</ns2:doc>
+      <ns2:resource path="/userWorkspaceDir">
+        <ns2:method id="doGetCurrentUserDir" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the current user's workspace folder path.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/session/userWorkspaceDir
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/workspaceDirForUser/{user}">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="template" type="xs:string"/>
+        <ns2:method id="doGetUserDir" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the workspace folder path for the selected user.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/session/workspaceDirForUser/admin
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/setredirect">
+        <ns2:method id="setredirect" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/system/refresh">
+      <ns2:doc>This resource is responsible for refreshing  different system components (metadata, mondrian etc.)</ns2:doc>
+      <ns2:resource path="/systemSettings">
+        <ns2:method id="refreshSystemSettings" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/metadata">
+        <ns2:method id="refreshMetadata" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/globalActions">
+        <ns2:method id="executeGlobalActions" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/mondrianSchemaCache">
+        <ns2:method id="flushMondrianSchemaCache" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/reportingDataCache">
+        <ns2:method id="purgeReportingDataCache" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/legacy/permissions">
+      <ns2:method id="getLegacyPermissions" name="GET">
+        <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return the legacy permissions (These permissions are 4.8x related)&lt;/documentation&gt;</ns2:doc>
+        <ns2:response>
+          <ns2:representation mediaType="application/xml"/>
+        </ns2:response>
+      </ns2:method>
+    </ns2:resource>
+    <ns2:resource path="/plugins/{pluginId}">
+      <ns2:doc>Represents the public files available in a plugin.</ns2:doc>
+      <ns2:resource path="/files/{path : .+}">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pluginId" style="template" type="xs:string"/>
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="path" style="template" type="xs:string"/>
+        <ns2:method id="readFile" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the file from the selected plugin. This file is a static file (i.e javascript, html, css etc)&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/repos">
+      <ns2:doc>The RepositoryResource service retrieves the repository files through various methods.  Allows you to execute repository content.</ns2:doc>
+      <ns2:resource path="/{contextId}/{resourceId : .+}">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="contextId" style="template" type="xs:string"/>
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="resourceId" style="template" type="xs:string"/>
+        <ns2:method id="doGet" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Gets a resource identified by the compound key contextId and resourceId. This request may include additional parameters used to render the resource.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repos/admin-plugin/resources/authenticationProviderModule/authenticationProviderAdmin.html
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="doFormPost" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Gets a resource identified by the compound key contextId and resourceId. This request may include additional parameters used to render the resource.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/repos/xanalyzer/service/ajax/lookupXmiId
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            catalog=t&amp;cube=t&amp;time=1389817320072
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="application/x-www-form-urlencoded"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/content">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetFileOrDir" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/default">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doExecuteDefault" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Takes a pathId to a file and generates a URI that represents the URL to call to generate content from that file.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repos/public:steel%20wheels:Invoice%20(report).prpt/default
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/executableTypes">
+        <ns2:method id="getExecutableTypes" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the list of supported content type in the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/xml"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/system/">
+      <ns2:doc>This api provides methods for discovering information about the system</ns2:doc>
+      <ns2:method id="getAll" name="GET">
+        <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns all users, roles, and ACLs in an XML document. Moved here from now removed SystemAllResource class
+
+          Response Sample: &lt;content&gt; &lt;users&gt; &lt;user&gt;joe&lt;/user&gt; &lt;/users&gt; &lt;roles&gt; &lt;role&gt;Admin&lt;/role&gt; &lt;/roles&gt; &lt;acls&gt; &lt;acl&gt;
+          &lt;name&gt;Update&lt;/name&gt; &lt;mask&gt;8&lt;/mask&gt; &lt;/acl&gt; &lt;/acls&gt; &lt;/content&gt;&lt;/documentation&gt;</ns2:doc>
+        <ns2:response>
+          <ns2:representation mediaType="application/xml"/>
+        </ns2:response>
+      </ns2:method>
+      <ns2:resource path="/locale">
+        <ns2:method id="setLocaleOverride" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Apply the selected locale to the user console&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="getLocale" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return the server side locale&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/timezones">
+        <ns2:method id="getTimeZones" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns a list of TimeZones ensuring that the server (default) timezone is at the top of the list (0th element)&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+            <ns2:representation mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/executableTypes">
+        <ns2:method id="getExecutableTypes" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the list of supported content type in the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/xml"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/authentication-provider">
+        <ns2:method id="getAuthenticationProvider" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return JSON string reporting which authentication provider is currently in use
+
+            Response sample: { &quot;authenticationType&quot;: &quot;JCR_BASED_AUTHENTICATION&quot; }&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/repo/files/import">
+      <ns2:method id="doPostImport" name="POST">
+        <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Attempts to import all files from the zip archive or single file. A log file is produced at the end of import.
+
+          &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+          POST pentaho/api/repo/files/import
+          &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+          &lt;pre function=&quot;syntax.xml&quot;&gt;
+          ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+          Content-Disposition: form-data; name=&quot;importDir&quot;
+
+          /public
+          ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+          Content-Disposition: form-data; name=&quot;fileUpload&quot;; filename=&quot;test.csv&quot;
+          Content-Type: application/vnd.ms-excel
+
+          ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+          Content-Disposition: form-data; name=&quot;overwriteFile&quot;
+
+          true
+          ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+          Content-Disposition: form-data; name=&quot;overwriteAclPermissions&quot;
+
+          true
+          ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+          Content-Disposition: form-data; name=&quot;applyAclPermissions&quot;
+
+          true
+          ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+          Content-Disposition: form-data; name=&quot;retainOwnership&quot;
+
+          true
+          ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+          Content-Disposition: form-data; name=&quot;charSet&quot;
+
+          UTF-8
+          ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
+          Content-Disposition: form-data; name=&quot;logLevel&quot;
+
+          INFO
+          ------WebKitFormBoundaryd1z6iZhXyx12RYxV
+          Content-Disposition: form-data; name=&quot;fileNameOverride&quot;
+
+          fileNameOverriden.csv
+          ------WebKitFormBoundaryd1z6iZhXyx12RYxV--
+          &lt;/pre&gt;
+          &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+        <ns2:request>
+          <ns2:representation mediaType="multipart/form-data"/>
+        </ns2:request>
+        <ns2:response>
+          <ns2:representation mediaType="text/html"/>
+        </ns2:response>
+      </ns2:method>
+    </ns2:resource>
+    <ns2:resource path="/repo/publish">
+      <ns2:doc>Publishes a content file to the repository. Used for Analyzer and Report Writer publish</ns2:doc>
+      <ns2:resource path="/publishfile">
+        <ns2:method id="writeFile" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Publishes the file to the provided path in the repository. The file will be overwritten if the overwrite flag
+            is set to true.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/repo/publish/publishfile
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="multipart/form-data"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/repo/dirs/">
+      <ns2:doc>This resource manages folders in the repository and provides methods for creating new folders.</ns2:doc>
+      <ns2:resource path="{pathId : .+}">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="createDirs" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Creates a new folder with the specified name.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/dirs/home
+            &lt;br /&gt;&lt;b&gt;PUT data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            This PUT body does not contain data.
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/repo/files/">
+      <ns2:doc>This service provides methods for listing, creating, downloading, uploading, and removal of files.</ns2:doc>
+      <ns2:resource path="/reservedCharactersDisplay">
+        <ns2:method id="doGetReservedCharactersDisplay" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the list of reserved characters from the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/reservedCharactersDisplay
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="createFile" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Creates a new file with the provided contents at a given path.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml
+            &lt;br /&gt;&lt;b&gt;PUT data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            This PUT body does not contain data.
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="doGetFileOrDir" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Takes a pathId and returns a Response with the output stream based on the file located at the pathId.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/rename">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doRename" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Rename the selected file.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/rename?newName=test_file_8
+            &lt;br /&gt;&lt;b&gt;PUT data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            This PUT body does not contain data.
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="newName" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/delete">
+        <ns2:method id="doDeleteFiles" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Move a list of files to the user's trash folder.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/delete
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/deletepermanent">
+        <ns2:method id="doDeleteFilesPermanent" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Permanently deletes the selected list of files from the repository.&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/move">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doMove" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Moves a list of files from its current location to another.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/{pathId}/move
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/restore">
+        <ns2:method id="doRestore" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Restores a list of files from the user's trash folder to their previous locations.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/restore
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/children">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doCopyFiles" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Copy selected list of files to a new specified location.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/{pathId}/children?mode=2
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="mode" style="query" type="xs:int"/>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="doGetChildren" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve a list of child files from the selected repository path of the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test/children
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/parameterizable">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doIsParameterizable" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Determines whether a selected file supports parameters or not&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/download">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetFileOrDirAsDownload" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Download the selected file or folder from the repository. In order to download file from the repository, the user needs to
+            have Publish action.  How the file comes down to the user and where it is saved is system and browser dependent.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/download?locale=de
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user-agent" style="header" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="withManifest" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/inline">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetFileAsInline" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the file from the repository as inline. This is mainly used for css and dependent files for the html
+            document.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/inline
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/acl">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="setFileAcls" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;This method is used to update and save the acls of the selected file to the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/acl
+            &lt;br /&gt;&lt;b&gt;PUT data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot; standalone=&amp;quot;yes&amp;quot;?&amp;gt;&amp;lt;repositoryFileAclDto&amp;gt;&amp;lt;entriesInheriting&amp;gt;true&amp;lt;/entriesInheriting&amp;gt;&amp;lt;id&amp;gt;d45d4972-989e-48d5-8bd0-f7024a77f08f&amp;lt;/id&amp;gt;&amp;lt;owner&amp;gt;admin&amp;lt;/owner&amp;gt;&amp;lt;ownerType&amp;gt;0&amp;lt;/ownerType&amp;gt;&amp;lt;/repositoryFileAclDto&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="repositoryFileAclDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileAclDto" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="doGetFileAcl" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the ACL settings of the requested repository file in either xml or json format.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/acl
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="repositoryFileAclDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileAclDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/creator">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doSetContentCreator" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Store content creator for the given path of created content.&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="doGetContentCreator" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the file by creator id&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/locales">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetFileLocales" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the list of locale maps for the selected repository file.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/locales
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="localeMapDto" mediaType="application/xml"/>
+            <ns2:representation element="localeMapDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/localeProperties">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetLocaleProperties" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of locale properties for a given locale.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/localeProperties?locale=ja
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="stringKeyStringValueDto" mediaType="application/xml"/>
+            <ns2:representation element="stringKeyStringValueDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="doSetLocaleProperties" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Save list of locale properties for a given locale.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/localeProperties?locale=ja
+            &lt;br /&gt;&lt;b&gt;PUT data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot; standalone=&amp;quot;yes&amp;quot;?&amp;gt;&amp;lt;stringKeyStringValueDtoes&amp;gt;&amp;lt;stringKeyStringValueDto&amp;gt;&amp;lt;key&amp;gt;file.title&amp;lt;/key&amp;gt;&amp;lt;value&amp;gt;&amp;#227;&amp;#131;&amp;#129;&amp;#227;&amp;#131;&amp;#163;&amp;#227;&amp;#131;&amp;#188;&amp;#227;&amp;#131;&amp;#136;&amp;#233;&amp;#129;&amp;#184;&amp;#230;&amp;#138;&amp;#158;&amp;#227;&amp;#131;&amp;#170;&amp;#227;&amp;#130;&amp;#185;&amp;#227;&amp;#131;&amp;#136;&amp;lt;/value&amp;gt;&amp;lt;/stringKeyStringValueDto&amp;gt;&amp;lt;stringKeyStringValueDto&amp;gt;&amp;lt;key&amp;gt;jcr:primaryType&amp;lt;/key&amp;gt;&amp;lt;value&amp;gt;nt:unstructured&amp;lt;/value&amp;gt;&amp;lt;/stringKeyStringValueDto&amp;gt;&amp;lt;stringKeyStringValueDto&amp;gt;&amp;lt;key&amp;gt;file.description&amp;lt;/key&amp;gt;&amp;lt;value&amp;gt;&amp;#232;&amp;#164;&amp;#135;&amp;#230;&amp;#149;&amp;#176;&amp;#227;&amp;#129;&amp;#174;&amp;#227;&amp;#131;&amp;#129;&amp;#227;&amp;#131;&amp;#163;&amp;#227;&amp;#131;&amp;#188;&amp;#227;&amp;#131;&amp;#136;&amp;#227;&amp;#130;&amp;#191;&amp;#227;&amp;#130;&amp;#164;&amp;#227;&amp;#131;&amp;#151;&amp;#227;&amp;#130;&amp;#146;&amp;#232;&amp;#161;&amp;#168;&amp;#231;&amp;#164;&amp;#186;&amp;#227;&amp;#129;&amp;#151;&amp;#227;&amp;#129;&amp;#190;&amp;#227;&amp;#129;&amp;#153;&amp;lt;/value&amp;gt;&amp;lt;/stringKeyStringValueDto&amp;gt;&amp;lt;/stringKeyStringValueDtoes&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
+            <ns2:representation element="stringKeyStringValueDto" mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="application/xml"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/deleteLocale">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doDeleteLocale" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Delete the locale for the selected file.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/deleteLocale?locale=ja
+            &lt;br /&gt;&lt;b&gt;PUT data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            This PUT body does not contain data.
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="locale" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="application/xml"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/properties">
+        <ns2:method id="doGetRootProperties" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the properties of the root directory.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/properties
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/canAccessMap">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetCanAccessList" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks whether the current user has permissions to the selected files.  This can check for more than one permission at once
+            but will only return true if all permissions checked are valid.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.txt/canAccessMap?permissions=1
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="permissions" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="setting" mediaType="application/xml"/>
+            <ns2:representation element="setting" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/pathsAccessList">
+        <ns2:method id="doGetPathsAccessList" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks whether the current user has permissions to the provided list of paths.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/repo/files/pathsAccessList
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;
+            &amp;lt;stringListWrapper&amp;gt;
+            &amp;lt;strings&amp;gt;/public&amp;lt;/strings&amp;gt;
+            &amp;lt;/stringListWrapper&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="stringListWrapper" mediaType="application/xml"/>
+            <ns2:representation element="stringListWrapper" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="setting" mediaType="application/xml"/>
+            <ns2:representation element="setting" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/canAccess">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetCanAccess" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Check whether the current user has specific permission on the selected repository file.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/canAccess?permissions=1
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="permissions" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/canAdminister">
+        <ns2:method id="doGetCanAdminister" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks to see if the current user is an administer of the platform and returns a boolean response.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/canAdminister
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/reservedCharacters">
+        <ns2:method id="doGetReservedChars" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the list of reserved characters from the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/reservedCharacters
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/canCreate">
+        <ns2:method id="doGetCanCreate" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks the users permission to determine if that user can create new content in the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/canCreate
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/properties">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetProperties" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieves the properties of a selected repository file.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:/properties
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/generatedContent">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetGeneratedContent" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of executed contents for a selected content from the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/generatedContent?locale=de
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/generatedContentForUser">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetGeneratedContentForUser" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the executed contents for a selected repository file and a given user.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/generatedContentForUser?user=admin
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/tree">
+        <ns2:method id="doGetRootTree" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the recursive list of files from root of the repository based on the filters provided.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/tree?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="depth" style="query" type="xs:int"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="repositoryFileTreeDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileTreeDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/children">
+        <ns2:method id="doGetRootChildren" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve a list of child files from the root of the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/children?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/tree">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetTree" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the recursive list of children of the selected repository file.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:public/tree?showHidden=false&amp;filter=*|FILES&amp;_=1389042244670
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="depth" style="query" type="xs:int"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="filter" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="showHidden" style="query" type="xs:boolean"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="includeAcls" style="query" type="xs:boolean" default="false"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="repositoryFileTreeDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileTreeDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/deleted">
+        <ns2:method id="doGetDeletedFiles" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of files in the user's trash folder.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/deleted
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/metadata">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doGetMetadata" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the metadata of the selected file. Even though the hidden flag is a property of the file node itself, and not
+            the metadata child, it is considered metadata from PUC and is included in the setMetadata call.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/:jmeter-test:test_file_1.xml/metadata
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="stringKeyStringValueDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+        <ns2:method id="doSetMetadata" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Store the metadata of the selected file. Even though the hidden flag is a property of the file node itself, and not
+            the metadata child, it is considered metadata from PUC and is included in the setMetadata call.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/metadata
+            &lt;br /&gt;&lt;b&gt;PUT data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot; standalone=&amp;quot;yes&amp;quot;?&amp;gt;&amp;lt;stringKeyStringValueDtoes&amp;gt;&amp;lt;stringKeyStringValueDto&amp;gt;&amp;lt;key&amp;gt;metadata.key.1&amp;lt;/key&amp;gt;&amp;lt;value&amp;gt;metadata.value.1&amp;lt;/value&amp;gt;&amp;lt;/stringKeyStringValueDto&amp;gt;&amp;lt;/stringKeyStringValueDtoes&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="stringKeyStringValueDto" mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="application/xml"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="{pathId : .+}/createDir">
+        <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="pathId" style="template" type="xs:string"/>
+        <ns2:method id="doCreateDirs" name="PUT">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Creates a new folder with the specified name.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            PUT pentaho/api/repo/files/:public:jmeter-test-dir/createDir
+            &lt;br /&gt;&lt;b&gt;PUT data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            This PUT body does not contain data.
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/generatedContentForSchedule">
+        <ns2:method id="doGetGeneratedContentForSchedule" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of execute content by lineage id.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/repo/files/generatedContentForSchedule?lineageId=
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lineageId" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/scheduler">
+      <ns2:doc>The SchedulerResource service provides the means to create, read, update, delete, and list schedules and blockout periods.  Also provides the ability to control the status of schedules and the scheduler.</ns2:doc>
+      <ns2:resource path="/shutdown">
+        <ns2:method id="shutdown" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Shuts down the scheduler.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/shutdown
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            This POST body does not contain data.
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/start">
+        <ns2:method id="start" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Resume the scheduler from a paused state.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/start
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            This POST body does not contain data.
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/state">
+        <ns2:method id="getState" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the state of the scheduler with the value of RUNNING or PAUSED.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/state
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/isScheduleAllowed">
+        <ns2:method id="isScheduleAllowed" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks whether the current user may schedule a repository file in the platform.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/isScheduleAllowed?id=b5f806b9-9f72-4814-b1e0-aa9e0ece7e1a
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="id" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/pause">
+        <ns2:method id="pause" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Pause the scheduler from a running state.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/pause
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            This POST body does not contain data.
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/blockout/shouldFireNow">
+        <ns2:method id="shouldFireNow" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks if the selected blockout schedule should be fired now.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/blockout/shouldFireNow
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/job">
+        <ns2:method id="createJob" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Creates a new scheduled job.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/job
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobScheduleRequest&amp;gt;
+            &amp;lt;jobName&amp;gt;JobName&amp;lt;/jobName&amp;gt;
+            &amp;lt;simpleJobTrigger&amp;gt;
+            &amp;lt;uiPassParam&amp;gt;MINUTES&amp;lt;/uiPassParam&amp;gt;
+            &amp;lt;repeatInterval&amp;gt;1800&amp;lt;/repeatInterval&amp;gt;
+            &amp;lt;repeatCount&amp;gt;-1&amp;lt;/repeatCount&amp;gt;
+            &amp;lt;startTime&amp;gt;2014-08-14T11:46:00.000-04:00&amp;lt;/startTime&amp;gt;
+            &amp;lt;endTime /&amp;gt;
+            &amp;lt;/simpleJobTrigger&amp;gt;
+            &amp;lt;inputFile&amp;gt;/public/Steel Wheels/Top Customers (report).prpt&amp;lt;/inputFile&amp;gt;
+            &amp;lt;outputFile&amp;gt;/public/output&amp;lt;/outputFile&amp;gt;
+            &amp;lt;jobParameters&amp;gt;
+            &amp;lt;name&amp;gt;ParameterName&amp;lt;/name&amp;gt;
+            &amp;lt;type&amp;gt;string&amp;lt;/type&amp;gt;
+            &amp;lt;stringValue&amp;gt;false&amp;lt;/stringValue&amp;gt;
+            &amp;lt;/jobParameters&amp;gt;
+            &amp;lt;/jobScheduleRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/xml"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/triggerNow">
+        <ns2:method id="triggerNow" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Execute a previously scheduled job.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/triggerNow
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobRequest&amp;gt;
+            &amp;lt;jobId&amp;gt;admin	JobName	1410786491777&amp;lt;/jobId&amp;gt;
+            &amp;lt;/jobRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation element="jobRequest" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/jobinfo">
+        <ns2:method id="getJob" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return the information for a specified job.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/jobinfo?jobId=admin%09JobName%091410786491777
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="jobId" style="query" type="xs:string"/>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="asCronString" style="query" type="xs:string" default="false"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="job" mediaType="application/json"/>
+            <ns2:representation element="job" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/jobs">
+        <ns2:method id="getJobs" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;deprecated&gt;true&lt;/deprecated&gt;&lt;documentation&gt;Retrieve the all the job(s) visible to the current users.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/jobs
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="asCronString" style="query" type="xs:boolean" default="false"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="job" mediaType="application/json"/>
+            <ns2:representation element="job" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/pauseJob">
+        <ns2:method id="pauseJob" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Pause the specified scheduled job.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/pauseJob
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobRequest&amp;gt;
+            &amp;lt;jobId&amp;gt;admin	JobName	1410786491777&amp;lt;/jobId&amp;gt;
+            &amp;lt;/jobRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation element="jobRequest" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/removeJob">
+        <ns2:method id="removeJob" name="DELETE">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Delete the specified scheduled job from the platform.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            DELETE pentaho/api/scheduler/removeJob
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;DELETE data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobRequest&amp;gt;
+            &amp;lt;jobId&amp;gt;admin	BlockoutAction	1410786491503&amp;lt;/jobId&amp;gt;
+            &amp;lt;/jobRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation element="jobRequest" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/resumeJob">
+        <ns2:method id="resumeJob" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Resume the specified scheduled job.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/resumeJob
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobRequest&amp;gt;
+            &amp;lt;jobId&amp;gt;admin	JobName	1410786491777&amp;lt;/jobId&amp;gt;
+            &amp;lt;/jobRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation element="jobRequest" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/generatedContentForSchedule">
+        <ns2:method id="doGetGeneratedContentForSchedule" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the list of execute content by lineage id.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/generatedContentForSchedule?lineageId=:public:Steel%20Wheels:Inventory%20List%20(report).prpt
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lineageId" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation element="repositoryFileDto" mediaType="application/xml"/>
+            <ns2:representation element="repositoryFileDto" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/getContentCleanerJob">
+        <ns2:method id="getContentCleanerJob" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Get the scheduled job created by the system for deleting generated files.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/getContentCleanerJob
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="job" mediaType="application/json"/>
+            <ns2:representation element="job" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/getJobs">
+        <ns2:method id="getAllJobs" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Retrieve the all the scheduled job(s) visible to the current users.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/getJobs
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="job" mediaType="application/json"/>
+            <ns2:representation element="job" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/canSchedule">
+        <ns2:method id="doGetCanSchedule" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks whether the current user has authority to schedule any content in the platform.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/canSchedule
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/jobState">
+        <ns2:method id="getJobState" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks the state of the selected scheduled job.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/jobState
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobRequest&amp;gt;
+            &amp;lt;jobId&amp;gt;admin	JobName	1410786491777&amp;lt;/jobId&amp;gt;
+            &amp;lt;/jobRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobRequest" mediaType="application/xml"/>
+            <ns2:representation element="jobRequest" mediaType="application/json"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/jobinfotest">
+        <ns2:method id="getJobInfo" name="GET">
+          <ns2:doc>&lt;visibility&gt;Private&lt;/visibility&gt;&lt;deprecated&gt;true&lt;/deprecated&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/blockout/blockoutjobs">
+        <ns2:method id="getBlockoutJobs" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Get all the blockout jobs in the system.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/blockout/blockoutjobs
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="job" mediaType="application/json"/>
+            <ns2:representation element="job" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/blockout/hasblockouts">
+        <ns2:method id="hasBlockouts" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks if there are blockouts in the system.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/scheduler/blockout/hasblockouts
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/blockout/add">
+        <ns2:method id="addBlockout" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Creates a new blockout for scheduled jobs.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/blockout/add
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobScheduleRequest&amp;gt;
+            &amp;lt;jobName&amp;gt;DAILY-1820438815:admin:7740000&amp;lt;/jobName&amp;gt;
+            &amp;lt;complexJobTrigger&amp;gt;
+            &amp;lt;uiPassParam&amp;gt;DAILY&amp;lt;/uiPassParam&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;1&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;2&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;3&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;4&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;5&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;startTime&amp;gt;2014-08-19T10:51:00.000-04:00&amp;lt;/startTime&amp;gt;
+            &amp;lt;endTime /&amp;gt;
+            &amp;lt;/complexJobTrigger&amp;gt;
+            &amp;lt;inputFile&amp;gt;&amp;lt;/inputFile&amp;gt;
+            &amp;lt;outputFile&amp;gt;&amp;lt;/outputFile&amp;gt;
+            &amp;lt;duration&amp;gt;7740000&amp;lt;/duration&amp;gt;
+            &amp;lt;timeZone&amp;gt;America/New_York&amp;lt;/timeZone&amp;gt;
+            &amp;lt;/jobScheduleRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/xml"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/blockout/update">
+        <ns2:method id="updateBlockout" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Update an existing blockout.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/blockout/update?jobid=admin%09BlockoutAction%091410786491209
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobScheduleRequest&amp;gt;
+            &amp;lt;jobName&amp;gt;DAILY-1820438815:admin:7740000&amp;lt;/jobName&amp;gt;
+            &amp;lt;complexJobTrigger&amp;gt;
+            &amp;lt;uiPassParam&amp;gt;DAILY&amp;lt;/uiPassParam&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;1&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;2&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;3&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;4&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;5&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;startTime&amp;gt;2012-01-12T10:51:00.000-04:00&amp;lt;/startTime&amp;gt;
+            &amp;lt;endTime /&amp;gt;
+            &amp;lt;/complexJobTrigger&amp;gt;
+            &amp;lt;inputFile&amp;gt;&amp;lt;/inputFile&amp;gt;
+            &amp;lt;outputFile&amp;gt;&amp;lt;/outputFile&amp;gt;
+            &amp;lt;duration&amp;gt;7740000&amp;lt;/duration&amp;gt;
+            &amp;lt;timeZone&amp;gt;America/New_York&amp;lt;/timeZone&amp;gt;
+            &amp;lt;/jobScheduleRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="jobid" style="query" type="xs:string"/>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/xml"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/blockout/willFire">
+        <ns2:method id="blockoutWillFire" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Checks if the selected blockout schedule will be fired.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/blockout/willFire
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobScheduleRequest&amp;gt;
+            &amp;lt;jobName&amp;gt;DAILY-1820438815:admin:7740000&amp;lt;/jobName&amp;gt;
+            &amp;lt;complexJobTrigger&amp;gt;
+            &amp;lt;uiPassParam&amp;gt;DAILY&amp;lt;/uiPassParam&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;1&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;2&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;3&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;4&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;5&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;startTime&amp;gt;2014-08-19T10:51:00.000-04:00&amp;lt;/startTime&amp;gt;
+            &amp;lt;endTime /&amp;gt;
+            &amp;lt;/complexJobTrigger&amp;gt;
+            &amp;lt;inputFile&amp;gt;&amp;lt;/inputFile&amp;gt;
+            &amp;lt;outputFile&amp;gt;&amp;lt;/outputFile&amp;gt;
+            &amp;lt;duration&amp;gt;7740000&amp;lt;/duration&amp;gt;
+            &amp;lt;timeZone&amp;gt;America/New_York&amp;lt;/timeZone&amp;gt;
+            &amp;lt;/jobScheduleRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/xml"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/blockout/blockstatus">
+        <ns2:method id="getBlockStatus" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Check the status of the selected blockout schedule.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            POST pentaho/api/scheduler/blockout/blockstatus
+            &lt;/p&gt;
+            &lt;br /&gt;&lt;b&gt;POST data:&lt;/b&gt;
+            &lt;pre function=&quot;syntax.xml&quot;&gt;
+            &amp;lt;jobScheduleRequest&amp;gt;
+            &amp;lt;jobName&amp;gt;DAILY-1820438815:admin:7740000&amp;lt;/jobName&amp;gt;
+            &amp;lt;complexJobTrigger&amp;gt;
+            &amp;lt;uiPassParam&amp;gt;DAILY&amp;lt;/uiPassParam&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;1&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;2&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;3&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;4&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;daysOfWeek&amp;gt;5&amp;lt;/daysOfWeek&amp;gt;
+            &amp;lt;startTime&amp;gt;2014-08-19T10:51:00.000-04:00&amp;lt;/startTime&amp;gt;
+            &amp;lt;endTime /&amp;gt;
+            &amp;lt;/complexJobTrigger&amp;gt;
+            &amp;lt;inputFile&amp;gt;&amp;lt;/inputFile&amp;gt;
+            &amp;lt;outputFile&amp;gt;&amp;lt;/outputFile&amp;gt;
+            &amp;lt;duration&amp;gt;7740000&amp;lt;/duration&amp;gt;
+            &amp;lt;timeZone&amp;gt;America/New_York&amp;lt;/timeZone&amp;gt;
+            &amp;lt;/jobScheduleRequest&amp;gt;
+            &lt;/pre&gt;
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/json"/>
+            <ns2:representation element="jobScheduleRequest" mediaType="application/xml"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="application/json"/>
+            <ns2:representation mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/theme">
+      <ns2:doc>Resource manages themes for the platform</ns2:doc>
+      <ns2:resource path="/list">
+        <ns2:method id="getSystemThemes" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;List the current supported themes in the platform&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="theme" mediaType="application/json"/>
+            <ns2:representation element="theme" mediaType="application/xml"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/set">
+        <ns2:method id="setTheme" name="POST">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Set the current theme to the one provided in this request&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:representation mediaType="*/*"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/active">
+        <ns2:method id="getActiveTheme" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return the name of the active theme&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation mediaType="text/plain"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+    <ns2:resource path="/userrolelist/">
+      <ns2:doc>The UserRoleListResource service lists roles, permissions, and users. Provides a list of users per role and roles per user.</ns2:doc>
+      <ns2:resource path="/roles">
+        <ns2:method id="getRoles" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Get a list of the standard roles in the platform.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/roles
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="roleList" mediaType="application/xml"/>
+            <ns2:representation element="roleList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/users">
+        <ns2:method id="getUsers" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the list of users in the platform.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/users
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="userList" mediaType="application/xml"/>
+            <ns2:representation element="userList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/allRoles">
+        <ns2:method id="getAllRoles" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Get a list of the all roles in the platform including Anonymous and Administrator.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/allRoles
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="roleList" mediaType="application/xml"/>
+            <ns2:representation element="roleList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/extraRoles">
+        <ns2:method id="getExtraRoles" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns roles identified as &quot;extra roles&quot; from the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/extraRoles
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="roleList" mediaType="application/xml"/>
+            <ns2:representation element="roleList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/getUsersInRole">
+        <ns2:method id="getUsersInRole" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Gets the list of users that have the role specified by the role parameter. The list of valid roles can be obtained by calling the /roles endpoint.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/getUsersInRole?role=Authenticated
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="role" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="application/xml"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/getRolesForUser">
+        <ns2:method id="getRolesForUser" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Gets the roles for the given user.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/getRolesForUser?user=admin
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:request>
+            <ns2:param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="user" style="query" type="xs:string"/>
+          </ns2:request>
+          <ns2:response>
+            <ns2:representation mediaType="application/xml"/>
+            <ns2:representation mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/systemRoles">
+        <ns2:method id="getSystemRoles" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns Roles identified as &quot;system roles&quot; from the repository.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/systemRoles
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="roleList" mediaType="application/xml"/>
+            <ns2:representation element="roleList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/permission-users">
+        <ns2:method id="getPermissionUsers" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Returns the list of permission users in the platform.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/permission-users
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="userList" mediaType="application/xml"/>
+            <ns2:representation element="userList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+      <ns2:resource path="/permission-roles">
+        <ns2:method id="getPermissionRoles" name="GET">
+          <ns2:doc>&lt;visibility&gt;Public&lt;/visibility&gt;&lt;documentation&gt;Return a list of the permission roles in the platform.
+
+            &lt;p&gt;&lt;b&gt;Example Request:&lt;/b&gt;&lt;br /&gt;
+            GET pentaho/api/userrolelist/permission-roles
+            &lt;/p&gt;&lt;/documentation&gt;</ns2:doc>
+          <ns2:response>
+            <ns2:representation element="roleList" mediaType="application/xml"/>
+            <ns2:representation element="roleList" mediaType="application/json"/>
+          </ns2:response>
+        </ns2:method>
+      </ns2:resource>
+    </ns2:resource>
+  </ns2:resources>
+</ns2:application>

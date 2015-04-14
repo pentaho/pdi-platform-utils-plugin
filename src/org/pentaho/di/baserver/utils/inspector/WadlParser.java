@@ -79,8 +79,9 @@ public class WadlParser {
 
     Node nodeDoc = methodNode.selectSingleNode( "*[local-name() = 'doc']" );
     if ( nodeDoc != null ) {
-      String doc = parseDoc( nodeDoc.getText() );
-      endpoint.setDoc( doc );
+      endpoint.setDeprecated( isDeprecated( nodeDoc.getText() ) );
+      endpoint.setDocumentation( extractComment( nodeDoc.getText() ) );
+      endpoint.setVisibility( isPublic( nodeDoc.getText() ) ? Endpoint.Visibility.PUBLIC : Endpoint.Visibility.PRIVATE );
     }
     return endpoint;
   }
@@ -130,28 +131,4 @@ public class WadlParser {
     }
     return "";
   }
-
-  protected boolean isDocWellFormatted( String doc ) {
-    return doc != null && !"".equals( getVisibility( doc ) );
-  }
-
-  protected String parseDoc( String doc ) {
-    if ( isDocWellFormatted( doc ) ) {
-      boolean isPublic = isPublic( doc );
-      boolean isDeprecated = isDeprecated( doc );
-      if ( isPublic ) {
-        String comment = extractComment( doc );
-        if ( isDeprecated ) {
-          String messageDeprecated = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" );
-          return messageDeprecated + comment;
-        }
-        return comment;
-      } else {
-        String messagePrivateEndpoint = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.private" );
-        return messagePrivateEndpoint;
-      }
-    }
-    return "";
-  }
-
 }

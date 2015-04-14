@@ -87,11 +87,6 @@ public class WadlParserTest {
     }
 
     @Override
-    public String parseDoc( String doc ) {
-      return super.parseDoc( doc );
-    }
-
-    @Override
     protected String getVisibility( String in ) {
       return super.getVisibility( in );
     }
@@ -121,6 +116,9 @@ public class WadlParserTest {
     assertEquals( endpoint.getId(), "addBlockout" );
     assertEquals( endpoint.getPath(), "/scheduler/blockout/add" );
     assertEquals( endpoint.getQueryParams().size(), 0 );
+    assertEquals( endpoint.isDeprecated(), false );
+    assertEquals( endpoint.getVisibility(), Endpoint.Visibility.PUBLIC );
+    assertEquals( endpoint.getDocumentation().isEmpty(), false );
 
     endpoint = (Endpoint) endpointList.toArray()[1];
     assertEquals( endpoint.getHttpMethod(), HttpMethod.PUT );
@@ -132,12 +130,18 @@ public class WadlParserTest {
     assertEquals( ( (QueryParam) queryParamList.toArray()[0] ).getType(), "xs:string" );
     assertEquals( ( (QueryParam) queryParamList.toArray()[1] ).getName(), "userName" );
     assertEquals( ( (QueryParam) queryParamList.toArray()[1] ).getType(), "xs:string" );
+    assertEquals( endpoint.isDeprecated(), false );
+    assertEquals( endpoint.getVisibility(), Endpoint.Visibility.PUBLIC );
+    assertEquals( endpoint.getDocumentation().isEmpty(), false );
 
     endpoint = (Endpoint) endpointList.toArray()[69];
     assertEquals( endpoint.getHttpMethod(), HttpMethod.GET );
     assertEquals( endpoint.getId(), "getAllRoles" );
     assertEquals( endpoint.getPath(), "/userrolelist/allRoles" );
     assertEquals( endpoint.getQueryParams().size(), 0 );
+    assertEquals( endpoint.isDeprecated(), false );
+    assertEquals( endpoint.getVisibility(), Endpoint.Visibility.PUBLIC );
+    assertEquals( endpoint.getDocumentation().isEmpty(), false );
 
     assertEquals( wadlParserSpy.getEndpoints( mock( Document.class ) ).size(), 0 );
   }
@@ -234,32 +238,6 @@ public class WadlParserTest {
     doReturn( httpMethod.toString() ).when( node ).valueOf( "@name" );
 
     return node;
-  }
-
-  @Test
-  public void testParseDoc() throws Exception {
-    String resInNull = testableWadlParser.parseDoc( null );
-    Assert.assertEquals( "", resInNull );
-
-    String resInEmpty = testableWadlParser.parseDoc( "" );
-    Assert.assertEquals( "", resInEmpty );
-
-    String resInTestDataDeprecated = testableWadlParser.parseDoc( TEST_DATA_DEPRECATED );
-    Assert.assertEquals( TEST_DATA_RESULT_DEPRECATED, resInTestDataDeprecated );
-
-    String resInTestData = testableWadlParser.parseDoc( TEST_DATA );
-    Assert.assertEquals( TEST_DATA_RESULT, resInTestData );
-
-    String resInTestDataPrivate = testableWadlParser.parseDoc( TEST_DATA_PRIVATE );
-    Assert.assertEquals( PRIVATE, resInTestDataPrivate );
-  }
-
-  @Test
-  public void testParseDocMultiline() throws Exception {
-    Assert.assertTrue( "public".equalsIgnoreCase( testableWadlParser.getVisibility( TEST_DATA_MULTILINE ) ) );
-
-    String res = testableWadlParser.parseDoc( TEST_DATA_MULTILINE );
-    Assert.assertEquals( TEST_DATA_MULTILINE_RESULT, res );
   }
 
   @Test
