@@ -18,27 +18,33 @@
 
 package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.inspector.Endpoint;
 import org.pentaho.di.baserver.utils.inspector.Inspector;
+import org.pentaho.di.baserver.utils.widgets.BrowserBuilder;
 import org.pentaho.di.baserver.utils.widgets.ButtonBuilder;
 import org.pentaho.di.baserver.utils.widgets.GroupBuilder;
+import org.pentaho.di.baserver.utils.widgets.LabelBuilder;
 import org.pentaho.di.baserver.utils.widgets.RadioBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.ComboVarFieldBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
@@ -55,12 +61,18 @@ import org.pentaho.di.ui.core.widget.ComboVar;
 
 public class EndpointTab extends Tab {
   public static final int FIELD_WIDTH = 250;
+  private static final String HTML_DOC = "<html>\n" + "<head>\n"
+      + "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
+      + "<style> * '{' font-family: Helvetica; font-size: {0} '}' </style>"
+      + "</head>\n<body>{1}</body>\n</html>";
+
+
   private final TransMeta transMeta;
   private final String stepName;
   private final LogChannel log;
   private final ServerTab serverTab;
   private ComboVar serverModule, resourcePath, httpMethod;
-  private Field<Text> resourcePathDetailsField;
+  private Browser resourcePathDetailsField;
   private final Button fromServerRadio;
 
   public EndpointTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, ModifyListener modifyListener,
@@ -167,11 +179,19 @@ public class EndpointTab extends Tab {
         .setWidth( FIELD_WIDTH )
         .build();
     httpMethod = httpMethodField.getControl();
-    resourcePathDetailsField = new TextAreaFieldBuilder( this, props )
-        .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.ResourcePathDetails" ) )
-        .addModifyListener( modifyListener )
+
+    Label lab = new LabelBuilder( this, props )
+        .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.ResourcePathDetails" ) )
         .setTop( endpointLocationGroup )
         .setTopMargin( BAServerCommonDialog.LARGE_MARGIN )
+        .setLeft( wsEndpointGroup )
+        .setLeftMargin( BAServerCommonDialog.LARGE_MARGIN )
+        .setRightMargin( LEFT_PLACEMENT )
+        .build();
+
+    resourcePathDetailsField = new BrowserBuilder( this, props )
+        .setTop( lab )
+        .setTopMargin( BAServerCommonDialog.SMALL_MARGIN )
         .setLeft( wsEndpointGroup )
         .setLeftMargin( BAServerCommonDialog.LARGE_MARGIN )
         .setRightPlacement( RIGHT_PLACEMENT )
@@ -294,7 +314,11 @@ public class EndpointTab extends Tab {
         }
       }
     }
-    this.resourcePathDetailsField.getControl().setText( newValue );
+
+    FontData fontData = resourcePathDetailsField.getFont().getFontData()[0];
+    newValue = MessageFormat.format( HTML_DOC, fontData.getHeight(), newValue );
+
+    this.resourcePathDetailsField.setText( newValue );
   }
 
   private void setDefaultHttpMethod() {
