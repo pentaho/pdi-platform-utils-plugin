@@ -72,8 +72,8 @@ public class WadlParserTest {
   private static class TestableWadlParser extends WadlParser {
 
     @Override
-    public boolean isPublic( String in ) {
-      return super.isPublic( in );
+    public boolean isSupported( String in ) {
+      return super.isSupported( in );
     }
 
     @Override
@@ -84,11 +84,6 @@ public class WadlParserTest {
     @Override
     public String extractComment( String in ) {
       return super.extractComment( in );
-    }
-
-    @Override
-    protected String getVisibility( String in ) {
-      return super.getVisibility( in );
     }
   }
 
@@ -117,7 +112,7 @@ public class WadlParserTest {
     assertEquals( endpoint.getPath(), "/scheduler/blockout/add" );
     assertEquals( endpoint.getQueryParams().size(), 0 );
     assertEquals( endpoint.isDeprecated(), false );
-    assertEquals( endpoint.getVisibility(), Endpoint.Visibility.PUBLIC );
+    assertEquals( endpoint.isSupported(), true );
     assertEquals( endpoint.getDocumentation().isEmpty(), false );
 
     endpoint = (Endpoint) endpointList.toArray()[1];
@@ -131,7 +126,7 @@ public class WadlParserTest {
     assertEquals( ( (QueryParam) queryParamList.toArray()[1] ).getName(), "userName" );
     assertEquals( ( (QueryParam) queryParamList.toArray()[1] ).getType(), "xs:string" );
     assertEquals( endpoint.isDeprecated(), false );
-    assertEquals( endpoint.getVisibility(), Endpoint.Visibility.PUBLIC );
+    assertEquals( endpoint.isSupported(), false );
     assertEquals( endpoint.getDocumentation().isEmpty(), false );
 
     endpoint = (Endpoint) endpointList.toArray()[69];
@@ -140,7 +135,7 @@ public class WadlParserTest {
     assertEquals( endpoint.getPath(), "/userrolelist/allRoles" );
     assertEquals( endpoint.getQueryParams().size(), 0 );
     assertEquals( endpoint.isDeprecated(), false );
-    assertEquals( endpoint.getVisibility(), Endpoint.Visibility.PUBLIC );
+    assertEquals( endpoint.isSupported(), true );
     assertEquals( endpoint.getDocumentation().isEmpty(), false );
 
     assertEquals( wadlParserSpy.getEndpoints( mock( Document.class ) ).size(), 0 );

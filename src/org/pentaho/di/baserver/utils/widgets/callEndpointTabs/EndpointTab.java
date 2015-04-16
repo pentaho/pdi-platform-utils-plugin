@@ -272,8 +272,7 @@ public class EndpointTab extends Tab {
         Iterable<Endpoint> endpoints = inspector.getEndpoints( moduleName, path );
         boolean add = false;
         for ( Endpoint endpoint : endpoints ) {
-          if ( endpoint.getVisibility() == Endpoint.Visibility.PUBLIC || (
-              isShowingPrivateEndpoints() && endpoint.getVisibility() == Endpoint.Visibility.PRIVATE ) ) {
+          if ( endpoint.isSupported() || isShowingNonSupportedEndpoints() ) {
             add = true;
           }
         }
@@ -306,8 +305,7 @@ public class EndpointTab extends Tab {
       String endpointPath = transMeta.environmentSubstitute( resourcePath.getText() );
       Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
       for ( Endpoint endpoint : endpoints ) {
-        if ( endpoint.getVisibility() == Endpoint.Visibility.PUBLIC || (
-            isShowingPrivateEndpoints() && endpoint.getVisibility() == Endpoint.Visibility.PRIVATE ) ) {
+        if ( endpoint.isSupported() || isShowingNonSupportedEndpoints() ) {
           this.httpMethod.add( endpoint.getHttpMethod().name() );
         }
       }
@@ -323,8 +321,8 @@ public class EndpointTab extends Tab {
     }
   }
 
-  private boolean isShowingPrivateEndpoints() {
-    String value = Variables.getADefaultVariableSpace().environmentSubstitute( "${ShowPrivateEndpoints}" );
+  private boolean isShowingNonSupportedEndpoints() {
+    String value = Variables.getADefaultVariableSpace().environmentSubstitute( "${ShowNonSupportedEndpoints}" );
     if ( value == null ) {
       return false;
     }
@@ -339,7 +337,7 @@ public class EndpointTab extends Tab {
       String endpointPath = transMeta.environmentSubstitute( resourcePath.getText() );
       Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
       for ( Endpoint endpoint : endpoints ) {
-        if ( endpoint.getVisibility() == Endpoint.Visibility.PUBLIC ) {
+        if ( endpoint.isSupported() ) {
           String messageDeprecated = "";
           if ( endpoint.isDeprecated() ) {
             messageDeprecated = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" )
@@ -347,7 +345,7 @@ public class EndpointTab extends Tab {
           }
           newValue = messageDeprecated + endpoint.getDocumentation();
         } else {
-          newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.private" );
+          newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.not.supported" );
         }
       }
     }
