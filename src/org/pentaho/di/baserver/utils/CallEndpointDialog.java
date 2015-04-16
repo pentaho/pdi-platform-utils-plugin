@@ -46,7 +46,7 @@ public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
   }
 
   @Override protected int getMinimumHeight() {
-    return 528;
+    return 555;
   }
 
   @Override protected int getMinimumWidth() {

@@ -81,7 +81,7 @@ public class WadlParser {
     if ( nodeDoc != null ) {
       endpoint.setDeprecated( isDeprecated( nodeDoc.getText() ) );
       endpoint.setDocumentation( extractComment( nodeDoc.getText() ) );
-      endpoint.setVisibility( isPublic( nodeDoc.getText() ) ? Endpoint.Visibility.PUBLIC : Endpoint.Visibility.PRIVATE );
+      endpoint.setSupported( isSupported( nodeDoc.getText() ) );
     }
     return endpoint;
   }
@@ -104,17 +104,10 @@ public class WadlParser {
     return path.contains( "/api/" ) ? path.substring( path.indexOf( "/api/" ) + 4 ) : path;
   }
 
-  protected String getVisibility( String in ) {
-    Pattern patern = Pattern.compile( "<visibility>(.*)<\\/visibility>.*", Pattern.DOTALL );
+  protected boolean isSupported( String in ) {
+    Pattern patern = Pattern.compile( "<supported>(true||TRUE||True)<\\/supported>.*", Pattern.DOTALL );
     Matcher matcher = patern.matcher( in );
-    if ( matcher.matches() ) {
-      return matcher.group( 1 );
-    }
-    return "";
-  }
-
-  protected boolean isPublic( String in ) {
-    return "public".equalsIgnoreCase( getVisibility( in ) );
+    return matcher.matches();
   }
 
   protected boolean isDeprecated( String in ) {
