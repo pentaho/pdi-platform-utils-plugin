@@ -19,6 +19,7 @@
 package org.pentaho.di.baserver.utils;
 
 
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
 import org.pentaho.di.core.row.ValueMetaInterface;
@@ -145,16 +146,18 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
 
     // find a matching field
     String fieldName = meta.getFieldName()[ i ];
-    int index = getInputRowMeta().indexOfValue( fieldName );
-    if ( index >= 0 ) {
-      ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( index );
-      Object valueData = rowData[ index ];
-      return valueMeta.getCompatibleString( valueData );
-    }
+    if ( !Const.isEmpty( fieldName ) ) {
+      int index = getInputRowMeta().indexOfValue( fieldName );
+      if ( index >= 0 ) {
+        ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( index );
+        Object valueData = rowData[index];
+        return valueMeta.getCompatibleString( valueData );
+      }
 
-    // otherwise, return default value
-    logBasic( BaseMessages
-        .getString( PKG, "CallEndpoint.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
+      // otherwise, return default value
+      logBasic( BaseMessages
+          .getString( PKG, "CallEndpoint.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
+    }
     return getRowDefaultValue( i );
   }
 
