@@ -18,14 +18,11 @@
 
 package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -34,7 +31,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -43,6 +39,7 @@ import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.inspector.Endpoint;
+import org.pentaho.di.baserver.utils.inspector.HttpMethod;
 import org.pentaho.di.baserver.utils.inspector.Inspector;
 import org.pentaho.di.baserver.utils.widgets.BrowserBuilder;
 import org.pentaho.di.baserver.utils.widgets.ButtonBuilder;
@@ -53,7 +50,6 @@ import org.pentaho.di.baserver.utils.widgets.fields.ComboVarFieldBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
 
 import org.pentaho.di.core.Const;
-import org.pentaho.di.core.Props;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -69,7 +65,7 @@ public class EndpointTab extends Tab {
   public static final int BOTTOM_PLACEMENT = 100;
   private static final String HTML_DOC = "<html>\n" + "<head>\n"
       + "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
-      + "<style> * '{' font-family: Helvetica; font-size: {0} '}' </style>"
+      + "<style>{0}</style>"
       + "</head>\n<body>{1}</body>\n</html>";
 
 
@@ -144,9 +140,7 @@ public class EndpointTab extends Tab {
           @Override public void widgetSelected( SelectionEvent selectionEvent ) {
             super.widgetSelected( selectionEvent );
             updateEndpointPathsComboBox();
-            setDefaultEndpointPath();
             updateHttpMethodsComboBox();
-            setDefaultHttpMethod();
             updateEndpointPathsDetailsField();
           }
         } )
@@ -163,7 +157,6 @@ public class EndpointTab extends Tab {
           @Override public void widgetSelected( SelectionEvent selectionEvent ) {
             super.widgetSelected( selectionEvent );
             updateHttpMethodsComboBox();
-            setDefaultHttpMethod();
             updateEndpointPathsDetailsField();
           }
         } )
@@ -177,7 +170,12 @@ public class EndpointTab extends Tab {
     resourcePath = resourcePathField.getControl();
     final Field<ComboVar> httpMethodField = new ComboVarFieldBuilder( wsEndpointGroup, props )
         .setVariableSpace( transMeta )
-        .addModifyListener( modifyListener )
+        .addSelectionListener( new SelectionAdapter() {
+          @Override public void widgetSelected( SelectionEvent selectionEvent ) {
+            super.widgetSelected( selectionEvent );
+            updateEndpointPathsDetailsField();
+          }
+        } )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.HTTPMethod" ) )
         .setTop( resourcePathField )
         .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
@@ -210,7 +208,6 @@ public class EndpointTab extends Tab {
     serverModule.setText( meta.getModuleName() );
     resourcePath.setText( meta.getEndpointPath() );
     httpMethod.setText( meta.getHttpMethod() );
-
   }
 
   public void populateEndpoints() {
@@ -218,11 +215,12 @@ public class EndpointTab extends Tab {
         String serverUrl = serverTab.getServerUrl();
         String userName = serverTab.getUserName();
         String password = serverTab.getPassword();
-        if ( serverTab.testConnection( false ) && Inspector.getInstance().inspectServer( serverUrl, userName, password ) ) {
-            updateModuleNamesComboBox();
-            updateEndpointPathsComboBox();
-            updateHttpMethodsComboBox();
-            updateEndpointPathsDetailsField();
+        if ( serverTab.testConnection( false )
+            && Inspector.getInstance().inspectServer( serverUrl, userName, password ) ) {
+          updateModuleNamesComboBox();
+          updateEndpointPathsComboBox();
+          updateHttpMethodsComboBox();
+          updateEndpointPathsDetailsField();
         }
     } else {
       updateModuleNamesComboBox();
@@ -230,7 +228,6 @@ public class EndpointTab extends Tab {
       updateHttpMethodsComboBox();
       updateEndpointPathsDetailsField();
     }
-    // TODO: update resourcePathDetailsField when WADL requests for endpoint description will be ready
   }
 
   @Override public void saveData( CallEndpointMeta meta ) {
@@ -253,7 +250,7 @@ public class EndpointTab extends Tab {
       for ( String item : Inspector.getInstance().getModuleNames() ) {
         serverModule.add( item );
       }
-      if ( moduleName.equals( "" ) ) {
+      if ( moduleName.isEmpty() ) {
         moduleName = Inspector.getInstance().getDefaultModuleName();
       }
       serverModule.setText( moduleName );
@@ -274,26 +271,28 @@ public class EndpointTab extends Tab {
         for ( Endpoint endpoint : endpoints ) {
           if ( endpoint.isSupported() || isShowingNonSupportedEndpoints() ) {
             add = true;
+            if ( endpointPath.isEmpty() ) {
+              endpointPath = path;
+            }
           }
         }
-
-        if ( add ) {
+        if ( !add && endpointPath.equals( path ) ) {
+          endpointPath = "";
+        } else if ( add ) {
           resourcePath.add( path );
         }
       }
-      if ( endpointPath.equals( "" ) ) {
-        endpointPath = Inspector.getInstance().getDefaultEndpointPath( moduleName );
+
+      List<String> endpointPaths = new ArrayList<String>( Arrays.asList( resourcePath.getItems() ) );
+      if ( endpointPaths.size() == 0) {
+        endpointPath = "";
+      } else if ( endpointPaths.indexOf( endpointPath ) < 0 ) {
+        endpointPath = endpointPaths.get( 0 );
       }
+
       resourcePath.setText( endpointPath );
     } else {
       resourcePath.setItems( getFieldNames() );
-    }
-  }
-
-  private void setDefaultEndpointPath() {
-    if ( fromServerRadio.getSelection() ) {
-      String moduleName = transMeta.environmentSubstitute( serverModule.getText() );
-      resourcePath.setText( Inspector.getInstance().getDefaultEndpointPath( moduleName ) );
     }
   }
 
@@ -307,14 +306,19 @@ public class EndpointTab extends Tab {
       for ( Endpoint endpoint : endpoints ) {
         if ( endpoint.isSupported() || isShowingNonSupportedEndpoints() ) {
           this.httpMethod.add( endpoint.getHttpMethod().name() );
+          if ( httpMethod.isEmpty() ) {
+            httpMethod = endpoint.getHttpMethod().name();
+          }
         }
       }
-      if ( httpMethod.equals( "" ) ) {
-        Endpoint endpoint = Inspector.getInstance().getDefaultEndpoint( moduleName, endpointPath );
-        if ( endpoint != null ) {
-          httpMethod = endpoint.getHttpMethod().name();
-        }
+
+      List<String> httpMethods = new ArrayList<String>( Arrays.asList( this.httpMethod.getItems() ) );
+      if ( httpMethods.size() == 0 ) {
+        httpMethod = "";
+      } else if ( httpMethods.indexOf( endpointPath ) < 0 ) {
+        httpMethod = httpMethods.get( 0 );
       }
+
       this.httpMethod.setText( httpMethod );
     } else {
       this.httpMethod.setItems( getFieldNames() );
@@ -335,38 +339,33 @@ public class EndpointTab extends Tab {
     if ( fromServerRadio.getSelection() ) {
       String moduleName = transMeta.environmentSubstitute( serverModule.getText() );
       String endpointPath = transMeta.environmentSubstitute( resourcePath.getText() );
+      String method = transMeta.environmentSubstitute( httpMethod.getText() );
       Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
       for ( Endpoint endpoint : endpoints ) {
-        if ( endpoint.isSupported() ) {
-          String messageDeprecated = "";
-          if ( endpoint.isDeprecated() ) {
-            messageDeprecated = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" )
-                + "<br/>";
+        if ( method.isEmpty() || endpoint.getHttpMethod().equals( HttpMethod.valueOf( method ) ) ) {
+          if ( endpoint.isSupported() || isShowingNonSupportedEndpoints() ) {
+            String messageDeprecated = "";
+            if ( endpoint.isDeprecated() ) {
+              messageDeprecated = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" )
+                  + "<br/>";
+            }
+            newValue = messageDeprecated + endpoint.getDocumentation();
+          } else {
+            newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.not.supported" );
           }
-          newValue = messageDeprecated + endpoint.getDocumentation();
-        } else {
-          newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.not.supported" );
+          break;
         }
       }
     }
 
-    FontData fontData = resourcePathDetailsField.getFont().getFontData()[0];
-    newValue = MessageFormat.format( HTML_DOC, fontData.getHeight(), newValue );
+    if ( newValue.isEmpty() ) {
+      newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.no.details" );
+    }
+
+    newValue = MessageFormat.format( HTML_DOC, BaseMessages.getString( CallEndpointMeta.class,
+        "WadlParser.endpoint.style" ), newValue );
 
     this.resourcePathDetailsField.setText( newValue );
-  }
-
-  private void setDefaultHttpMethod() {
-    if ( fromServerRadio.getSelection() ) {
-      String moduleName = transMeta.environmentSubstitute( serverModule.getText() );
-      String path = transMeta.environmentSubstitute( resourcePath.getText() );
-      Endpoint endpoint = Inspector.getInstance().getDefaultEndpoint( moduleName, path );
-      if ( endpoint != null ) {
-        this.httpMethod.setText( endpoint.getHttpMethod().name() );
-      } else {
-        this.httpMethod.setText( "" );
-      }
-    }
   }
 
   private String[] getFieldNames() {
@@ -381,9 +380,6 @@ public class EndpointTab extends Tab {
           entries.add( row.getValueMeta( i ).getName() );
         }
         Collections.sort( entries );
-
-        //fieldNames = entries.toArray( new String[ entries.size() ] );
-        //Const.sortStrings( fieldNames );
       } catch ( KettleException e ) {
         log.logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
       }

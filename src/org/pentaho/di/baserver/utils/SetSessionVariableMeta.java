@@ -51,7 +51,8 @@ import java.util.List;
   description = "SetSessionVariableMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
   categoryDescription = "BAServerUtils.Category",
-  isSeparateClassLoaderNeeded = true )
+  isSeparateClassLoaderNeeded = true,
+  documentationUrl = "http://wiki.pentaho.com/display/EAI/Set+Session+Variables" )
 public class SetSessionVariableMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = SetSessionVariableMeta.class; // for i18n purposes, needed by Translator2!!
 

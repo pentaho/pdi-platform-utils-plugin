@@ -55,7 +55,8 @@ import java.util.List;
   description = "GetSessionVariableMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
   categoryDescription = "BAServerUtils.Category",
-  isSeparateClassLoaderNeeded = true )
+  isSeparateClassLoaderNeeded = true,
+  documentationUrl = "GetSessionVariable.help" )
 public class GetSessionVariableMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = GetSessionVariableMeta.class; // for i18n purposes, needed by Translator2!!
 
