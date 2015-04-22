@@ -50,7 +50,7 @@ import java.util.List;
 
 @Step( id = "CallEndpointStep",
   name = "CallEndpointMeta.Name",
-  image = "icons/callendpoint.png",
+  image = "icons/callendpoint.svg",
   description = "CallEndpointMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
   categoryDescription = "BAServerUtils.Category",

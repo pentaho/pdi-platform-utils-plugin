@@ -51,7 +51,7 @@ import java.util.List;
 
 @Step( id = "GetSessionVariableStep",
   name = "GetSessionVariableMeta.Name",
-  image = "icons/getsessionvariable.png",
+  image = "icons/getsessionvariable.svg",
   description = "GetSessionVariableMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
   categoryDescription = "BAServerUtils.Category",
