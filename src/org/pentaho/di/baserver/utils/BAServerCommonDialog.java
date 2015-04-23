@@ -56,7 +56,9 @@ import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
+import org.pentaho.di.ui.core.ConstUI;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
+import org.pentaho.di.ui.util.SwtSvgImageUtil;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -274,22 +276,11 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     });
 
     // icon
-
-    try {
-      final PluginInterface plugin = PluginRegistry.getInstance()
-          .getPlugin( StepPluginType.class, metaInfo.getClass().getAnnotation( Step.class ).id() );
-
-      ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader( plugin );
-      InputStream inputStream = classLoader.getResourceAsStream( plugin.getImageFile() );
-
-      final Label icon = new ImageBuilder( parent, this.props )
-          .setImage( new Image( parent.getDisplay(), inputStream ) )
-          .setRightPlacement( RIGHT_PLACEMENT )
-          .build();
-      ( (FormData) icon.getLayoutData() ).top = new FormAttachment( field, 0, SWT.CENTER );
-    } catch ( KettlePluginException e ) {
-      // do nothing
-    }
+    final Label icon = new ImageBuilder( parent, this.props )
+        .setImage( getImage() )
+        .setRightPlacement( RIGHT_PLACEMENT )
+        .build();
+    ( (FormData) icon.getLayoutData() ).top = new FormAttachment( field, 0, SWT.CENTER );
 
     // separator
     return new SeparatorBuilder( parent, this.props )
@@ -311,4 +302,6 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
   protected abstract String getTitleKey();
 
   protected abstract void buildContent( Composite parent );
+
+  protected abstract Image getImage();
 }

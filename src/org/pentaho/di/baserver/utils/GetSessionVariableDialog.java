@@ -18,6 +18,7 @@
 
 package org.pentaho.di.baserver.utils;
 
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -26,8 +27,10 @@ import org.pentaho.di.core.Const;
 import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.ui.core.ConstUI;
 import org.pentaho.di.ui.core.widget.ColumnInfo;
 import org.pentaho.di.ui.core.widget.TableView;
+import org.pentaho.di.ui.util.SwtSvgImageUtil;
 
 public class GetSessionVariableDialog extends BAServerCommonDialog<GetSessionVariableMeta> {
   private TableView wFields;
@@ -64,6 +67,13 @@ public class GetSessionVariableDialog extends BAServerCommonDialog<GetSessionVar
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
+  }
+
+  @Override
+  protected Image getImage() {
+    return SwtSvgImageUtil
+        .getImage( shell.getDisplay(), getClass().getClassLoader(), "icons/getsessionvariable.svg", ConstUI.ICON_SIZE,
+            ConstUI.ICON_SIZE );
   }
 
   protected void loadData( GetSessionVariableMeta meta ) {
