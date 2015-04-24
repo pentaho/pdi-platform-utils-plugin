@@ -343,15 +343,15 @@ public class EndpointTab extends Tab {
       Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
       for ( Endpoint endpoint : endpoints ) {
         if ( method.isEmpty() || endpoint.getHttpMethod().equals( HttpMethod.valueOf( method ) ) ) {
-          if ( endpoint.isSupported() || isShowingNonSupportedEndpoints() ) {
-            String messageDeprecated = "";
-            if ( endpoint.isDeprecated() ) {
-              messageDeprecated = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" )
-                  + "<br/>";
-            }
-            newValue = messageDeprecated + endpoint.getDocumentation();
-          } else {
-            newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.not.supported" );
+          if ( endpoint.isDeprecated() ) {
+            newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" ) + "<br/>";
+          }
+
+          if ( endpoint.isSupported() ) {
+            String documentation = endpoint.getDocumentation();
+            newValue += documentation != null ? documentation : "";
+          } else if ( isShowingNonSupportedEndpoints() ) {
+            newValue += BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.not.supported" );
           }
           break;
         }
