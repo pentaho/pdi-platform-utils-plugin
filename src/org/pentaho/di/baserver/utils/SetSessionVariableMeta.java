@@ -177,7 +177,7 @@ public class SetSessionVariableMeta extends BaseStepMeta implements StepMetaInte
       allocate( count );
       for ( int i = 0; i < count; i++ ) {
         fieldName[ i ] = rep.getStepAttributeString( id_step, i, "field_name" );
-        variableName[ i ] = rep.getStepAttributeString( id_step, i, "field_variable" );
+        variableName[ i ] = rep.getStepAttributeString( id_step, i, "field_variable_name" );
         defaultValue[ i ] = rep.getStepAttributeString( id_step, i, "field_default_value" );
       }
       useFormatting = rep.getStepAttributeBoolean( id_step, 0, "use_formatting", false );
