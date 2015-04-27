@@ -67,7 +67,7 @@ public class ServerTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.UserName" ) )
         .setTop( urlField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setWidth( FIELD_WIDTH )
         .build();
@@ -87,7 +87,7 @@ public class ServerTab extends Tab {
         } )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Password" ) )
         .setTop( userNameField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setWidth( FIELD_WIDTH )
         .build();
@@ -96,7 +96,7 @@ public class ServerTab extends Tab {
     final Button testConnectionButton = new ButtonBuilder( this, props )
         .setLabelText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.TestConnection" ) )
         .setTop( passwordField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .build();
       testConnectionButton.addSelectionListener(new SelectionAdapter() {
@@ -111,7 +111,7 @@ public class ServerTab extends Tab {
         .setText( BaseMessages.getString(PKG, "CallEndpointDialog.TabItem.Server.UseSession"))
         .addSelectionListener( selectionListener )
         .setTop( testConnectionButton )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();

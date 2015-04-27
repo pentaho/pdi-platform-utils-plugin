@@ -53,7 +53,7 @@ public class OutputFieldsTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.OutputFields.StatusCodeName" ) )
         .setTop( resultNameField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setWidth( FIELD_WIDTH )
         .build();
@@ -63,7 +63,7 @@ public class OutputFieldsTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.OutputFields.ResponseTimeName" ) )
         .setTop( statusCodeNameField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setWidth( FIELD_WIDTH )
         .build();
