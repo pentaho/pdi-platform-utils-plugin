@@ -76,6 +76,7 @@ public class EndpointTab extends Tab {
   private ComboVar serverModule, resourcePath, httpMethod;
   private Browser resourcePathDetailsField;
   private final Button fromServerRadio;
+  private boolean showNonSupportedEndpoints;
 
   public EndpointTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, ModifyListener modifyListener,
       SelectionListener selectionListener, String stepName, LogChannel log, ServerTab serverTab ) {
@@ -84,6 +85,7 @@ public class EndpointTab extends Tab {
     this.stepName = stepName;
     this.log = log;
     this.serverTab = serverTab;
+    this.showNonSupportedEndpoints = isShowingNonSupportedEndpoints();
 
     Group endpointLocationGroup = new GroupBuilder( this, props )
         .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.EndpointLocation" ) )
@@ -103,7 +105,7 @@ public class EndpointTab extends Tab {
     getEndpointButton.addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
-        populateEndpoints();
+        refreshEndpoints();
       }
     } );
     final Button fieldsUpstreamRadio = new RadioBuilder( endpointLocationGroup, props )
@@ -111,14 +113,20 @@ public class EndpointTab extends Tab {
         .addSelectionListener( selectionListener )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setTop( fromServerRadio )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .build();
     final SelectionAdapter switchEndpointLocation = new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         super.widgetSelected( selectionEvent );
-        serverModule.removeAll();
-        resourcePath.removeAll();
-        httpMethod.removeAll();
+        if ( !fromServerRadio.getSelection() ) {
+          getEndpointButton.setEnabled( false );
+        } else {
+          getEndpointButton.setEnabled( true );
+        }
+        updateModuleNamesComboBox();
+        updateEndpointPathsComboBox();
+        updateHttpMethodsComboBox();
+        updateEndpointPathsDetailsField();
       }
     };
     fromServerRadio.addSelectionListener( switchEndpointLocation );
@@ -139,14 +147,16 @@ public class EndpointTab extends Tab {
         .addSelectionListener( new SelectionAdapter() {
           @Override public void widgetSelected( SelectionEvent selectionEvent ) {
             super.widgetSelected( selectionEvent );
-            updateEndpointPathsComboBox();
-            updateHttpMethodsComboBox();
-            updateEndpointPathsDetailsField();
+            if ( fromServerRadio.getSelection() ) {
+              updateEndpointPathsComboBox();
+              updateHttpMethodsComboBox();
+              updateEndpointPathsDetailsField();
+            }
           }
         } )
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.BAServerModule" ) )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setWidth( FIELD_WIDTH )
         .build();
@@ -156,14 +166,16 @@ public class EndpointTab extends Tab {
         .addSelectionListener( new SelectionAdapter() {
           @Override public void widgetSelected( SelectionEvent selectionEvent ) {
             super.widgetSelected( selectionEvent );
-            updateHttpMethodsComboBox();
-            updateEndpointPathsDetailsField();
+            if ( fromServerRadio.getSelection() ) {
+              updateHttpMethodsComboBox();
+              updateEndpointPathsDetailsField();
+            }
           }
         } )
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.ResourcePath" ) )
         .setTop( serverModuleField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setWidth( FIELD_WIDTH )
         .build();
@@ -173,12 +185,14 @@ public class EndpointTab extends Tab {
         .addSelectionListener( new SelectionAdapter() {
           @Override public void widgetSelected( SelectionEvent selectionEvent ) {
             super.widgetSelected( selectionEvent );
-            updateEndpointPathsDetailsField();
+            if ( fromServerRadio.getSelection() ) {
+              updateEndpointPathsDetailsField();
+            }
           }
         } )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.HTTPMethod" ) )
         .setTop( resourcePathField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setWidth( FIELD_WIDTH )
         .build();
@@ -210,19 +224,12 @@ public class EndpointTab extends Tab {
     httpMethod.setText( meta.getHttpMethod() );
   }
 
-  public void populateEndpoints() {
-    if ( fromServerRadio.getSelection() ) {
-        String serverUrl = serverTab.getServerUrl();
-        String userName = serverTab.getUserName();
-        String password = serverTab.getPassword();
-        if ( serverTab.testConnection( false )
-            && Inspector.getInstance().inspectServer( serverUrl, userName, password ) ) {
-          updateModuleNamesComboBox();
-          updateEndpointPathsComboBox();
-          updateHttpMethodsComboBox();
-          updateEndpointPathsDetailsField();
-        }
-    } else {
+  public void refreshEndpoints() {
+    String serverUrl = serverTab.getServerUrl();
+    String userName = serverTab.getUserName();
+    String password = serverTab.getPassword();
+    if ( serverTab.testConnection( false )
+        && Inspector.getInstance().inspectServer( serverUrl, userName, password ) ) {
       updateModuleNamesComboBox();
       updateEndpointPathsComboBox();
       updateHttpMethodsComboBox();
@@ -269,7 +276,7 @@ public class EndpointTab extends Tab {
         Iterable<Endpoint> endpoints = inspector.getEndpoints( moduleName, path );
         boolean add = false;
         for ( Endpoint endpoint : endpoints ) {
-          if ( endpoint.isSupported() || isShowingNonSupportedEndpoints() ) {
+          if ( endpoint.isSupported() || this.showNonSupportedEndpoints ) {
             add = true;
             if ( endpointPath.isEmpty() ) {
               endpointPath = path;
@@ -304,7 +311,7 @@ public class EndpointTab extends Tab {
       String endpointPath = transMeta.environmentSubstitute( resourcePath.getText() );
       Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
       for ( Endpoint endpoint : endpoints ) {
-        if ( endpoint.isSupported() || isShowingNonSupportedEndpoints() ) {
+        if ( endpoint.isSupported() || this.showNonSupportedEndpoints ) {
           this.httpMethod.add( endpoint.getHttpMethod().name() );
           if ( httpMethod.isEmpty() ) {
             httpMethod = endpoint.getHttpMethod().name();
@@ -350,7 +357,7 @@ public class EndpointTab extends Tab {
           if ( endpoint.isSupported() ) {
             String documentation = endpoint.getDocumentation();
             newValue += documentation != null ? documentation : "";
-          } else if ( isShowingNonSupportedEndpoints() ) {
+          } else if ( this.showNonSupportedEndpoints ) {
             newValue += BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.not.supported" );
           }
           break;

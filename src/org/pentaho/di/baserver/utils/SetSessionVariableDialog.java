@@ -75,7 +75,7 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
         .addColumnInfo( variableColumn )
         .addColumnInfo( defaultValueColumn )
         .setTop( wApplyFormatting )
-        .setTopMargin( MEDUIM_MARGIN )
+        .setTopMargin( MEDIUM_MARGIN )
         .setBottomPlacement( 100 )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )

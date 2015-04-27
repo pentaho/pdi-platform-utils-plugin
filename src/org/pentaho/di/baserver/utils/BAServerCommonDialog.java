@@ -67,7 +67,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
   public static final int LEFT_PLACEMENT = 0;
   public static final int RIGHT_PLACEMENT = 100;
   public static final int LARGE_MARGIN = 15;
-  public static final int MEDUIM_MARGIN = 10;
+  public static final int MEDIUM_MARGIN = 10;
   public static final int SMALL_MARGIN = 5;
   public static final int FIELD_WIDTH = 350;
   public static final int BOTTOM_BUTTON_WIDTH = 80;
