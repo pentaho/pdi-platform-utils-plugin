@@ -216,6 +216,8 @@ public class HttpConnectionHelper {
       final Map<String, String> queryParameters ) {
 
     Response response = new Response();
+    response.setStatusCode( 404 );
+    response.setResponseTime( 0 );
 
     IPluginManager pluginManager = getPluginManager();
     if ( pluginManager == null ) {

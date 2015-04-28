@@ -249,7 +249,8 @@ public class HttpConnectionHelperTest {
     doNothing().when( pluginServlet ).service( any( InternalHttpServletRequest.class ),
         any( InternalHttpServletResponse.class ) );
     r = httpConnectionHelperSpy.invokePluginEndpoint( pluginName, endpointPath, httpMethod, queryParameters );
-    assertEquals( r.getStatusCode(), new Response().getStatusCode() );
+    assertEquals( r.getStatusCode(), 404 );
+    assertEquals( r.getResponseTime(), 0 );
   }
 
   @Test 
