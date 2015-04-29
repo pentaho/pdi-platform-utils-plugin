@@ -53,7 +53,7 @@ import java.util.List;
   image = "icons/callendpoint.svg",
   description = "CallEndpointMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
-  categoryDescription = "BAServerUtils.Category",
+  categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BAServer",
   isSeparateClassLoaderNeeded = true,
   documentationUrl = "CallEndpoint.help" )
 public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface {

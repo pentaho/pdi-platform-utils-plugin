@@ -54,7 +54,7 @@ import java.util.List;
   image = "icons/getsessionvariable.svg",
   description = "GetSessionVariableMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
-  categoryDescription = "BAServerUtils.Category",
+  categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BAServer",
   isSeparateClassLoaderNeeded = true,
   documentationUrl = "GetSessionVariable.help" )
 public class GetSessionVariableMeta extends BaseStepMeta implements StepMetaInterface {
