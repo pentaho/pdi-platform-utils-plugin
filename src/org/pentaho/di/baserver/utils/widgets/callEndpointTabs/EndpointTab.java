@@ -190,6 +190,7 @@ public class EndpointTab extends Tab {
             }
           }
         } )
+        .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.HTTPMethod" ) )
         .setTop( resourcePathField )
         .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
