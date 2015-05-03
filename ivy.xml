@@ -18,10 +18,10 @@
     <dependency org="pentaho" name="pentaho-platform-core" rev="${dependency.pentaho-platform.revision}" transitive="false" changing="true"/>
     <dependency org="pentaho" name="pentaho-platform-api" rev="${dependency.pentaho-platform.revision}" transitive="false" changing="true"/>
     <dependency org="pentaho" name="pentaho-platform-extensions" rev="${dependency.pentaho-platform.revision}" transitive="false" changing="true" conf="test, default->default" />
-    <dependency org="pentaho-kettle" name="kettle-core" rev="${dependency.pentaho-kettle.revision}" transitive="false" changing="true"/>
-    <dependency org="pentaho-kettle" name="kettle-engine" rev="${dependency.pentaho-kettle.revision}" transitive="false" changing="true"/>
-    <dependency org="pentaho-kettle" name="kettle-ui-swt" rev="${dependency.pentaho-kettle.revision}" transitive="false" changing="true"/>
-    <dependency org="pentaho" name="metastore" rev="${dependency.pentaho-kettle.revision}" transitive="false" changing="true"/>
+    <dependency org="pentaho-kettle" name="kettle-core" rev="${dependency.kettle.revision}" transitive="false" changing="true"/>
+    <dependency org="pentaho-kettle" name="kettle-engine" rev="${dependency.kettle.revision}" transitive="false" changing="true"/>
+    <dependency org="pentaho-kettle" name="kettle-ui-swt" rev="${dependency.kettle.revision}" transitive="false" changing="true"/>
+    <dependency org="pentaho" name="metastore" rev="${dependency.metastore.revision}" transitive="false" changing="true"/>
 
     <!-- Http client -->
     <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1"/>
