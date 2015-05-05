@@ -39,7 +39,8 @@ public class SetSessionVariableData extends BaseStepData implements StepDataInte
   protected void setBlackList() {
     try {
       if ( Class.forName( "org.pentaho.platform.engine.core.system.PentahoSystem" ) != null ) {
-        String variablesBlackList = PentahoSystem.getSystemSetting( "session-variables-blacklist", "" );
+        String variablesBlackList = PentahoSystem.getSystemSetting( "kettle/plugins/BAServerUtils/settings.xml",
+            "session-variables-blacklist", "" );
         blackList = Arrays.asList( variablesBlackList.split( "," ) );
       }
     } catch ( ClassNotFoundException e ) {
