@@ -73,9 +73,10 @@ public class EndpointTab extends Tab {
   private final String stepName;
   private final LogChannel log;
   private final ServerTab serverTab;
+  private final Button getEndpointButton;
   private ComboVar serverModule, resourcePath, httpMethod;
   private Browser resourcePathDetailsField;
-  private final Button fromServerRadio;
+  private final Button fromServerRadio, fieldsUpstreamRadio;
   private boolean showNonSupportedEndpoints;
 
   public EndpointTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, ModifyListener modifyListener,
@@ -97,7 +98,7 @@ public class EndpointTab extends Tab {
         .addSelectionListener( selectionListener )
         .setLeftPlacement( LEFT_PLACEMENT )
         .build();
-    final Button getEndpointButton = new ButtonBuilder( endpointLocationGroup, props )
+    getEndpointButton = new ButtonBuilder( endpointLocationGroup, props )
         .setLabelText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.GetEndpoint" ) )
         .setLeft( fromServerRadio )
         .build();
@@ -108,7 +109,7 @@ public class EndpointTab extends Tab {
         refreshEndpoints();
       }
     } );
-    final Button fieldsUpstreamRadio = new RadioBuilder( endpointLocationGroup, props )
+    fieldsUpstreamRadio = new RadioBuilder( endpointLocationGroup, props )
         .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.FieldsUpstream" ) )
         .addSelectionListener( selectionListener )
         .setLeftPlacement( LEFT_PLACEMENT )
@@ -220,6 +221,8 @@ public class EndpointTab extends Tab {
 
   @Override public void loadData( CallEndpointMeta meta ) {
     fromServerRadio.setSelection( !meta.isEndpointFromField() );
+    getEndpointButton.setEnabled( !meta.isEndpointFromField() );
+    fieldsUpstreamRadio.setSelection( meta.isEndpointFromField() );
     serverModule.setText( meta.getModuleName() );
     resourcePath.setText( meta.getEndpointPath() );
     httpMethod.setText( meta.getHttpMethod() );
