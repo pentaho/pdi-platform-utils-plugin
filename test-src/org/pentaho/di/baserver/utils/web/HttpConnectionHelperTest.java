@@ -320,16 +320,20 @@ public class HttpConnectionHelperTest {
     assertTrue( method.getURI().toString().startsWith( url ) );
     RequestEntity requestEntity = ( (PutMethod) method ).getRequestEntity();
     assertNotNull( requestEntity );
-    assertEquals( requestEntity.getContentType(), "application/json; charset=UTF-8" );
+    assertEquals( requestEntity.getContentType(), "application/x-www-form-urlencoded; charset=UTF-8" );
     assertNull( method.getQueryString() );
+    assertEquals( requestEntity.getClass(), StringRequestEntity.class );
+    assertNotNull( ( (StringRequestEntity) requestEntity ).getContent() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, queryParameters, "POST" );
     assertEquals( method.getClass(), PostMethod.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
     requestEntity = ( (PostMethod) method ).getRequestEntity();
     assertNotNull( requestEntity );
-    assertEquals( requestEntity.getContentType(), "application/json; charset=UTF-8" );
+    assertEquals( requestEntity.getContentType(), "application/x-www-form-urlencoded; charset=UTF-8" );
     assertNull( method.getQueryString() );
+    assertEquals( requestEntity.getClass(), StringRequestEntity.class );
+    assertNotNull( ( (StringRequestEntity) requestEntity ).getContent() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, queryParameters, "DELETE" );
     assertEquals( method.getClass(), DeleteMethod.class );

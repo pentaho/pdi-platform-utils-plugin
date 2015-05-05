@@ -23,7 +23,6 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONObject;
 import org.pentaho.di.cluster.SlaveConnectionManager;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleStepException;
@@ -407,12 +406,11 @@ public class HttpConnectionHelper {
   }
 
   private void setRequestEntity( EntityEnclosingMethod method, Map<String, String> queryParameters ) {
-    final JSONObject jsonObject = new JSONObject();
-    if ( queryParameters != null ) {
-      jsonObject.putAll( queryParameters );
-    }
     try {
-      method.setRequestEntity( new StringRequestEntity( jsonObject.toString(), "application/json", UTF_8 ) );
+      // TODO: this supports only FormParameters, need to support MultiPart messages with files,
+      // simple string values with JSON and XML, plain text, both body and query parameters for PUT
+      method.setRequestEntity( new StringRequestEntity( constructQueryString( queryParameters ).substring( 1 ),
+          "application/x-www-form-urlencoded", UTF_8 ) );
     } catch ( UnsupportedEncodingException e ) {
       logger.error( "Failed", e );
     }
