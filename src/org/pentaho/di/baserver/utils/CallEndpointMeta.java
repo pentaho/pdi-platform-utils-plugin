@@ -55,7 +55,7 @@ import java.util.List;
   i18nPackageName = "pt.webdetails.di.baserverutils",
   categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BAServer",
   isSeparateClassLoaderNeeded = true,
-  documentationUrl = "CallEndpoint.help" )
+  documentationUrl = "http://wiki.pentaho.com/display/EAI/Call+Endpoint" )
 public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
 
