@@ -47,7 +47,7 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
   }
 
   @Override
-  protected void buildContent(Composite parent) {
+  protected void buildContent( Composite parent ) {
     wApplyFormatting = new CheckBoxBuilder( parent, props )
         .setText( BaseMessages.getString( PKG, "SetSessionVariableDialog.Label.ApplyFormatting" ) )
         .setToolTipText( BaseMessages.getString( PKG, "SetSessionVariableDialog.Label.ApplyFormatting.Tooltip" ) )
@@ -57,21 +57,21 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
         .build();
 
     ColumnInfo cFieldNames = new ColumnInfo(
-        BaseMessages.getString(PKG, "SetSessionVariableDialog.Column.FieldName"),
-        ColumnInfo.COLUMN_TYPE_TEXT, false);
-    cFieldNames.setComboValues(getFieldNames());
+        BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.FieldName" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false );
+    cFieldNames.setComboValues( getFieldNames() );
     ColumnInfo variableColumn = new ColumnInfo(
-        BaseMessages.getString(PKG, "SetSessionVariableDialog.Column.VariableName"),
-        ColumnInfo.COLUMN_TYPE_TEXT, false);
+        BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.VariableName" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false );
     variableColumn.setUsingVariables( true );
     variableColumn.setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.VariableName.Tooltip" ) );
     ColumnInfo defaultValueColumn = new ColumnInfo(
-        BaseMessages.getString(PKG, "SetSessionVariableDialog.Column.DefaultValue"),
-        ColumnInfo.COLUMN_TYPE_TEXT, false);
+        BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false );
     defaultValueColumn.setUsingVariables( true );
     defaultValueColumn.setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
     wFields = new TableViewBuilder( props, parent, variables )
-        .addColumnInfo(cFieldNames)
+        .addColumnInfo( cFieldNames )
         .addColumnInfo( variableColumn )
         .addColumnInfo( defaultValueColumn )
         .setTop( wApplyFormatting )
@@ -95,6 +95,8 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
     wApplyFormatting.setSelection( meta.isUsingFormatting() );
 
     // load fields
+    wFields.table.removeAll();
+    wFields.table.setItemCount( meta.getFieldName().length );
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
       int index = 0;
