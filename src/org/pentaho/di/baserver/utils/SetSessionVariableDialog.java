@@ -69,7 +69,8 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
         BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
     defaultValueColumn.setUsingVariables( true );
-    defaultValueColumn.setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
+    defaultValueColumn.setToolTip(
+        BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
     wFields = new TableViewBuilder( props, parent, variables )
         .addColumnInfo( cFieldNames )
         .addColumnInfo( variableColumn )
@@ -95,9 +96,10 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
     wApplyFormatting.setSelection( meta.isUsingFormatting() );
 
     // load fields
+    int metaFieldsLength = meta.getFieldName().length;
     wFields.table.removeAll();
-    wFields.table.setItemCount( meta.getFieldName().length );
-    for ( int i = 0; i < meta.getFieldName().length; i++ ) {
+    wFields.table.setItemCount( metaFieldsLength == 0 ? 1 : metaFieldsLength );
+    for ( int i = 0; i < metaFieldsLength; i++ ) {
       TableItem item = wFields.table.getItem( i );
       int index = 0;
       item.setText( ++index, Const.NVL( meta.getFieldName()[ i ], "" ) );
