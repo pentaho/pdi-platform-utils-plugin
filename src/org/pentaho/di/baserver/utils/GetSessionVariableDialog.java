@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.pentaho.di.baserver.utils.widgets.TableViewBuilder;
 import org.pentaho.di.core.Const;
-import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.ui.core.ConstUI;
@@ -47,21 +46,21 @@ public class GetSessionVariableDialog extends BAServerCommonDialog<GetSessionVar
   @Override
   protected void buildContent( Composite parent ) {
     ColumnInfo fieldColumn = new ColumnInfo(
-        BaseMessages.getString(PKG, "GetSessionVariableDialog.Column.FieldName"),
-        ColumnInfo.COLUMN_TYPE_TEXT, false);
+        BaseMessages.getString(PKG, "GetSessionVariableDialog.Column.FieldName" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false );
     ColumnInfo variableColumn = new ColumnInfo(
-        BaseMessages.getString(PKG, "GetSessionVariableDialog.Column.VariableName"),
-        ColumnInfo.COLUMN_TYPE_TEXT, false);
+        BaseMessages.getString(PKG, "GetSessionVariableDialog.Column.VariableName" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false );
     variableColumn.setUsingVariables( true );
     ColumnInfo defaultValueColumn = new ColumnInfo(
-        BaseMessages.getString(PKG, "GetSessionVariableDialog.Column.DefaultValue"),
-        ColumnInfo.COLUMN_TYPE_TEXT, false);
+        BaseMessages.getString(PKG, "GetSessionVariableDialog.Column.DefaultValue" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false );
     defaultValueColumn.setUsingVariables( true );
     defaultValueColumn.setToolTip( BaseMessages.getString( PKG, "GetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
     wFields = new TableViewBuilder( props, parent, variables )
-        .addColumnInfo(fieldColumn)
-        .addColumnInfo(variableColumn)
-        .addColumnInfo(defaultValueColumn)
+        .addColumnInfo(fieldColumn )
+        .addColumnInfo(variableColumn )
+        .addColumnInfo(defaultValueColumn )
         .setTopPlacement( 0 )
         .setBottomPlacement( 100 )
         .setLeftPlacement( LEFT_PLACEMENT )
@@ -79,19 +78,15 @@ public class GetSessionVariableDialog extends BAServerCommonDialog<GetSessionVar
   protected void loadData( GetSessionVariableMeta meta ) {
     super.loadData( meta );
 
-    for ( int i = 0; i < meta.getFieldName().length; i++ ) {
+    int metaFieldsLength = meta.getFieldName().length;
+
+    wFields.table.removeAll();
+    wFields.table.setItemCount( metaFieldsLength == 0 ? 1 : metaFieldsLength );
+    for ( int i = 0; i < metaFieldsLength; i++ ) {
       TableItem item = wFields.table.getItem( i );
       int index = 0;
       item.setText( ++index, Const.NVL( meta.getFieldName()[ i ], "" ) );
       item.setText( ++index, Const.NVL( meta.getVariableName()[ i ], "" ) );
-      item.setText( ++index, ValueMeta.getTypeDesc( meta.getFieldType()[ i ] ) );
-      item.setText( ++index, Const.NVL( meta.getFieldFormat()[ i ], "" ) );
-      item.setText( ++index, meta.getFieldLength()[ i ] < 0 ? "" : ( "" + meta.getFieldLength()[ i ] ) );
-      item.setText( ++index, meta.getFieldPrecision()[ i ] < 0 ? "" : ( "" + meta.getFieldPrecision()[ i ] ) );
-      item.setText( ++index, Const.NVL( meta.getCurrency()[ i ], "" ) );
-      item.setText( ++index, Const.NVL( meta.getDecimal()[ i ], "" ) );
-      item.setText( ++index, Const.NVL( meta.getGroup()[ i ], "" ) );
-      item.setText( ++index, ValueMeta.getTrimTypeDesc( meta.getTrimType()[ i ] ) );
       item.setText( ++index, Const.NVL( meta.getDefaultValue()[ i ], "" ) );
     }
     wFields.setRowNums();
@@ -108,14 +103,6 @@ public class GetSessionVariableDialog extends BAServerCommonDialog<GetSessionVar
       int index = 0;
       meta.getFieldName()[ i ] = item.getText( ++index );
       meta.getVariableName()[ i ] = item.getText( ++index );
-      meta.getFieldType()[ i ] = ValueMeta.getType( item.getText( ++index ) );
-      meta.getFieldFormat()[ i ] = item.getText( ++index );
-      meta.getFieldLength()[ i ] = Const.toInt( item.getText( ++index ), -1 );
-      meta.getFieldPrecision()[ i ] = Const.toInt( item.getText( ++index ), -1 );
-      meta.getCurrency()[ i ] = item.getText( ++index );
-      meta.getDecimal()[ i ] = item.getText( ++index );
-      meta.getGroup()[ i ] = item.getText( ++index );
-      meta.getTrimType()[ i ] = ValueMeta.getTrimTypeByDesc( item.getText( ++index ) );
       meta.getDefaultValue()[ i ] = item.getText( ++index );
     }
   }
