@@ -409,8 +409,11 @@ public class HttpConnectionHelper {
     try {
       // TODO: this supports only FormParameters, need to support MultiPart messages with files,
       // simple string values with JSON and XML, plain text, both body and query parameters for PUT
-      method.setRequestEntity( new StringRequestEntity( constructQueryString( queryParameters ).substring( 1 ),
-          "application/x-www-form-urlencoded", UTF_8 ) );
+      String queryString = constructQueryString( queryParameters );
+      if ( !queryString.isEmpty() ) {
+        queryString = queryString.substring( 1 );
+      }
+      method.setRequestEntity( new StringRequestEntity( queryString, "application/x-www-form-urlencoded", UTF_8 ) );
     } catch ( UnsupportedEncodingException e ) {
       logger.error( "Failed", e );
     }
