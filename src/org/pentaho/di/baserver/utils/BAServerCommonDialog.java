@@ -239,7 +239,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
   }
 
   private void processInputChange() {
-    this.metaInfo.setChanged( this.changed );
+    this.metaInfo.setChanged();
 
     wOK.setEnabled( isValid() );
   }
