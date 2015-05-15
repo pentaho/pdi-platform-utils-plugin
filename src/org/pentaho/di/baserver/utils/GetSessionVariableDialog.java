@@ -66,6 +66,7 @@ public class GetSessionVariableDialog extends BAServerCommonDialog<GetSessionVar
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
+    wFields.addModifyListener( changeListener );
   }
 
   @Override

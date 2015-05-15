@@ -18,9 +18,13 @@
 
 package org.pentaho.di.baserver.utils;
 
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.pentaho.di.baserver.utils.widgets.CheckBoxBuilder;
@@ -55,6 +59,18 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
+    wApplyFormatting.addSelectionListener( new SelectionListener() {
+      @Override
+      public void widgetSelected( SelectionEvent selectionEvent ) {
+        Event e = new Event();
+        e.widget = wApplyFormatting;
+        changeListener.modifyText( new ModifyEvent( e ) );
+      }
+
+      @Override
+      public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
+      }
+    } );
 
     ColumnInfo cFieldNames = new ColumnInfo(
         BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.FieldName" ),
@@ -81,6 +97,7 @@ public class SetSessionVariableDialog extends BAServerCommonDialog<SetSessionVar
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();
+    wFields.addModifyListener( changeListener );
   }
 
   @Override
