@@ -104,6 +104,8 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     shell.setText( BaseMessages.getString( PKG, getTitleKey() ) );
 
+    changed = metaInfo.hasChanged();
+    
     // create form layout
     FormLayout formLayout = new FormLayout();
     formLayout.marginHeight = LARGE_MARGIN;
@@ -149,6 +151,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
 
     // load information (based on previous usage)
     loadData( metaInfo );
+    metaInfo.setChanged( changed );
 
     // set focus on step name
     stepName.selectAll();
@@ -257,6 +260,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
   private void cancel() {
     // fill return value
     stepname = null;
+    metaInfo.setChanged( changed );
     dispose();
   }
 
