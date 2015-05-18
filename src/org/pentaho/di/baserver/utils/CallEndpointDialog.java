@@ -27,6 +27,7 @@ import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.EndpointTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.OutputFieldsTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.ParametersTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.ServerTab;
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.Props;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.ui.core.ConstUI;
@@ -49,7 +50,11 @@ public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
   }
 
   @Override protected int getMinimumHeight() {
-    return 555;
+    if( Const.isLinux() ) {
+      return 600;
+    } else {
+      return 555;
+    }
   }
 
   @Override protected int getMinimumWidth() {
