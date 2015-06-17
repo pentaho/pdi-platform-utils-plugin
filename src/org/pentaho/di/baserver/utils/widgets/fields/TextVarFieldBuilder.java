@@ -21,10 +21,7 @@ package org.pentaho.di.baserver.utils.widgets.fields;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.pentaho.di.baserver.utils.widgets.LabelBuilder;
 import org.pentaho.di.baserver.utils.widgets.TextVarBuilder;
-import org.pentaho.di.baserver.utils.widgets.WidgetBuilder;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.TextVar;
@@ -34,7 +31,6 @@ public class TextVarFieldBuilder extends FieldBuilder<TextVar> {
 
   public TextVarFieldBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
-    setFieldRightPlacement( 50 );
   }
 
   public TextVarFieldBuilder setVariableSpace( VariableSpace variableSpace ) {

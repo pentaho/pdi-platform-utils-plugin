@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -202,14 +203,8 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   @Override
   public String getQueryString() {
     String queryString = "";
-    boolean first = true;
     for ( Map.Entry<String, String[]> entry : this.parameters.entrySet() ) {
-      if ( first ) {
-        queryString = queryString + "?";
-        first = false;
-      } else {
-        queryString = queryString + "&";
-      }
+      queryString = queryString + "&";
       queryString = queryString + entry.getKey() + "=" + entry.getValue()[0];
     }
     return queryString;
@@ -342,7 +337,7 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   }
 
   @Override public Locale getLocale() {
-    return null;
+    return Locale.getDefault();
   }
 
   @Override public Enumeration getLocales() {
@@ -370,11 +365,14 @@ public class InternalHttpServletRequest implements HttpServletRequest {
 
 
   public InternalHttpServletRequest( final String method,
-                                     final String contextPath,
-                                     final String servletPath,
-                                     final String pathInfo ) {
+      final URL fullyQualifiedServerURL,
+      final String servletPath,
+      final String pathInfo ) {
     this.method = method;
-    this.contextPath = contextPath;
+    this.scheme = fullyQualifiedServerURL.getProtocol();
+    this.serverName = fullyQualifiedServerURL.getHost();
+    this.serverPort = fullyQualifiedServerURL.getPort();
+    this.contextPath = fullyQualifiedServerURL.getPath();
     this.servletPath = servletPath;
     this.pathInfo = pathInfo;
     this.requestURI = contextPath + servletPath + pathInfo;
@@ -474,5 +472,13 @@ public class InternalHttpServletRequest implements HttpServletRequest {
     } else {
       return null;
     }
+  }
+
+  public byte[] getContent() {
+    return content;
+  }
+
+  public void setContent( byte[] content ) {
+    this.content = content;
   }
 }

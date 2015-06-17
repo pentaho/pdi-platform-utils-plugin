@@ -36,8 +36,8 @@ public abstract class Tab extends Composite {
     super( tabFolder, SWT.NONE );
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginLeft = BAServerCommonDialog.MEDUIM_MARGIN;
-    formLayout.marginRight = BAServerCommonDialog.MEDUIM_MARGIN;
+    formLayout.marginLeft = BAServerCommonDialog.MEDIUM_MARGIN;
+    formLayout.marginRight = BAServerCommonDialog.MEDIUM_MARGIN;
     formLayout.marginTop = BAServerCommonDialog.LARGE_MARGIN;
     formLayout.marginBottom = BAServerCommonDialog.LARGE_MARGIN;
     setLayout( formLayout );

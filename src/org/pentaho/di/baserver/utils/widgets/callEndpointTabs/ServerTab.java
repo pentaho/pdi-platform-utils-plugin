@@ -20,7 +20,11 @@ package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
@@ -38,6 +42,7 @@ import org.pentaho.di.ui.core.widget.TextVar;
 
 public class ServerTab extends Tab {
 
+  public static final int FIELD_WIDTH = 350;
   private final TextVar urlText;
   private final TextVar userNameText;
   private final TextVar passwordText;
@@ -53,7 +58,7 @@ public class ServerTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.URL" ) )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     urlText = urlField.getControl();
 
@@ -62,9 +67,9 @@ public class ServerTab extends Tab {
         .addModifyListener( modifyListener )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.UserName" ) )
         .setTop( urlField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     userNameText = userNameField.getControl();
     final Field<TextVar> passwordField = new TextVarFieldBuilder( this, props )
@@ -82,16 +87,16 @@ public class ServerTab extends Tab {
         } )
         .setLabel( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Password" ) )
         .setTop( userNameField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT )
+        .setWidth( FIELD_WIDTH )
         .build();
     passwordText = passwordField.getControl();
 
     final Button testConnectionButton = new ButtonBuilder( this, props )
         .setLabelText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.TestConnection" ) )
         .setTop( passwordField )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .build();
       testConnectionButton.addSelectionListener(new SelectionAdapter() {
@@ -106,7 +111,7 @@ public class ServerTab extends Tab {
         .setText( BaseMessages.getString(PKG, "CallEndpointDialog.TabItem.Server.UseSession"))
         .addSelectionListener( selectionListener )
         .setTop( testConnectionButton )
-        .setTopMargin( BAServerCommonDialog.MEDUIM_MARGIN )
+        .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .setRightPlacement( RIGHT_PLACEMENT )
         .build();

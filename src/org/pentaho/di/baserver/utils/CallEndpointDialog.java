@@ -19,10 +19,7 @@
 package org.pentaho.di.baserver.utils;
 
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.baserver.utils.widgets.TabFolderBuilder;
@@ -30,7 +27,11 @@ import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.EndpointTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.OutputFieldsTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.ParametersTab;
 import org.pentaho.di.baserver.utils.widgets.callEndpointTabs.ServerTab;
+import org.pentaho.di.core.Const;
+import org.pentaho.di.core.Props;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.ui.core.ConstUI;
+import org.pentaho.di.ui.util.SwtSvgImageUtil;
 
 public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
 
@@ -48,6 +49,18 @@ public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
         && serverTab.isValid() && endpointTab.isValid() && parametersTab.isValid() && outputFieldsTab.isValid();
   }
 
+  @Override protected int getMinimumHeight() {
+    if( Const.isLinux() ) {
+      return 600;
+    } else {
+      return 555;
+    }
+  }
+
+  @Override protected int getMinimumWidth() {
+    return 664;
+  }
+
   @Override
   protected String getTitleKey() {
     return "CallEndpointDialog.DialogTitle";
@@ -62,6 +75,7 @@ public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
         .setTopPlacement( 0 )
         .setBottomPlacement( 100 )
         .build();
+    props.setLook( tabFolder, Props.WIDGET_STYLE_TAB );
 
     serverTab = new ServerTab(
         tabFolder,
@@ -96,6 +110,13 @@ public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
         changeListener
     );
     tabFolder.setSelection(0);
+  }
+
+  @Override
+  protected Image getImage() {
+    return SwtSvgImageUtil
+        .getImage( shell.getDisplay(), getClass().getClassLoader(), "icons/callendpoint.svg", ConstUI.ICON_SIZE,
+            ConstUI.ICON_SIZE );
   }
 
   protected void loadData( CallEndpointMeta meta ) {

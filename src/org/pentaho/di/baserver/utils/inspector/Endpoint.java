@@ -22,13 +22,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class Endpoint implements Comparable<Endpoint> {
-
   // region Fields
 
   private String id;
   private String path;
   private HttpMethod httpMethod;
   private ArrayList<QueryParam> queryParams;
+  private boolean deprecated;
+  private boolean supported;
+  private String documentation;
 
   // endregion
 
@@ -60,6 +62,30 @@ public class Endpoint implements Comparable<Endpoint> {
 
   public Collection<QueryParam> getQueryParams() {
     return this.queryParams;
+  }
+
+  public boolean isDeprecated() {
+    return deprecated;
+  }
+
+  public void setDeprecated( boolean deprecated ) {
+    this.deprecated = deprecated;
+  }
+
+  public boolean isSupported() {
+    return supported;
+  }
+
+  public void setSupported( boolean supported ) {
+    this.supported = supported;
+  }
+
+  public String getDocumentation() {
+    return documentation;
+  }
+
+  public void setDocumentation( String doc ) {
+    this.documentation = doc;
   }
 
   // endregion

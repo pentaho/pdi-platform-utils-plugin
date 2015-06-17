@@ -45,10 +45,10 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (SetSessionVariableMeta) smi;
     data = (SetSessionVariableData) sdi;
-
     return super.init( smi, sdi );
   }
 
+  @Override
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
     meta = (SetSessionVariableMeta) smi;
     data = (SetSessionVariableData) sdi;
@@ -94,18 +94,20 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
     }
   }
 
-  private void setValue( String varName, String value ) throws KettleException {
+  protected void setValue( String varName, String value ) throws KettleException {
     // should have a non-empty variable name
     if ( Const.isEmpty( varName ) ) {
       throw new KettleException(
         BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.EmptyVariableName", value ) );
+    } else if ( this.getData().getBlackList().contains( varName ) ) {
+      throw new KettleException( BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.VariableInBlacklist",
+          varName ) );
     }
 
     // set session variable
     String sessionVarName = environmentSubstitute( varName );
     try {
-      SessionHelper.setSessionVariable( sessionVarName, value );
-
+      setSessionVariable( value, sessionVarName );
       // no session inside Spoon
     } catch ( NoClassDefFoundError e ) {
 
@@ -124,14 +126,18 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
     logBasic( BaseMessages.getString( PKG, "SetSessionVariable.Log.SetVariable", sessionVarName, value ) );
   }
 
-  private String getRowValue( Object[] rowData, int i ) throws KettleException {
+  protected void setSessionVariable( String value, String sessionVarName ) {
+    SessionHelper.setSessionVariable( sessionVarName, value );
+  }
+
+  protected String getRowValue( Object[] rowData, int i ) throws KettleException {
     // find a matching field
-    String fieldName = meta.getFieldName()[ i ];
-    int index = data.outputRowMeta.indexOfValue( fieldName );
+    String fieldName = getMeta().getFieldName()[ i ];
+    int index = getData().outputRowMeta.indexOfValue( fieldName );
     if ( index >= 0 ) {
-      ValueMetaInterface valueMeta = data.outputRowMeta.getValueMeta( index );
+      ValueMetaInterface valueMeta = getData().outputRowMeta.getValueMeta( index );
       Object valueData = rowData[ index ];
-      return meta.isUsingFormatting() ? valueMeta.getString( valueData ) : valueMeta.getCompatibleString( valueData );
+      return getMeta().isUsingFormatting() ? valueMeta.getString( valueData ) : valueMeta.getCompatibleString( valueData );
     }
 
     // otherwise, return default value
@@ -149,5 +155,21 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
     data = (SetSessionVariableData) sdi;
 
     super.dispose( smi, sdi );
+  }
+
+  protected SetSessionVariableMeta getMeta() {
+    return meta;
+  }
+
+  protected void setMeta( SetSessionVariableMeta meta ) {
+    this.meta = meta;
+  }
+
+  protected SetSessionVariableData getData() {
+    return data;
+  }
+
+  protected void setData( SetSessionVariableData data ) {
+    this.data = data;
   }
 }

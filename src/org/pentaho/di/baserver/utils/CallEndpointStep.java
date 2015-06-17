@@ -19,6 +19,7 @@
 package org.pentaho.di.baserver.utils;
 
 
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
 import org.pentaho.di.core.row.ValueMetaInterface;
@@ -60,6 +61,8 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
     meta = (CallEndpointMeta) smi;
     data = (CallEndpointData) sdi;
 
+    HttpConnectionHelper connectionHelper = HttpConnectionHelper.getInstance();
+
     // get next row
     Object[] rowData = getRow();
 
@@ -99,7 +102,7 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       try {
         IPentahoSession session = PentahoSessionHolder.getSession();
         if ( session != null ) {
-          response = HttpConnectionHelper.invokeEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
+          response = connectionHelper.invokeEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
         }
       } catch ( NoClassDefFoundError ex ) {
         logBasic( "No valid session. Falling back to normal authentication mode." );
@@ -112,9 +115,8 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       String username = environmentSubstitute( meta.getUserName() );
       String password = environmentSubstitute( meta.getPassword() );
 
-      response =
-        HttpConnectionHelper
-          .invokeEndpoint( serverUrl, username, password, moduleName, endpointPath, httpMethod, queryParameters );
+      response = connectionHelper.invokeEndpoint( serverUrl, username, password, moduleName, endpointPath, httpMethod,
+              queryParameters );
     }
 
     int index = getInputRowMeta().size();
@@ -144,16 +146,18 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
 
     // find a matching field
     String fieldName = meta.getFieldName()[ i ];
-    int index = getInputRowMeta().indexOfValue( fieldName );
-    if ( index >= 0 ) {
-      ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( index );
-      Object valueData = rowData[ index ];
-      return valueMeta.getCompatibleString( valueData );
-    }
+    if ( !Const.isEmpty( fieldName ) ) {
+      int index = getInputRowMeta().indexOfValue( fieldName );
+      if ( index >= 0 ) {
+        ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( index );
+        Object valueData = rowData[index];
+        return valueMeta.getCompatibleString( valueData );
+      }
 
-    // otherwise, return default value
-    logBasic( BaseMessages
-      .getString( PKG, "CallEndpoint.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
+      // otherwise, return default value
+      logBasic( BaseMessages
+          .getString( PKG, "CallEndpoint.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
+    }
     return getRowDefaultValue( i );
   }
 
