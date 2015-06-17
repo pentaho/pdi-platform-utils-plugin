@@ -51,11 +51,12 @@ import java.util.List;
 
 @Step( id = "GetSessionVariableStep",
   name = "GetSessionVariableMeta.Name",
-  image = "icons/getsessionvariable.png",
+  image = "icons/getsessionvariable.svg",
   description = "GetSessionVariableMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
-  categoryDescription = "BAServerUtils.Category",
-  isSeparateClassLoaderNeeded = true )
+  categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BAServer",
+  isSeparateClassLoaderNeeded = true,
+  documentationUrl = "http://wiki.pentaho.com/display/EAI/Get+Session+Variables" )
 public class GetSessionVariableMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = GetSessionVariableMeta.class; // for i18n purposes, needed by Translator2!!
 

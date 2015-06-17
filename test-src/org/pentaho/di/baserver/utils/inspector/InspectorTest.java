@@ -49,6 +49,7 @@ public class InspectorTest {
   @Before 
   public void setUp() throws Exception {
     inspector = Inspector.getInstance();
+    inspector.getEndpointsTree().clear();
     inspectorSpy = spy( inspector );
   }
 

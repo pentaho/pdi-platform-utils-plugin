@@ -25,29 +25,4 @@ public enum HttpMethod {
   DELETE,
   HEAD,
   OPTIONS
-
-  /*
-  private static final String[] names = new String[values().length];
-
-  static {
-    HttpMethod[] types = values();
-    for ( int i = 0; i < types.length; i++ ) {
-      names[i] = types[i].name();
-    }
-  }
-
-  public static String[] names() {
-    return names;
-  }
-
-  public static HttpMethod getHttpMethod( String name ) {
-    HttpMethod[] types = values();
-    for ( int i = 0; i < types.length; i++ ) {
-      if ( types[i].name().equals( name ) ) {
-        return types[i];
-      }
-    }
-    return null;
-  }
-  */
 }

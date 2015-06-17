@@ -47,11 +47,12 @@ import java.util.List;
 
 @Step( id = "SetSessionVariableStep",
   name = "SetSessionVariableMeta.Name",
-  image = "icons/setsessionvariable.png",
+  image = "icons/setsessionvariable.svg",
   description = "SetSessionVariableMeta.Description",
   i18nPackageName = "pt.webdetails.di.baserverutils",
-  categoryDescription = "BAServerUtils.Category",
-  isSeparateClassLoaderNeeded = true )
+  categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BAServer",
+  isSeparateClassLoaderNeeded = true,
+  documentationUrl = "http://wiki.pentaho.com/display/EAI/Set+Session+Variables" )
 public class SetSessionVariableMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = SetSessionVariableMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -176,7 +177,7 @@ public class SetSessionVariableMeta extends BaseStepMeta implements StepMetaInte
       allocate( count );
       for ( int i = 0; i < count; i++ ) {
         fieldName[ i ] = rep.getStepAttributeString( id_step, i, "field_name" );
-        variableName[ i ] = rep.getStepAttributeString( id_step, i, "field_variable" );
+        variableName[ i ] = rep.getStepAttributeString( id_step, i, "field_variable_name" );
         defaultValue[ i ] = rep.getStepAttributeString( id_step, i, "field_default_value" );
       }
       useFormatting = rep.getStepAttributeBoolean( id_step, 0, "use_formatting", false );

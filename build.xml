@@ -37,6 +37,10 @@
       <fileset dir="${res.dir}" includes="**/*.png"/>
     </jar>
 
+    <copy todir="${stage.dir}/${project.id}">
+      <fileset file="package-res/settings.xml"/>
+    </copy>
+
     <!-- copy samples to stage -->
     <copy todir="${stage.dir}/${project.id}/samples" overwrite="true">
       <fileset dir="${samples.dir}"/>

@@ -289,10 +289,14 @@ public class Inspector {
     }
   }
 
-  protected Response callHttp( String endpointUrl ) {
+  protected Response callHttp( String endpointUrl ){
+    return callHttp( endpointUrl, null, null );
+  }
+
+  protected Response callHttp( String endpointUrl, Map<String, String> queryParameters, String httpMethod ) {
     Response response = null;
     try {
-      response = HttpConnectionHelper.callHttp( endpointUrl, this.getUserName(), this.getPassword() );
+      response = HttpConnectionHelper.getInstance().callHttp( endpointUrl, queryParameters, httpMethod, this.getUserName(), this.getPassword() );
     } catch ( IOException e ) {
       // do nothing
     } catch ( KettleStepException e ) {

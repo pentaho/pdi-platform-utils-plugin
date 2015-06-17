@@ -50,7 +50,7 @@ public final class GroupBuilder extends WidgetBuilder<Group> {
 
     // create a new form layout for the group
     FormLayout layout = new FormLayout();
-    layout.marginWidth = BAServerCommonDialog.MEDUIM_MARGIN;
+    layout.marginWidth = BAServerCommonDialog.MEDIUM_MARGIN;
     layout.marginHeight = BAServerCommonDialog.LARGE_MARGIN;
     group.setLayout( layout );
 

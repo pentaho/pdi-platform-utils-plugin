@@ -16,29 +16,43 @@
  * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
  */
 
-package org.pentaho.di.baserver.utils.widgets.fields;
+package org.pentaho.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
-import org.pentaho.di.baserver.utils.widgets.TextAreaBuilder;
 import org.pentaho.di.ui.core.PropsUI;
+import sun.awt.FontDescriptor;
 
-public class TextAreaFieldBuilder extends FieldBuilder<Text> {
+public class BrowserBuilder extends WidgetBuilder<Browser> {
 
+  private String labelText = "";
 
-  public TextAreaFieldBuilder( Composite parent, PropsUI props ) {
+  public String getLabelText() {
+    return this.labelText;
+  }
+
+  public BrowserBuilder setLabelText( String labelText ) {
+    this.labelText = labelText;
+    return this;
+  }
+
+  public BrowserBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
   }
 
-  @Override protected Field<Text> createWidget( Composite parent ) {
-    final Field<Text> field = new Field<Text>( parent, SWT.NONE );
-    prepareControl( field, new TextAreaBuilder( field, props ).setBottomPlacement( 100 ) );
-    for ( ModifyListener ml : listeners ) {
-      field.getControl().addModifyListener( ml );
-    }
+  @Override
+  protected Browser createWidget( Composite parent ) {
+    // create button
+    Browser browser = new Browser( this.parent, SWT.BORDER );
+    browser.setText( this.labelText );
+    FontData f = props.getDefaultFont();
+    Font font = new Font ( this.parent.getDisplay(), f.getName(), f.getHeight(), f.getStyle() );
+    browser.setFont( font );
 
-    return field;
+    return browser;
   }
 }

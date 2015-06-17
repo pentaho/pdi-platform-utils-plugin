@@ -18,14 +18,9 @@
 
 package org.pentaho.di.baserver.utils.web;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.di.cluster.SlaveConnectionManager;
@@ -44,20 +39,26 @@ import javax.servlet.ServletRequestEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Map;
 
-public final class HttpConnectionHelper {
+public class HttpConnectionHelper {
 
+  public static final String UTF_8 = "UTF-8";
   private static final Log logger = LogFactory.getLog( HttpConnectionHelper.class );
 
+  private static HttpConnectionHelper _instance = new HttpConnectionHelper();
 
-  public static Response invokeEndpoint( final String serverUrl,
-                                         final String userName,
-                                         final String password,
-                                         final String moduleName,
-                                         final String endpointPath,
-                                         final String httpMethod,
-                                         final Map<String, String> queryParameters ) {
+  public static HttpConnectionHelper getInstance() {
+    return _instance;
+  }
+
+  public Response invokeEndpoint( final String serverUrl, final String userName, final String password,
+      final String moduleName, final String endpointPath, final String httpMethod,
+      final Map<String, String> queryParameters ) {
 
     Response response = new Response();
 
@@ -78,23 +79,10 @@ public final class HttpConnectionHelper {
       requestUrl = requestUrl + "/" + endpointPath;
     }
 
-    String queryString = "";
-    boolean first = true;
-    for ( String parameterName : queryParameters.keySet() ) {
-      if ( first ) {
-        queryString = queryString + "?";
-        first = false;
-      } else {
-        queryString = queryString + "&";
-      }
-      queryString = queryString + parameterName + "=" + queryParameters.get( parameterName );
-    }
-    requestUrl = requestUrl + queryString;
-
     logger.info( "requestUrl = " + requestUrl );
 
     try {
-      response = callHttp( requestUrl, userName, password );
+      response = callHttp( requestUrl, queryParameters, httpMethod, userName, password );
     } catch ( IOException ex ) {
       logger.error( "Failed ", ex );
     } catch ( KettleStepException ex ) {
@@ -104,11 +92,8 @@ public final class HttpConnectionHelper {
     return response;
   }
 
-
-  public static Response invokeEndpoint( final String moduleName,
-                                         final String endpointPath,
-                                         final String httpMethod,
-                                         final Map<String, String> queryParameters ) {
+  public Response invokeEndpoint( final String moduleName, final String endpointPath, final String httpMethod,
+      final Map<String, String> queryParameters ) {
 
     if ( moduleName.equals( "platform" ) ) {
       return invokePlatformEndpoint( endpointPath, httpMethod, queryParameters );
@@ -117,10 +102,8 @@ public final class HttpConnectionHelper {
     }
   }
 
-
-  protected static Response invokePlatformEndpoint( final String endpointPath,
-                                                    final String httpMethod,
-                                                    final Map<String, String> queryParameters ) {
+  protected Response invokePlatformEndpoint( final String endpointPath, final String httpMethod,
+      final Map<String, String> queryParameters ) {
 
     Response response = new Response();
 
@@ -128,7 +111,7 @@ public final class HttpConnectionHelper {
     ServletContext servletContext = null;
     RequestDispatcher requestDispatcher = null;
     try {
-      Object context = PentahoSystem.getApplicationContext().getContext();
+      Object context = getContext();
       if ( context instanceof ServletContext ) {
         servletContext = (ServletContext) context;
         requestDispatcher = servletContext.getRequestDispatcher( "/api" + endpointPath );
@@ -139,21 +122,29 @@ public final class HttpConnectionHelper {
     }
 
     if ( requestDispatcher != null ) {
-
-
       // create servlet request
-      final InternalHttpServletRequest servletRequest =
-        new InternalHttpServletRequest( httpMethod, "/pentaho", "/api", endpointPath );
-      servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", 2 ); // FORWARD = 2
+      URL fullyQualifiedServerURL;
+      try {
+        fullyQualifiedServerURL = getUrl();
+      } catch ( MalformedURLException e ) {
+        logger.error( "FullyQualifiedServerURL is incorrect" );
+        return response;
+      }
 
-      for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
-        servletRequest.setParameter( entry.getKey(), entry.getValue() );
+      final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
+          fullyQualifiedServerURL, "/api", endpointPath );
+      servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", 2 ); //FORWARD = 2
+
+      try {
+        insertParameters( httpMethod, queryParameters, servletRequest );
+      } catch ( UnsupportedEncodingException e ) {
+        logger.error( "Can't encode parameters" );
+        return response;
       }
 
       ServletRequestEvent servletRequestEvent = new ServletRequestEvent( servletContext, servletRequest );
       RequestContextListener requestContextListener = new RequestContextListener();
       requestContextListener.requestInitialized( servletRequestEvent );
-
 
       // create servlet response
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -186,42 +177,85 @@ public final class HttpConnectionHelper {
     return response;
   }
 
-  protected static Response invokePluginEndpoint( final String pluginName,
-                                                  final String endpointPath,
-                                                  final String httpMethod,
-                                                  final Map<String, String> queryParameters ) {
+  protected void insertParameters( String httpMethod, Map<String, String> queryParameters,
+      InternalHttpServletRequest servletRequest ) throws UnsupportedEncodingException {
+    if ( !httpMethod.equals( "GET" ) ) {
+      StringBuilder s = new StringBuilder();
+      boolean first = true;
+      for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
+        if ( !first ) {
+          s.append( "&" );
+        }
+        s.append( entry.getKey() ).append( "=" ).append( URLEncoder.encode( entry.getValue(), UTF_8 ) );
+        first = false;
+      }
+      servletRequest.setContentType( "application/x-www-form-urlencoded" );
+      servletRequest.setContent( s.toString().getBytes( ) );
+    } else {
+      for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
+        String value = URLEncoder.encode( entry.getValue(), UTF_8 );
+        servletRequest.setParameter( entry.getKey(), value );
+      }
+    }
+  }
+
+  protected URL getUrl() throws MalformedURLException {
+    return new URL( getFullyQualifiedServerURL() );
+  }
+
+  protected String getFullyQualifiedServerURL() {
+    return PentahoSystem.getApplicationContext().getFullyQualifiedServerURL();
+  }
+
+  protected Object getContext() {
+    return PentahoSystem.getApplicationContext().getContext();
+  }
+
+  protected Response invokePluginEndpoint( final String pluginName, final String endpointPath, final String httpMethod,
+      final Map<String, String> queryParameters ) {
 
     Response response = new Response();
+    response.setStatusCode( 404 );
+    response.setResponseTime( 0 );
 
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
+    IPluginManager pluginManager = getPluginManager();
     if ( pluginManager == null ) {
       logger.error( "Failed to get plugin manager" );
       return response;
     }
 
-    ClassLoader classLoader = pluginManager.getClassLoader( pluginName );
+    ClassLoader classLoader = getPluginClassLoader( pluginName, pluginManager );
     if ( classLoader == null ) {
       logger.error( "No such plugin: " + pluginName );
       return response;
     }
 
-    ListableBeanFactory beanFactory = pluginManager.getBeanFactory( pluginName );
+    ListableBeanFactory beanFactory = getListableBeanFactory( pluginName, pluginManager );
 
     if ( beanFactory == null || !beanFactory.containsBean( "api" ) ) {
       logger.error( "Bean not found for plugin: " + pluginName );
       return response;
     }
 
-    JAXRSPluginServlet pluginServlet = (JAXRSPluginServlet) beanFactory.getBean( "api", JAXRSPluginServlet.class );
+    JAXRSPluginServlet pluginServlet = getJAXRSPluginServlet( beanFactory );
 
     // create servlet request
-    final InternalHttpServletRequest servletRequest =
-      new InternalHttpServletRequest( httpMethod, "", "/plugin", "/" + pluginName + "/api" + endpointPath );
-
-    for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
-      servletRequest.setParameter( entry.getKey(), entry.getValue() );
+    URL fullyQualifiedServerURL;
+    try {
+      fullyQualifiedServerURL = getUrl();
+    } catch ( MalformedURLException e ) {
+      logger.error( "FullyQualifiedServerURL is incorrect" );
+      return response;
     }
+    final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
+        fullyQualifiedServerURL, "/plugin", "/" + pluginName + "/api" + endpointPath );
 
+    try {
+      insertParameters( httpMethod, queryParameters, servletRequest );
+    } catch ( UnsupportedEncodingException e ) {
+      logger.error( "Can't encode parameters" );
+      return response;
+    }
 
     // create servlet response
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -253,16 +287,33 @@ public final class HttpConnectionHelper {
     return response;
   }
 
+  protected JAXRSPluginServlet getJAXRSPluginServlet( ListableBeanFactory beanFactory ) {
+    return (JAXRSPluginServlet) beanFactory.getBean( "api", JAXRSPluginServlet.class );
+  }
 
-  public static Response callHttp( String url, String user, String password ) throws IOException, KettleStepException {
+  protected ListableBeanFactory getListableBeanFactory( String pluginName, IPluginManager pluginManager ) {
+    return pluginManager.getBeanFactory( pluginName );
+  }
+
+  protected ClassLoader getPluginClassLoader( String pluginName, IPluginManager pluginManager ) {
+    return pluginManager.getClassLoader( pluginName );
+  }
+
+  protected IPluginManager getPluginManager() {
+    return PentahoSystem.get( IPluginManager.class );
+  }
+
+  public Response callHttp( String url, Map<String, String> queryParameters, String httpMethod, String user,
+      String password )
+      throws IOException, KettleStepException {
 
     // used for calculating the responseTime
     long startTime = System.currentTimeMillis();
 
-    HttpClient httpclient = SlaveConnectionManager.getInstance().createHttpClient();
-    HttpMethod method = new GetMethod( url );
+    HttpClient httpclient = getHttpClient();
+    HttpMethod method = getHttpMethod( url, queryParameters, httpMethod );
     httpclient.getParams().setAuthenticationPreemptive( true );
-    Credentials credentials = new UsernamePasswordCredentials( user, password );
+    Credentials credentials = getCredentials( user, password );
     httpclient.getState().setCredentials( AuthScope.ANY, credentials );
     HostConfiguration hostConfiguration = new HostConfiguration();
 
@@ -275,7 +326,7 @@ public final class HttpConnectionHelper {
 
     Response response = new Response();
     if ( status != -1 ) {
-      String body = null;
+      String body;
       String encoding = "";
       Header contentTypeHeader = method.getResponseHeader( "Content-Type" );
       if ( contentTypeHeader != null ) {
@@ -286,20 +337,7 @@ public final class HttpConnectionHelper {
       }
 
       // get the response
-      InputStreamReader inputStreamReader = null;
-      if ( !Const.isEmpty( encoding ) ) {
-        inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream(), encoding );
-      } else {
-        inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream() );
-      }
-      StringBuilder bodyBuffer = new StringBuilder();
-      int c;
-      while ( ( c = inputStreamReader.read() ) != -1 ) {
-        bodyBuffer.append( (char) c );
-      }
-      inputStreamReader.close();
-      body = bodyBuffer.toString();
-
+      body = getContent( method, encoding );
       // Get response time
       long responseTime = System.currentTimeMillis() - startTime;
 
@@ -308,5 +346,101 @@ public final class HttpConnectionHelper {
       response.setResponseTime( responseTime );
     }
     return response;
+  }
+
+  protected String getContent( HttpMethod method, String encoding ) throws IOException {
+    String body;
+    InputStreamReader inputStreamReader;
+
+    if ( !Const.isEmpty( encoding ) ) {
+      inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream(), encoding );
+    } else {
+      inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream() );
+    }
+    StringBuilder bodyBuffer = new StringBuilder();
+    int c;
+    while ( ( c = inputStreamReader.read() ) != -1 ) {
+      bodyBuffer.append( (char) c );
+    }
+    inputStreamReader.close();
+    body = bodyBuffer.toString();
+    return body;
+  }
+
+  protected Credentials getCredentials( String user, String password ) {
+    return new UsernamePasswordCredentials( user, password );
+  }
+
+  protected HttpMethod getHttpMethod( String url, Map<String, String> queryParameters, String httpMethod ) {
+    org.pentaho.di.baserver.utils.inspector.HttpMethod method;
+    if ( httpMethod == null ) {
+      httpMethod = "";
+    }
+    try {
+      method = org.pentaho.di.baserver.utils.inspector.HttpMethod.valueOf( httpMethod );
+    } catch ( IllegalArgumentException e ) {
+      logger.warn( "Method '" + httpMethod + "' is not supported - using 'GET'" );
+      method = org.pentaho.di.baserver.utils.inspector.HttpMethod.GET;
+    }
+
+    switch ( method ) {
+      case GET:
+        return new GetMethod( url + constructQueryString( queryParameters ) );
+      case POST:
+        PostMethod postMethod = new PostMethod( url );
+        setRequestEntity( postMethod, queryParameters );
+        return postMethod;
+      case PUT:
+        PutMethod putMethod = new PutMethod( url );
+        setRequestEntity( putMethod, queryParameters );
+        return putMethod;
+      case DELETE:
+        return new DeleteMethod( url + constructQueryString( queryParameters ) );
+      case HEAD:
+        return new HeadMethod( url + constructQueryString( queryParameters ) );
+      case OPTIONS:
+        return new OptionsMethod( url + constructQueryString( queryParameters ) );
+      default:
+        return new GetMethod( url + constructQueryString( queryParameters ) );
+    }
+  }
+
+  private void setRequestEntity( EntityEnclosingMethod method, Map<String, String> queryParameters ) {
+    try {
+      // TODO: this supports only FormParameters, need to support MultiPart messages with files,
+      // simple string values with JSON and XML, plain text, both body and query parameters for PUT
+      String queryString = constructQueryString( queryParameters );
+      if ( !queryString.isEmpty() ) {
+        queryString = queryString.substring( 1 );
+      }
+      method.setRequestEntity( new StringRequestEntity( queryString, "application/x-www-form-urlencoded", UTF_8 ) );
+    } catch ( UnsupportedEncodingException e ) {
+      logger.error( "Failed", e );
+    }
+  }
+
+  private String constructQueryString( Map<String, String> queryParameters ) {
+    StringBuilder queryString = new StringBuilder();
+    if ( queryParameters != null && !queryParameters.isEmpty() ) {
+      try {
+        boolean first = true;
+        for ( String parameterName : queryParameters.keySet() ) {
+          if ( first ) {
+            queryString.append( "?" );
+            first = false;
+          } else {
+            queryString.append( "&" );
+          }
+          queryString.append( parameterName ).append( "=" ).append( URLEncoder.encode( queryParameters.get( parameterName ), UTF_8 ) );
+        }
+      } catch ( UnsupportedEncodingException e ) {
+        logger.error( "Failed ", e );
+      }
+    }
+    return queryString.toString();
+  }
+
+  protected HttpClient getHttpClient() {
+    return SlaveConnectionManager.getInstance().createHttpClient();
   }
 }
