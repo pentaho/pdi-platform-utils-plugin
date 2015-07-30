@@ -49,7 +49,6 @@
     <dependency org="junit"         name="junit"         rev='4.10'  conf="test->default" />
     <dependency org="org.mockito"   name="mockito-all"   rev="1.8.4" conf="test, default->default"/>
     <dependency org="jaxen"         name="jaxen"         rev="1.1.1" conf="test->default" />
-    <dependency org="commons-vfs"   name="commons-vfs"   rev="20100924-pentaho" transitive="false" conf="test->default"/>
     <dependency org="org.owasp.esapi"                  name="esapi"                rev="2.0.1"           transitive="false" conf="test->default"/>
     <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" transitive="false" conf="test->default"/>
     <dependency org="com.sun.jersey" name="jersey-core" rev="1.16" conf="test->default"/>
