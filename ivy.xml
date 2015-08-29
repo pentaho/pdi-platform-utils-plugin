@@ -50,7 +50,7 @@
     <dependency org="org.mockito"   name="mockito-all"   rev="1.8.4" conf="test, default->default"/>
     <dependency org="jaxen"         name="jaxen"         rev="1.1.1" conf="test->default" />
     <dependency org="org.owasp.esapi"                  name="esapi"                rev="2.0.1"           transitive="false" conf="test->default"/>
-    <dependency org="org.apache.commons" name="commons-vfs2" rev="2.0" transitive="false" conf="test->default"/>
+    <dependency org="org.apache.commons" name="commons-vfs2" rev="2.1-20150824" transitive="false" conf="test->default"/>
     <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" transitive="false" conf="test->default"/>
     <dependency org="com.sun.jersey" name="jersey-core" rev="1.16" conf="test->default"/>
     <dependency org="com.sun.jersey" name="jersey-server" rev="1.16" conf="test->default"/>
