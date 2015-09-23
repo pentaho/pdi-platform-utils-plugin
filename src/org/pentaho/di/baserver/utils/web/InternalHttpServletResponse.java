@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.Locale;
 
 public class InternalHttpServletResponse implements HttpServletResponse {
@@ -65,6 +66,7 @@ public class InternalHttpServletResponse implements HttpServletResponse {
   public boolean isWriterAccessAllowed() {
     return true;
   }
+
 
   @Override
   public ServletOutputStream getOutputStream() {
@@ -119,6 +121,12 @@ public class InternalHttpServletResponse implements HttpServletResponse {
   @Override public void setCharacterEncoding( String s ) {
 
   }
+
+  @Override public String getHeader(String name) { return ""; }
+
+  @Override public Collection<String> getHeaders(String name) { return null; }
+
+  @Override public Collection<String> getHeaderNames() { return null; }
 
   @Override
   public String getContentType() {
