@@ -19,6 +19,7 @@
 package org.pentaho.di.baserver.utils.web;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -50,4 +51,8 @@ public class ServletOutputStreamWrapper extends ServletOutputStream {
     super.close();
     this.outputStream.close();
   }
+
+  @Override public  boolean isReady() { return false; }
+  
+  @Override public void setWriteListener(WriteListener writeListener) { }
 }
