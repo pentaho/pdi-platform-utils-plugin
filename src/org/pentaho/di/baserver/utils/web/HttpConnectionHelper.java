@@ -36,6 +36,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequestEvent;
+import javax.servlet.DispatcherType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -133,7 +134,7 @@ public class HttpConnectionHelper {
 
       final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
           fullyQualifiedServerURL, "/api", endpointPath );
-      servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", 2 ); //FORWARD = 2
+      servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", DispatcherType.FORWARD ); //FORWARD = 2
 
       try {
         insertParameters( httpMethod, queryParameters, servletRequest );
