@@ -18,11 +18,19 @@
 
 package org.pentaho.di.baserver.utils.web;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -37,6 +45,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Collection;
 
 public class InternalHttpServletRequest implements HttpServletRequest {
 
@@ -307,6 +316,30 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   @Override public boolean isRequestedSessionIdFromUrl() {
     return false;
   }
+
+  @Override public AsyncContext getAsyncContext() { return null; }
+
+  @Override public AsyncContext startAsync() {return null; }
+
+  @Override public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) {return null; }
+
+  @Override public boolean isAsyncSupported() {return false; }
+
+  @Override public boolean isAsyncStarted() {return false; }
+
+  @Override public  ServletContext getServletContext() {return null; }
+
+  @Override public DispatcherType getDispatcherType() { return null; }
+
+  @Override public Part getPart(String name) throws IOException, ServletException { return null; }
+
+  @Override public Collection<Part> getParts() throws IOException, ServletException { return null; }
+
+  @Override public void logout() throws ServletException { }
+
+  @Override public void login(String username, String password) throws ServletException {  }
+
+  @Override public boolean authenticate(HttpServletResponse httpServletResponse) throws IOException, ServletException { return false; }
 
 
 
