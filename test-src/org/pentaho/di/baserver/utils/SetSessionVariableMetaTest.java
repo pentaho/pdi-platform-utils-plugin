@@ -27,6 +27,7 @@ import org.pentaho.di.repository.ObjectId;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.BaseStep;
 import org.pentaho.di.trans.step.StepDataInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.metastore.api.IMetaStore;
@@ -35,9 +36,8 @@ import org.w3c.dom.NodeList;
 
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -50,6 +50,37 @@ public class SetSessionVariableMetaTest {
   public void setUp() throws Exception {
     setSessionVariableMeta = new SetSessionVariableMeta();
     setSessionVariableMetaSpy = spy( setSessionVariableMeta );
+  }
+
+  @Test
+  public void testSetFieldName() throws Exception {
+    assertNull( setSessionVariableMeta.getFieldName() );
+    String[] fieldName = new String[] { "value1", "value2" };
+    setSessionVariableMeta.setFieldName( fieldName );
+    assertEquals( fieldName, setSessionVariableMeta.getFieldName() );
+  }
+
+  @Test
+  public void testSetVariableName() throws Exception {
+    assertNull( setSessionVariableMeta.getVariableName() );
+    String[] variableName = new String[] { "value1", "value2" };
+    setSessionVariableMeta.setVariableName( variableName );
+    assertEquals( variableName, setSessionVariableMeta.getVariableName() );
+  }
+
+  @Test
+  public void testSetDefaultValue() throws Exception {
+    assertNull( setSessionVariableMeta.getDefaultValue() );
+    String[] defaultValue = new String[] { "value1", "value2" };
+    setSessionVariableMeta.setDefaultValue( defaultValue );
+    assertEquals( defaultValue, setSessionVariableMeta.getDefaultValue() );
+  }
+
+  @Test
+  public void testSetUseFormatting() throws Exception {
+    assertFalse( setSessionVariableMeta.isUsingFormatting() );
+    setSessionVariableMeta.setUseFormatting( true );
+    assertTrue( setSessionVariableMeta.isUsingFormatting() );
   }
 
   @Test
@@ -89,6 +120,19 @@ public class SetSessionVariableMetaTest {
   public void testSetDefault() {
     setSessionVariableMetaSpy.setDefault();
     verify( setSessionVariableMetaSpy, times( 1 ) ).allocate( 0 );
+    assertTrue( setSessionVariableMetaSpy.isUsingFormatting() );
+  }
+
+  @Test
+  public void testClone() throws Exception {
+    setSessionVariableMetaSpy.setFieldName( new String[] { "1" } );
+    setSessionVariableMetaSpy.setVariableName( new String[] { "2" } );
+    setSessionVariableMetaSpy.setDefaultValue( new String[] { "3" } );
+
+    SetSessionVariableMeta clone = (SetSessionVariableMeta) setSessionVariableMetaSpy.clone();
+
+    doReturn( clone ).when( setSessionVariableMetaSpy ).clone();
+    verify( clone, times( 1 ) ).allocate( 1 );
   }
 
   @Test
@@ -110,7 +154,7 @@ public class SetSessionVariableMetaTest {
     final Node stepNode = mock( Node.class );
     final NodeList childrenStepNode = mock( NodeList.class );
     doReturn( 0 ).when( childrenStepNode ).getLength();
-    doReturn( childrenStepNode ).when( stepNode).getChildNodes();
+    doReturn( childrenStepNode ).when( stepNode ).getChildNodes();
     final List databases = mock( List.class );
     final IMetaStore metaStore = mock( IMetaStore.class );
     setSessionVariableMetaSpy.loadXML( stepNode, databases, metaStore );
@@ -144,7 +188,8 @@ public class SetSessionVariableMetaTest {
     setSessionVariableMeta.setFieldName( new String[] { "fn" } );
     setSessionVariableMeta.saveRep( rep, metaStore, id_transformation, id_step );
 
-    verify( rep, times( 3 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyString() );
+    verify( rep, times( 3 ) )
+      .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyString() );
     verify( rep ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyBoolean() );
   }
 
@@ -154,15 +199,16 @@ public class SetSessionVariableMetaTest {
     TransMeta transMeta = mock( TransMeta.class );
     StepMeta stepMeta = mock( StepMeta.class );
     RowMetaInterface prev = mock( RowMetaInterface.class );
-    String[] input = new String[1];
-    String[] output = new String[1];
+    String[] input = new String[ 1 ];
+    String[] output = new String[ 1 ];
     RowMetaInterface info = mock( RowMetaInterface.class );
     VariableSpace space = mock( VariableSpace.class );
     Repository repository = mock( Repository.class );
     IMetaStore metaStore = mock( IMetaStore.class );
 
     setSessionVariableMeta.allocate( 1 );
-    setSessionVariableMeta.check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository, metaStore );
+    setSessionVariableMeta
+      .check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository, metaStore );
     verify( remarks, times( 2 ) ).add( any( CheckResultInterface.class ) );
   }
 }
