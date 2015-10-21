@@ -18,6 +18,7 @@
 
 package org.pentaho.di.baserver.utils;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.core.CheckResultInterface;
@@ -38,6 +39,7 @@ import java.util.List;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -203,5 +205,93 @@ public class GetSessionVariableMetaTest {
     getSessionVariableMeta.allocate( 1 );
     getSessionVariableMeta.check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository, metaStore );
     verify( remarks, times( 2 ) ).add( any( CheckResultInterface.class ) );
+  }
+
+  @Test
+  public void testSetFieldName() throws Exception {
+    assertNull( getSessionVariableMeta.getFieldName() );
+    String[] fieldName = new String[] { "value1", "value2" };
+    getSessionVariableMeta.setFieldName( fieldName );
+    assertEquals( fieldName, getSessionVariableMeta.getFieldName() );
+  }
+
+  @Test
+  public void testSetVariableName() throws Exception {
+    assertNull( getSessionVariableMeta.getVariableName() );
+    String[] variableName = new String[] { "value1", "value2" };
+    getSessionVariableMeta.setVariableName( variableName );
+    assertEquals( variableName, getSessionVariableMeta.getVariableName() );
+  }
+
+  @Test
+  public void testSetFieldType() throws Exception {
+    assertNull( getSessionVariableMeta.getFieldType() );
+    int[] fieldType = new int[] { 1, 2 };
+    getSessionVariableMeta.setFieldType( fieldType );
+    assertEquals( fieldType, getSessionVariableMeta.getFieldType() );
+  }
+
+  @Test
+  public void testSetFieldFormat() throws Exception {
+    assertNull( getSessionVariableMeta.getFieldFormat() );
+    String[] fieldFormat = new String[] { "value1", "value2" };
+    getSessionVariableMeta.setFieldFormat( fieldFormat );
+    assertEquals( fieldFormat, getSessionVariableMeta.getFieldFormat() );
+  }
+
+  @Test
+  public void testSetFieldLength() throws Exception {
+    assertNull( getSessionVariableMeta.getFieldLength() );
+    int[] fieldLength = new int[] { 1, 2 };
+    getSessionVariableMeta.setFieldLength( fieldLength );
+    assertEquals( fieldLength, getSessionVariableMeta.getFieldLength() );
+  }
+
+  @Test
+  public void testSetFieldPrecision() throws Exception {
+    assertNull( getSessionVariableMeta.getFieldPrecision() );
+    int[] fieldPrecision = new int[] { 1, 2 };
+    getSessionVariableMeta.setFieldPrecision( fieldPrecision );
+    assertEquals( fieldPrecision, getSessionVariableMeta.getFieldPrecision() );
+  }
+
+  @Test
+  public void testSetCurrency() throws Exception {
+    assertNull( getSessionVariableMeta.getCurrency() );
+    String[] currency = new String[] { "value1", "value2" };
+    getSessionVariableMeta.setCurrency( currency );
+    assertEquals( currency, getSessionVariableMeta.getCurrency() );
+  }
+
+  @Test
+  public void testSetDecimal() throws Exception {
+    assertNull( getSessionVariableMeta.getDecimal() );
+    String[] decimal = new String[] { "value1", "value2" };
+    getSessionVariableMeta.setDecimal( decimal );
+    assertEquals( decimal, getSessionVariableMeta.getDecimal() );
+  }
+
+  @Test
+  public void testSetGroup() throws Exception {
+    assertNull( getSessionVariableMeta.getGroup() );
+    String[] group = new String[] { "value1", "value2" };
+    getSessionVariableMeta.setGroup( group );
+    assertEquals( group, getSessionVariableMeta.getGroup() );
+  }
+
+  @Test
+  public void testSetTrimType() throws Exception {
+    assertNull( getSessionVariableMeta.getTrimType() );
+    int[] trimType = new int[] { 1, 2 };
+    getSessionVariableMeta.setTrimType( trimType );
+    assertEquals( trimType, getSessionVariableMeta.getTrimType() );
+  }
+
+  @Test
+  public void testSetDefaultValue() throws Exception {
+    assertNull( getSessionVariableMeta.getDefaultValue() );
+    String[] defaultValue = new String[] { "value1", "value2" };
+    getSessionVariableMeta.setDefaultValue( defaultValue );
+    assertEquals( defaultValue, getSessionVariableMeta.getDefaultValue() );
   }
 }
