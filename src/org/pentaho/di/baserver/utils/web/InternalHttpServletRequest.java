@@ -68,9 +68,8 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   private int remotePort = DEFAULT_SERVER_PORT;
   private String servletPath;
 
-  private HashMap<String, String[]> parameters = new HashMap<String, String[]>(  );
-  private HashMap<String, Object> attributes = new HashMap<String, Object>(  );
-
+  private HashMap<String, String[]> parameters = new HashMap<String, String[]>();
+  private HashMap<String, Object> attributes = new HashMap<String, Object>();
 
 
   @Override
@@ -171,8 +170,6 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   /////////////////////////
 
 
-
-
   /////////////////////////
   /////////////////////////
 
@@ -214,7 +211,7 @@ public class InternalHttpServletRequest implements HttpServletRequest {
     String queryString = "";
     for ( Map.Entry<String, String[]> entry : this.parameters.entrySet() ) {
       queryString = queryString + "&";
-      queryString = queryString + entry.getKey() + "=" + entry.getValue()[0];
+      queryString = queryString + entry.getKey() + "=" + entry.getValue()[ 0 ];
     }
     return queryString;
   }
@@ -244,7 +241,6 @@ public class InternalHttpServletRequest implements HttpServletRequest {
 
   /////////////////////////
   /////////////////////////
-
 
 
   @Override
@@ -317,30 +313,52 @@ public class InternalHttpServletRequest implements HttpServletRequest {
     return false;
   }
 
-  @Override public AsyncContext getAsyncContext() { return null; }
+  @Override public AsyncContext getAsyncContext() {
+    return null;
+  }
 
-  @Override public AsyncContext startAsync() {return null; }
+  @Override public AsyncContext startAsync() {
+    return null;
+  }
 
-  @Override public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) {return null; }
+  @Override public AsyncContext startAsync( ServletRequest servletRequest, ServletResponse servletResponse ) {
+    return null;
+  }
 
-  @Override public boolean isAsyncSupported() {return false; }
+  @Override public boolean isAsyncSupported() {
+    return false;
+  }
 
-  @Override public boolean isAsyncStarted() {return false; }
+  @Override public boolean isAsyncStarted() {
+    return false;
+  }
 
-  @Override public  ServletContext getServletContext() {return null; }
+  @Override public ServletContext getServletContext() {
+    return null;
+  }
 
-  @Override public DispatcherType getDispatcherType() { return null; }
+  @Override public DispatcherType getDispatcherType() {
+    return null;
+  }
 
-  @Override public Part getPart(String name) throws IOException, ServletException { return null; }
+  @Override public Part getPart( String name ) throws IOException, ServletException {
+    return null;
+  }
 
-  @Override public Collection<Part> getParts() throws IOException, ServletException { return null; }
+  @Override public Collection<Part> getParts() throws IOException, ServletException {
+    return null;
+  }
 
-  @Override public void logout() throws ServletException { }
+  @Override public void logout() throws ServletException {
+  }
 
-  @Override public void login(String username, String password) throws ServletException {  }
+  @Override public void login( String username, String password ) throws ServletException {
+  }
 
-  @Override public boolean authenticate(HttpServletResponse httpServletResponse) throws IOException, ServletException { return false; }
-
+  @Override public boolean authenticate( HttpServletResponse httpServletResponse )
+    throws IOException, ServletException {
+    return false;
+  }
 
 
   @Override public Object getAttribute( String s ) {
@@ -389,8 +407,6 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   public String getRealPath( String path ) {
     return null;
   }
-
-
 
 
   private byte[] content;
@@ -461,7 +477,6 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   }
 
 
-
   @Override
   public Map<String, String[]> getParameterMap() {
     return Collections.unmodifiableMap( this.parameters );
@@ -490,10 +505,6 @@ public class InternalHttpServletRequest implements HttpServletRequest {
   public void setParameter( String name, String[] values ) {
     this.parameters.put( name, values );
   }
-
-
-
-
 
 
   @Override

@@ -18,7 +18,6 @@
 
 package org.pentaho.di.baserver.utils;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.core.CheckResultInterface;
@@ -36,13 +35,9 @@ import org.w3c.dom.NodeList;
 
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
+import static junit.framework.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 public class GetSessionVariableMetaTest {
   private GetSessionVariableMeta getSessionVariableMeta;
@@ -110,7 +105,7 @@ public class GetSessionVariableMetaTest {
   public void testGetFields() throws Exception {
     RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
     String name = "name";
-    RowMetaInterface[] info = new RowMetaInterface[1];
+    RowMetaInterface[] info = new RowMetaInterface[ 1 ];
     StepMeta nextStep = mock( StepMeta.class );
     VariableSpace space = mock( VariableSpace.class );
     doReturn( "" ).when( space ).environmentSubstitute( anyString() );
@@ -151,7 +146,7 @@ public class GetSessionVariableMetaTest {
     final Node stepNode = mock( Node.class );
     final NodeList childrenStepNode = mock( NodeList.class );
     doReturn( 0 ).when( childrenStepNode ).getLength();
-    doReturn( childrenStepNode ).when( stepNode).getChildNodes();
+    doReturn( childrenStepNode ).when( stepNode ).getChildNodes();
     final List databases = mock( List.class );
     final IMetaStore metaStore = mock( IMetaStore.class );
     getSessionVariableMetaSpy.loadXML( stepNode, databases, metaStore );
@@ -185,8 +180,10 @@ public class GetSessionVariableMetaTest {
     getSessionVariableMeta.setFieldName( new String[] { "fn" } );
     getSessionVariableMeta.saveRep( rep, metaStore, id_transformation, id_step );
 
-    verify( rep, times( 9 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyString() );
-    verify( rep, times( 2 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyInt() );
+    verify( rep, times( 9 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(),
+        anyString() );
+    verify( rep, times( 2 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(),
+        anyInt() );
   }
 
   @Test
@@ -195,15 +192,16 @@ public class GetSessionVariableMetaTest {
     TransMeta transMeta = mock( TransMeta.class );
     StepMeta stepMeta = mock( StepMeta.class );
     RowMetaInterface prev = mock( RowMetaInterface.class );
-    String[] input = new String[1];
-    String[] output = new String[1];
+    String[] input = new String[ 1 ];
+    String[] output = new String[ 1 ];
     RowMetaInterface info = mock( RowMetaInterface.class );
     VariableSpace space = mock( VariableSpace.class );
     Repository repository = mock( Repository.class );
     IMetaStore metaStore = mock( IMetaStore.class );
 
     getSessionVariableMeta.allocate( 1 );
-    getSessionVariableMeta.check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository, metaStore );
+    getSessionVariableMeta.check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository,
+        metaStore );
     verify( remarks, times( 2 ) ).add( any( CheckResultInterface.class ) );
   }
 
