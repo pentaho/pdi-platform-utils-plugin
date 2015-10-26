@@ -71,13 +71,13 @@ public class CallEndpointStepTest {
   }
 
   @Test
-   public void testProcessRow() throws Exception {
+  public void testProcessRow() throws Exception {
     CallEndpointMeta smi = new CallEndpointMeta(),
-      smiSpy = spy( smi );
+        smiSpy = spy( smi );
 
     doNothing().when( (CallEndpointMeta) smiSpy ).getFields(
-      any( RowMetaInterface.class ), anyString(), Matchers.<RowMetaInterface[]>any(),
-      any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ), any( IMetaStore.class ) );
+        any( RowMetaInterface.class ), anyString(), Matchers.<RowMetaInterface[]>any(),
+        any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ), any( IMetaStore.class ) );
     doReturn( new String[] {} ).when( (CallEndpointMeta) smiSpy ).getFieldName();
 
     doNothing().when( callEndpointStepSpy ).putRow( any( RowMetaInterface.class ), any( Object[].class ) );
@@ -88,7 +88,7 @@ public class CallEndpointStepTest {
     doReturn( rowMetaInterfaceSpy ).when( rowMetaInterface ).clone();
 
     ValueMetaInterface vmi = mock( ValueMetaInterface.class );
-    doReturn( vmi ).when ( rowMetaInterface ).getValueMeta( anyInt() );
+    doReturn( vmi ).when( rowMetaInterface ).getValueMeta( anyInt() );
     doReturn( rowMetaInterface ).when( callEndpointStepSpy ).getInputRowMeta();
 
     doReturn( null ).when( callEndpointStepSpy ).getRow();
@@ -96,8 +96,8 @@ public class CallEndpointStepTest {
     assertFalse( callEndpointStepSpy.processRow( smiSpy, callEndpointData ) );
 
     smiSpy.setEndpointFromField( true );
-    Object[] rowData = new Object[1];
-    rowData[0] = "";
+    Object[] rowData = new Object[ 1 ];
+    rowData[ 0 ] = "";
     doReturn( rowData ).when( callEndpointStepSpy ).getRow();
     doReturn( "bar" ).when( callEndpointStepSpy ).getRowValue( any( Object[].class ), anyString(), anyString() );
 
@@ -115,8 +115,8 @@ public class CallEndpointStepTest {
     StepMetaInterface smi = new CallEndpointMeta();
     StepDataInterface sdi = mock( CallEndpointData.class );
 
-    ArgumentCaptor< BaseStepData.StepExecutionStatus > argument =
-      ArgumentCaptor.forClass( BaseStepData.StepExecutionStatus.class );
+    ArgumentCaptor<BaseStepData.StepExecutionStatus> argument =
+        ArgumentCaptor.forClass( BaseStepData.StepExecutionStatus.class );
 
     callEndpointStepSpy.dispose( smi, sdi );
     verify( sdi, times( 1 ) ).setStatus( any( BaseStepData.StepExecutionStatus.class ) );

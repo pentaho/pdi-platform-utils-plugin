@@ -23,8 +23,6 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.pentaho.di.core.Const;
 import org.pentaho.di.ui.core.PropsUI;
 
 public class TabItemBuilder extends WidgetBuilder<Composite> {
@@ -55,11 +53,11 @@ public class TabItemBuilder extends WidgetBuilder<Composite> {
     return serverTabItemControl;
   }
 
-  protected Composite createServerTabItemControl( Composite parent, int i) {
+  protected Composite createServerTabItemControl( Composite parent, int i ) {
     return new Composite( parent, i );
   }
 
-  protected CTabItem createCTabItem( CTabFolder parent, int i) {
+  protected CTabItem createCTabItem( CTabFolder parent, int i ) {
     return new CTabItem( parent, i );
   }
 }

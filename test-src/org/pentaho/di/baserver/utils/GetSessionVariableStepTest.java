@@ -56,18 +56,18 @@ public class GetSessionVariableStepTest {
   @Test
   public void testProcessRow() throws Exception {
     StepMetaInterface smi = new GetSessionVariableMeta(),
-      smiSpy = spy( smi );
+        smiSpy = spy( smi );
 
     doNothing().when( (GetSessionVariableMeta) smiSpy ).getFields(
-      any( RowMetaInterface.class ), anyString(), Matchers.<RowMetaInterface[]>any(),
-      any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ), any( IMetaStore.class ) );
+        any( RowMetaInterface.class ), anyString(), Matchers.<RowMetaInterface[]>any(),
+        any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ), any( IMetaStore.class ) );
     doReturn( new String[] {} ).when( (GetSessionVariableMeta) smiSpy ).getFieldName();
 
     doNothing().when( getSessionVariableStepSpy ).putRow( any( RowMetaInterface.class ), any( Object[].class ) );
     doNothing().when( getSessionVariableStepSpy ).setOutputDone();
 
     assertFalse( getSessionVariableStepSpy.processRow( smiSpy, getSessionVariableData ) );
-    verify( getSessionVariableStepSpy, times(1) ).setOutputDone();
+    verify( getSessionVariableStepSpy, times( 1 ) ).setOutputDone();
 
     getSessionVariableData.readsRows = true;
 
@@ -78,10 +78,10 @@ public class GetSessionVariableStepTest {
 
     assertTrue( getSessionVariableStepSpy.processRow( smiSpy, getSessionVariableData ) );
 
-    doReturn( null ).when(getSessionVariableStepSpy).getRow();
+    doReturn( null ).when( getSessionVariableStepSpy ).getRow();
 
     assertFalse( getSessionVariableStepSpy.processRow( smiSpy, getSessionVariableData ) );
-    verify( getSessionVariableStepSpy, times(2) ).setOutputDone();
+    verify( getSessionVariableStepSpy, times( 2 ) ).setOutputDone();
   }
 
   @Test
@@ -89,7 +89,7 @@ public class GetSessionVariableStepTest {
     StepMetaInterface smi = new GetSessionVariableMeta();
     StepDataInterface sdi = mock( GetSessionVariableData.class );
 
-    ArgumentCaptor< BaseStepData.StepExecutionStatus > argument =
+    ArgumentCaptor<BaseStepData.StepExecutionStatus> argument =
         ArgumentCaptor.forClass( BaseStepData.StepExecutionStatus.class );
 
     getSessionVariableStepSpy.dispose( smi, sdi );

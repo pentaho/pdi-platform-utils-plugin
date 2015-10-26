@@ -27,8 +27,8 @@ import static org.pentaho.di.core.util.Assert.assertTrue;
 
 public class QueryParamTest {
   private QueryParam queryParam;
-  
-  
+
+
   @Before
   public void setup() {
     queryParam = new QueryParam();
@@ -38,11 +38,11 @@ public class QueryParamTest {
   public void testGet() {
     String name = "paramName";
     queryParam.setName( name );
-    assertEquals( queryParam.getName(), name);
+    assertEquals( queryParam.getName(), name );
 
     String type = "String";
     queryParam.setType( type );
-    assertEquals( queryParam.getType(), type);
+    assertEquals( queryParam.getType(), type );
   }
 
   @Test
@@ -52,7 +52,7 @@ public class QueryParamTest {
     queryParam.setName( name );
 
     assertEquals( queryParam.compareTo( queryParam ), name.compareTo( name ) );
-    
+
     QueryParam queryParam2 = new QueryParam();
     queryParam2.setName( name2 );
 
@@ -84,5 +84,5 @@ public class QueryParamTest {
 
     assertEquals( name.hashCode(), queryParam.hashCode() );
   }
-  
+
 }

@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;

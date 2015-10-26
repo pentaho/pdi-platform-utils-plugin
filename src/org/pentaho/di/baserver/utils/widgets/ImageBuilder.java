@@ -28,7 +28,7 @@ public class ImageBuilder extends WidgetBuilder<Label> {
 
   private Image image;
 
-  public ImageBuilder setImage ( final Image image ) {
+  public ImageBuilder setImage( final Image image ) {
     this.image = image;
     return this;
   }
@@ -44,7 +44,7 @@ public class ImageBuilder extends WidgetBuilder<Label> {
     return label;
   }
 
-  protected Label createLabel( Composite parent, int i) {
+  protected Label createLabel( Composite parent, int i ) {
     return new Label( parent, i );
   }
 }

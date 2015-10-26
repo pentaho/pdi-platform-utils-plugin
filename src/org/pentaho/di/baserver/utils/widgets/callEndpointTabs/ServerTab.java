@@ -49,7 +49,8 @@ public class ServerTab extends Tab {
   private final Button useSessionCB;
   private final TransMeta transMeta;
 
-  public ServerTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, ModifyListener modifyListener, SelectionListener selectionListener ) {
+  public ServerTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, ModifyListener modifyListener,
+                    SelectionListener selectionListener ) {
     super( tabFolder, BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Title" ), props );
     this.transMeta = transMeta;
 
@@ -99,16 +100,16 @@ public class ServerTab extends Tab {
         .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
         .build();
-      testConnectionButton.addSelectionListener(new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent selectionEvent) {
-              super.widgetSelected(selectionEvent);
-              testConnection( true );
-          }
-      });
+    testConnectionButton.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent selectionEvent ) {
+        super.widgetSelected( selectionEvent );
+        testConnection( true );
+      }
+    } );
 
     useSessionCB = new CheckBoxBuilder( this, props )
-        .setText( BaseMessages.getString(PKG, "CallEndpointDialog.TabItem.Server.UseSession"))
+        .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.UseSession" ) )
         .addSelectionListener( selectionListener )
         .setTop( testConnectionButton )
         .setTopMargin( BAServerCommonDialog.MEDIUM_MARGIN )
@@ -117,40 +118,45 @@ public class ServerTab extends Tab {
         .build();
   }
 
-    public boolean testConnection( boolean showDialogOnSuccess ) {
-        String serverUrl = getServerUrl();
-        String userName = getUserName();
-        String password = getPassword();
-        int serverStatus = Inspector.getInstance().checkServerStatus(serverUrl, userName, password);
-        MessageBox messageBox = new MessageBox(getShell());
-        switch ( serverStatus ) {
-            case HttpStatus.SC_OK:
-              if ( !showDialogOnSuccess ) {
-                return true;
-              }
-              messageBox.setText( BaseMessages.getString(PKG, "CallEndpointDialog.TabItem.Server.Test.Success.Header") );
-              messageBox.setMessage( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.Success.Message" ) );
-              break;
-            case HttpStatus.SC_UNAUTHORIZED:
-              messageBox.setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableLogin.Header" ) );
-              messageBox.setMessage( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableLogin.Message" ) );
-              break;
-            default:
-              messageBox.setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableConnect.Header" ) );
-              messageBox.setMessage( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableConnect.Message" ) );
-              break;
+  public boolean testConnection( boolean showDialogOnSuccess ) {
+    String serverUrl = getServerUrl();
+    String userName = getUserName();
+    String password = getPassword();
+    int serverStatus = Inspector.getInstance().checkServerStatus( serverUrl, userName, password );
+    MessageBox messageBox = new MessageBox( getShell() );
+    switch( serverStatus ) {
+      case HttpStatus.SC_OK:
+        if ( !showDialogOnSuccess ) {
+          return true;
         }
-        messageBox.open();
-        return serverStatus == HttpStatus.SC_OK;
+        messageBox.setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.Success.Header" ) );
+        messageBox
+            .setMessage( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.Success.Message" ) );
+        break;
+      case HttpStatus.SC_UNAUTHORIZED:
+        messageBox
+            .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableLogin.Header" ) );
+        messageBox
+            .setMessage( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableLogin.Message" ) );
+        break;
+      default:
+        messageBox
+            .setText( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableConnect.Header" ) );
+        messageBox.setMessage(
+            BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Server.Test.UnableConnect.Message" ) );
+        break;
     }
+    messageBox.open();
+    return serverStatus == HttpStatus.SC_OK;
+  }
 
-    @Override public void loadData( CallEndpointMeta meta ) {
+  @Override public void loadData( CallEndpointMeta meta ) {
     urlText.setText( meta.getServerURL() );
     userNameText.setText( meta.getUserName() );
     passwordText.setText( meta.getPassword() );
 
     final boolean bypassingAuthentication = meta.isBypassingAuthentication();
-    useSessionCB.setSelection(bypassingAuthentication );
+    useSessionCB.setSelection( bypassingAuthentication );
   }
 
   @Override public void saveData( CallEndpointMeta meta ) {

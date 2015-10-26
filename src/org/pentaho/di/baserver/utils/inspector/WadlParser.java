@@ -18,16 +18,14 @@
 
 package org.pentaho.di.baserver.utils.inspector;
 
+import org.dom4j.Document;
+import org.dom4j.Node;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.dom4j.Document;
-import org.dom4j.Node;
-import org.pentaho.di.baserver.utils.CallEndpointMeta;
-import org.pentaho.di.i18n.BaseMessages;
 
 public class WadlParser {
 

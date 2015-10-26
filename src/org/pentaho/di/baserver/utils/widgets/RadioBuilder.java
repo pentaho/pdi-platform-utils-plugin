@@ -56,7 +56,7 @@ public class RadioBuilder extends WidgetBuilder<Button> {
     return radio;
   }
 
-  protected Button createButton( Composite parent, int i) {
+  protected Button createButton( Composite parent, int i ) {
     return new Button( parent, i );
   }
 }

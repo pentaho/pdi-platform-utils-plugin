@@ -20,7 +20,6 @@ package org.pentaho.di.baserver.utils.widgets;
 
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;

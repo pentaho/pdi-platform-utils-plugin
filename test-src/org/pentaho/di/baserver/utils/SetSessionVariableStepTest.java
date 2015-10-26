@@ -51,20 +51,20 @@ public class SetSessionVariableStepTest {
   @Test
   public void testProcessRow() throws Exception {
     StepMetaInterface smi = new SetSessionVariableMeta(),
-      smiSpy = spy( smi );
+        smiSpy = spy( smi );
 
-    String[] fields = new String[1],
-      variables = new String[1],
-      defaultValues = new String[1];
-    fields[0] = "fooField";
-    variables[0] = "foo";
-    defaultValues[0] = "bar";
+    String[] fields = new String[ 1 ],
+        variables = new String[ 1 ],
+        defaultValues = new String[ 1 ];
+    fields[ 0 ] = "fooField";
+    variables[ 0 ] = "foo";
+    defaultValues[ 0 ] = "bar";
     doReturn( fields ).when( (SetSessionVariableMeta) smiSpy ).getFieldName();
     doReturn( variables ).when( (SetSessionVariableMeta) smiSpy ).getVariableName();
     doReturn( defaultValues ).when( (SetSessionVariableMeta) smiSpy ).getDefaultValue();
 
-    Object[] rowData = new Object[1];
-    rowData[0] = "";
+    Object[] rowData = new Object[ 1 ];
+    rowData[ 0 ] = "";
     doReturn( rowData ).when( setSessionVariableStepSpy ).getRow();
 
     RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
@@ -79,7 +79,7 @@ public class SetSessionVariableStepTest {
     verify( setSessionVariableStepSpy, times( 1 ) ).setValue( anyString(), anyString() );
 
     doReturn( null ).when( setSessionVariableStepSpy ).getRow();
-    doReturn( defaultValues[0] ).when( setSessionVariableStepSpy ).environmentSubstitute( defaultValues[0] );
+    doReturn( defaultValues[ 0 ] ).when( setSessionVariableStepSpy ).environmentSubstitute( defaultValues[ 0 ] );
     doNothing().when( setSessionVariableStepSpy ).setOutputDone();
 
     setSessionVariableStepSpy.first = true;
@@ -134,22 +134,22 @@ public class SetSessionVariableStepTest {
 
   @Test
   public void testGetRowValue() throws Exception {
-    Object[] rowData = new Object[1];
-    rowData[0] = "bar";
+    Object[] rowData = new Object[ 1 ];
+    rowData[ 0 ] = "bar";
 
     StepMetaInterface smi = new SetSessionVariableMeta(),
         smiSpy = spy( smi );
     doReturn( false ).when( (SetSessionVariableMeta) smiSpy ).isUsingFormatting();
 
-    String[] fields = new String[1];
-    fields[0] = "fooField";
+    String[] fields = new String[ 1 ];
+    fields[ 0 ] = "fooField";
     doReturn( fields ).when( (SetSessionVariableMeta) smiSpy ).getFieldName();
 
     StepDataInterface sdi = new SetSessionVariableData(),
         sdiSpy = spy( sdi );
 
     RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
-    ValueMetaInterface valueMetaInterface = mock ( ValueMetaInterface.class );
+    ValueMetaInterface valueMetaInterface = mock( ValueMetaInterface.class );
     doReturn( valueMetaInterface ).when( rowMetaInterface ).getValueMeta( 0 );
     doReturn( "bar1" ).when( valueMetaInterface ).getString( "bar" );
     doReturn( "bar" ).when( valueMetaInterface ).getCompatibleString( "bar" );
@@ -159,7 +159,7 @@ public class SetSessionVariableStepTest {
     doReturn( sdiSpy ).when( setSessionVariableStepSpy ).getData();
     assertEquals( setSessionVariableStepSpy.getRowValue( rowData, 0 ), "bar" );
 
-    doReturn( true ).when( ( SetSessionVariableMeta) smiSpy ).isUsingFormatting();
+    doReturn( true ).when( (SetSessionVariableMeta) smiSpy ).isUsingFormatting();
     assertEquals( setSessionVariableStepSpy.getRowValue( rowData, 0 ), "bar1" );
   }
 
@@ -168,7 +168,7 @@ public class SetSessionVariableStepTest {
     StepMetaInterface smi = new SetSessionVariableMeta();
     StepDataInterface sdi = mock( SetSessionVariableData.class );
 
-    ArgumentCaptor< BaseStepData.StepExecutionStatus > argument =
+    ArgumentCaptor<BaseStepData.StepExecutionStatus> argument =
         ArgumentCaptor.forClass( BaseStepData.StepExecutionStatus.class );
 
     setSessionVariableStepSpy.dispose( smi, sdi );

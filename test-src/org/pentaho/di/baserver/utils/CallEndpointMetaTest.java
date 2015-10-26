@@ -28,7 +28,9 @@ import org.pentaho.di.repository.ObjectId;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.*;
+import org.pentaho.di.trans.step.StepDataInterface;
+import org.pentaho.di.trans.step.StepInterface;
+import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -65,7 +67,7 @@ public class CallEndpointMetaTest {
   @Test
   public void testSetServerURL() throws Exception {
     assertEquals( "http://localhost:8080/pentaho", callEndpointMeta.getServerURL() );
-      callEndpointMeta.setServerURL( "http://127.0.0.1:80/pentaho" );
+    callEndpointMeta.setServerURL( "http://127.0.0.1:80/pentaho" );
     assertEquals( "http://127.0.0.1:80/pentaho", callEndpointMeta.getServerURL() );
   }
 
@@ -165,7 +167,7 @@ public class CallEndpointMetaTest {
     callEndpointMeta.setModuleName( "moduleName" );
     callEndpointMeta.setModuleFromField( true );
     callEndpointMeta.setEndpointPath( "endpointPath" );
-    callEndpointMeta.setHttpMethod( "GET");
+    callEndpointMeta.setHttpMethod( "GET" );
     callEndpointMeta.setEndpointFromField( true );
     callEndpointMeta.setResultField( "resultField" );
     callEndpointMeta.setStatusCodeField( "statusCodeField" );
@@ -176,21 +178,21 @@ public class CallEndpointMetaTest {
 
     CallEndpointMeta result = (CallEndpointMeta) callEndpointMeta.clone();
 
-    assertEquals( "url" , result.getServerURL() );
-    assertEquals( "username" , result.getUserName() );
-    assertEquals( "password" , result.getPassword() );
+    assertEquals( "url", result.getServerURL() );
+    assertEquals( "username", result.getUserName() );
+    assertEquals( "password", result.getPassword() );
     assertTrue( result.isBypassingAuthentication() );
-    assertEquals( "moduleName" , result.getModuleName() );
+    assertEquals( "moduleName", result.getModuleName() );
     assertTrue( result.isModuleFromField() );
-    assertEquals( "endpointPath" , result.getEndpointPath() );
-    assertEquals( "GET" , result.getHttpMethod() );
+    assertEquals( "endpointPath", result.getEndpointPath() );
+    assertEquals( "GET", result.getHttpMethod() );
     assertTrue( result.isEndpointFromField() );
-    assertEquals( "resultField" , result.getResultField() );
-    assertEquals( "statusCodeField" , result.getStatusCodeField() );
-    assertEquals( "responseTimeField" , result.getResponseTimeField() );
-    assertEquals( "fieldName", result.getFieldName()[0] );
-    assertEquals( "parameter", result.getParameter()[0] );
-    assertEquals( "defaultValue", result.getDefaultValue()[0] );
+    assertEquals( "resultField", result.getResultField() );
+    assertEquals( "statusCodeField", result.getStatusCodeField() );
+    assertEquals( "responseTimeField", result.getResponseTimeField() );
+    assertEquals( "fieldName", result.getFieldName()[ 0 ] );
+    assertEquals( "parameter", result.getParameter()[ 0 ] );
+    assertEquals( "defaultValue", result.getDefaultValue()[ 0 ] );
   }
 
   @Test
@@ -255,7 +257,7 @@ public class CallEndpointMetaTest {
     final Node stepNode = mock( Node.class );
     final NodeList childrenStepNode = mock( NodeList.class );
     doReturn( 0 ).when( childrenStepNode ).getLength();
-    doReturn( childrenStepNode ).when( stepNode).getChildNodes();
+    doReturn( childrenStepNode ).when( stepNode ).getChildNodes();
     final List databases = mock( List.class );
     final IMetaStore metaStore = mock( IMetaStore.class );
     callEndpointMetaSpy.loadXML( stepNode, databases, metaStore );
@@ -290,8 +292,10 @@ public class CallEndpointMetaTest {
     callEndpointMeta.saveRep( rep, metaStore, id_transformation, id_step );
 
     verify( rep, times( 9 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyString(), anyString() );
-    verify( rep, times( 3 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyBoolean() );
-    verify( rep, times( 3 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyString() );
+    verify( rep, times( 3 ) )
+        .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyBoolean() );
+    verify( rep, times( 3 ) )
+        .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyString() );
   }
 
   @Test
@@ -300,8 +304,8 @@ public class CallEndpointMetaTest {
     TransMeta transMeta = mock( TransMeta.class );
     StepMeta stepMeta = mock( StepMeta.class );
     RowMetaInterface prev = mock( RowMetaInterface.class );
-    String[] input = new String[1];
-    String[] output = new String[1];
+    String[] input = new String[ 1 ];
+    String[] output = new String[ 1 ];
     RowMetaInterface info = mock( RowMetaInterface.class );
     VariableSpace space = mock( VariableSpace.class );
     Repository repository = mock( Repository.class );
@@ -315,7 +319,7 @@ public class CallEndpointMetaTest {
   public void testGetFields() throws Exception {
     RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
     String name = "name";
-    RowMetaInterface[] info = new RowMetaInterface[1];
+    RowMetaInterface[] info = new RowMetaInterface[ 1 ];
     StepMeta nextStep = mock( StepMeta.class );
     VariableSpace space = mock( VariableSpace.class );
     Repository repository = mock( Repository.class );

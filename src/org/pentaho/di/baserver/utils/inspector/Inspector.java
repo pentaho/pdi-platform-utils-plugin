@@ -43,15 +43,14 @@ public class Inspector {
   private String serverUrl = "";
   private String userName = "";
   private String password = "";
-  private TreeMap<String, TreeMap<String, LinkedList<Endpoint>>>
-      endpoints = new TreeMap<String, TreeMap<String, LinkedList<Endpoint>>>();
+  private TreeMap<String, TreeMap<String, LinkedList<Endpoint>>> endpoints = new TreeMap<String, TreeMap<String, LinkedList<Endpoint>>>();
   private WadlParser parser = new WadlParser();
 
   // loaded on the first execution of Inspector.getInstance(), not before
   private static class InspectorHolder {
     public static final Inspector INSTANCE = new Inspector();
   }
-  
+
   // singleton
   public static Inspector getInstance() {
     return InspectorHolder.INSTANCE;
@@ -72,7 +71,7 @@ public class Inspector {
   protected TreeMap<String, TreeMap<String, LinkedList<Endpoint>>> getEndpointsTree() {
     return endpoints;
   }
-  
+
   protected TreeMap<String, LinkedList<Endpoint>> getModuleEndpoints( String module ) {
     return getEndpointsTree().get( module );
   }
@@ -80,7 +79,7 @@ public class Inspector {
   protected WadlParser getParser() {
     return parser;
   }
-  
+
   /**
    * Inspects the BA server *
    *
@@ -96,20 +95,20 @@ public class Inspector {
     return inspectModuleNames();
   }
 
-    /**
-     * Gets connection status to the BA server *
-     *
-     * @param serverUrl
-     * @param userName
-     * @param password
-     * @return
-     */
-    public int checkServerStatus( final String serverUrl, final String userName, final String password ) {
-        this.serverUrl = serverUrl;
-        this.userName = userName;
-        this.password = password;
-        return getConnectionStatus();
-    }
+  /**
+   * Gets connection status to the BA server *
+   *
+   * @param serverUrl
+   * @param userName
+   * @param password
+   * @return
+   */
+  public int checkServerStatus( final String serverUrl, final String userName, final String password ) {
+    this.serverUrl = serverUrl;
+    this.userName = userName;
+    this.password = password;
+    return getConnectionStatus();
+  }
 
   /**
    * *
@@ -289,14 +288,15 @@ public class Inspector {
     }
   }
 
-  protected Response callHttp( String endpointUrl ){
+  protected Response callHttp( String endpointUrl ) {
     return callHttp( endpointUrl, null, null );
   }
 
   protected Response callHttp( String endpointUrl, Map<String, String> queryParameters, String httpMethod ) {
     Response response = null;
     try {
-      response = HttpConnectionHelper.getInstance().callHttp( endpointUrl, queryParameters, httpMethod, this.getUserName(), this.getPassword() );
+      response = HttpConnectionHelper.getInstance()
+          .callHttp( endpointUrl, queryParameters, httpMethod, this.getUserName(), this.getPassword() );
     } catch ( IOException e ) {
       // do nothing
     } catch ( KettleStepException e ) {

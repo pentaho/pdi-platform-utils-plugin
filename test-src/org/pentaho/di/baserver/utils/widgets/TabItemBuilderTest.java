@@ -21,7 +21,6 @@ package org.pentaho.di.baserver.utils.widgets;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
@@ -51,7 +50,7 @@ public class TabItemBuilderTest {
     CTabItem cTabItemMock = mock( CTabItem.class );
     doReturn( cTabItemMock ).when( tabItemBuilderSpy ).createCTabItem( any( CTabFolder.class ), anyInt() );
 
-    when( tabItemBuilderSpy.setTopPlacement( anyInt()) ).thenCallRealMethod();
+    when( tabItemBuilderSpy.setTopPlacement( anyInt() ) ).thenCallRealMethod();
 
     tabItemBuilderSpy.setText( text );
     Composite composite = tabItemBuilderSpy.createWidget( parent );

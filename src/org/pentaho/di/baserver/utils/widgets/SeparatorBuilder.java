@@ -34,7 +34,7 @@ public class SeparatorBuilder extends WidgetBuilder<Label> {
     return createLabel( parent, SWT.SEPARATOR | SWT.HORIZONTAL );
   }
 
-  protected Label createLabel( Composite parent, int i) {
+  protected Label createLabel( Composite parent, int i ) {
     return new Label( parent, i );
   }
 }

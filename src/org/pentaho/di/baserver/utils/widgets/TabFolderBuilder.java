@@ -35,7 +35,7 @@ public class TabFolderBuilder extends WidgetBuilder<CTabFolder> {
     return tabFolder;
   }
 
-  protected CTabFolder createCTabFolder( Composite parent, int i) {
+  protected CTabFolder createCTabFolder( Composite parent, int i ) {
     return new CTabFolder( parent, i );
   }
 }

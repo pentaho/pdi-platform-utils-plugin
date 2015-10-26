@@ -27,7 +27,7 @@ import static org.pentaho.di.core.util.Assert.assertTrue;
 
 public class EndpointTest {
   Endpoint endpoint;
-  
+
   @Before
   public void setup() {
     endpoint = new Endpoint();
@@ -42,34 +42,34 @@ public class EndpointTest {
   public void testGet() {
     String id = "1234";
     endpoint.setId( id );
-    assertEquals( endpoint.getId(), id);
+    assertEquals( endpoint.getId(), id );
 
     String path = "/path";
     endpoint.setPath( path );
-    assertEquals( endpoint.getPath(), path);
-    
+    assertEquals( endpoint.getPath(), path );
+
     HttpMethod httpMethod = HttpMethod.GET;
     endpoint.setHttpMethod( httpMethod );
     assertEquals( endpoint.getHttpMethod(), httpMethod );
   }
-  
+
   @Test
   public void testCompareTo() {
     String id = "1234",
-      id2 = "12345678";
+        id2 = "12345678";
     endpoint.setId( id );
-    
+
     Endpoint endpoint2 = new Endpoint();
     endpoint2.setId( id2 );
-    
+
     assertEquals( endpoint.compareTo( endpoint2 ), id.compareTo( id2 ) );
   }
-  
-  @Test 
+
+  @Test
   public void testEquals() {
     String id = "1234";
     endpoint.setId( id );
-    
+
     endpoint.equals( endpoint );
 
     Endpoint endpoint2 = new Endpoint();
@@ -81,12 +81,12 @@ public class EndpointTest {
     endpoint2.setId( "12345" );
     assertFalse( endpoint.equals( endpoint2 ) );
   }
-  
+
   @Test
   public void testHashCode() {
     String id = "1234";
     endpoint.setId( id );
-    
+
     assertEquals( id.hashCode(), endpoint.hashCode() );
   }
 }

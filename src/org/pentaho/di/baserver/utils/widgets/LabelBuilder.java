@@ -47,7 +47,7 @@ public class LabelBuilder extends WidgetBuilder<Label> {
     return label;
   }
 
-  protected Label createLabel( Composite parent, int i) {
+  protected Label createLabel( Composite parent, int i ) {
     return new Label( parent, i );
   }
 }

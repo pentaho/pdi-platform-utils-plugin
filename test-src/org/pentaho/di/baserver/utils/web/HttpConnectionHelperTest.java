@@ -18,22 +18,27 @@
 
 package org.pentaho.di.baserver.utils.web;
 
+import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.HeadMethod;
+import org.apache.commons.httpclient.methods.OptionsMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.web.servlet.JAXRSPluginServlet;
 import org.springframework.beans.factory.ListableBeanFactory;
-
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HostConfiguration;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -52,23 +57,23 @@ import static org.mockito.Mockito.*;
 public class HttpConnectionHelperTest {
   HttpConnectionHelper httpConnectionHelper, httpConnectionHelperSpy;
 
-  @Before 
+  @Before
   public void setUp() throws Exception {
     httpConnectionHelper = HttpConnectionHelper.getInstance();
     httpConnectionHelperSpy = spy( httpConnectionHelper );
   }
 
-  @Test 
+  @Test
   public void testInvokeEndpoint() throws Exception {
-    String serverUrl = "http://localhost:8080/pentaho", userName = "admin", password = "password", moduleName = "platform",
-        endpointPath = "myEndpoint", httpMethod = "GET";
+    String serverUrl = "http://localhost:8080/pentaho", userName = "admin", password = "password",
+        moduleName = "platform", endpointPath = "myEndpoint", httpMethod = "GET";
     Map<String, String> queryParameters = new HashMap<String, String>();
     queryParameters.put( "param1", "value1" );
     queryParameters.put( "param2", "value2" );
     queryParameters.put( "param3", "value3" );
-    
+
     Response r = mock( Response.class );
-    
+
     doReturn( r ).when( httpConnectionHelperSpy ).callHttp( anyString(), anyMap(), anyString(),
         anyString(), anyString() );
     httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath, httpMethod,
@@ -80,33 +85,34 @@ public class HttpConnectionHelperTest {
         queryParameters );
     verify( httpConnectionHelperSpy, times( 2 ) ).callHttp(
         "http://localhost:8080/pentaho/api/myEndpoint", queryParameters, httpMethod, userName, password );
-    
+
     moduleName = "data-access";
     httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath, httpMethod,
         queryParameters );
     verify( httpConnectionHelperSpy ).callHttp(
         "http://localhost:8080/pentaho/plugin/data-access/api/myEndpoint", queryParameters, httpMethod, userName,
         password );
-    
+
   }
 
-  @Test 
+  @Test
   public void testInvokeEndpoint1() throws Exception {
     String moduleName = "platform", endpointPath = "myEndpoint", httpMethod = "GET";
     Map<String, String> queryParameters = new HashMap<String, String>();
     queryParameters.put( "param1", "value1" );
     queryParameters.put( "param2", "value2" );
     queryParameters.put( "param3", "value3" );
-    
+
     Response r = mock( Response.class );
-    
-    doReturn( r ).when( httpConnectionHelperSpy ).invokePlatformEndpoint( anyString(),anyString(), any( Map.class) );
+
+    doReturn( r ).when( httpConnectionHelperSpy ).invokePlatformEndpoint( anyString(), anyString(), any( Map.class ) );
     doReturn( r ).when( httpConnectionHelperSpy ).invokePluginEndpoint( anyString(), anyString(), anyString(),
         any( Map.class ) );
-    
+
     httpConnectionHelperSpy.invokeEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
     verify( httpConnectionHelperSpy, times( 1 ) ).invokePlatformEndpoint( endpointPath, httpMethod, queryParameters );
-    verify( httpConnectionHelperSpy, times( 0 ) ).invokePluginEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
+    verify( httpConnectionHelperSpy, times( 0 ) )
+        .invokePluginEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
 
     moduleName = "myModule";
     httpConnectionHelperSpy.invokeEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
@@ -115,10 +121,10 @@ public class HttpConnectionHelperTest {
         queryParameters );
   }
 
-  @Test 
+  @Test
   public void testInvokePlatformEndpoint() throws Exception {
     Response r;
-    
+
     String endpointPath = "myEndpoint", httpMethod = "GET";
     Map<String, String> queryParameters = new HashMap<String, String>();
     queryParameters.put( "param1", "value1" );
@@ -127,7 +133,7 @@ public class HttpConnectionHelperTest {
 
     RequestDispatcher requestDispatcher = mock( RequestDispatcher.class );
     ServletContext context = mock( ServletContext.class );
-    doThrow( new NoClassDefFoundError(  ) ).when( httpConnectionHelperSpy ).getContext();
+    doThrow( new NoClassDefFoundError() ).when( httpConnectionHelperSpy ).getContext();
     r = httpConnectionHelperSpy.invokePlatformEndpoint( endpointPath, httpMethod, queryParameters );
     assertTrue( r.getResult().equals( new Response().getResult() ) );
 
@@ -154,9 +160,9 @@ public class HttpConnectionHelperTest {
         any( InternalHttpServletResponse.class ) );
     r = httpConnectionHelperSpy.invokePlatformEndpoint( endpointPath, httpMethod, queryParameters );
     assertEquals( r.getStatusCode(), 204 );
-    
+
   }
-  
+
   @Test
   public void teatInsertParameters() throws Exception {
     String httpMethod = "GET";
@@ -164,9 +170,9 @@ public class HttpConnectionHelperTest {
     queryParameters.put( "param1", "value1|" );
     queryParameters.put( "param2", "value2\\/" );
     queryParameters.put( "param3", "value3{}" );
-    
+
     InternalHttpServletRequest request = new InternalHttpServletRequest( "", "" );
-    
+
     httpConnectionHelperSpy.insertParameters( httpMethod, queryParameters, request );
     assertEquals( request.getParameterMap().size(), 3 );
     assertEquals( URLDecoder.decode( request.getParameter( "param1" ), HttpConnectionHelper.UTF_8 ),
@@ -175,7 +181,7 @@ public class HttpConnectionHelperTest {
         queryParameters.get( "param2" ) );
     assertEquals( URLDecoder.decode( request.getParameter( "param3" ), HttpConnectionHelper.UTF_8 ),
         queryParameters.get( "param3" ) );
-    
+
     httpMethod = "PUT";
     request = new InternalHttpServletRequest( "", "" );
     httpConnectionHelperSpy.insertParameters( httpMethod, queryParameters, request );
@@ -195,17 +201,17 @@ public class HttpConnectionHelperTest {
     assertEquals( new String( request.getContent() ), "param1=value1%7C&param2=value2%5C%2F&param3=value3%7B%7D" );
   }
 
-  @Test 
+  @Test
   public void testInvokePluginEndpoint() throws Exception {
     Response r;
-    
+
     String pluginName = "platform", endpointPath = "myEndpoint", httpMethod = "GET";
     Map<String, String> queryParameters = new HashMap<String, String>();
     queryParameters.put( "param1", "value1" );
     queryParameters.put( "param2", "value2" );
     queryParameters.put( "param3", "value3" );
-    
-    
+
+
     doReturn( null ).when( httpConnectionHelperSpy ).getPluginManager();
     r = httpConnectionHelperSpy.invokePluginEndpoint( pluginName, endpointPath, httpMethod, queryParameters );
     assertEquals( r.getResult(), ( new Response() ).getResult() );
@@ -232,7 +238,7 @@ public class HttpConnectionHelperTest {
     doThrow( new MalformedURLException() ).when( httpConnectionHelperSpy ).getUrl();
     r = httpConnectionHelperSpy.invokePluginEndpoint( pluginName, endpointPath, httpMethod, queryParameters );
     assertTrue( r.getResult().equals( new Response().getResult() ) );
-    
+
     String serverUrl = "http://localhost:8080/pentaho";
     URL url = new URL( serverUrl );
     doReturn( url ).when( httpConnectionHelperSpy ).getUrl();
@@ -253,7 +259,7 @@ public class HttpConnectionHelperTest {
     assertEquals( r.getResponseTime(), 0 );
   }
 
-  @Test 
+  @Test
   public void testCallHttp() throws Exception {
     String url = "http://localhost:8080/pentaho",
         user = "admin",
@@ -276,7 +282,7 @@ public class HttpConnectionHelperTest {
     doReturn( httpClient ).when( httpConnectionHelperSpy ).getHttpClient();
     HttpMethod httpMethod = mock( HttpMethod.class );
     doReturn( httpMethod ).when( httpConnectionHelperSpy ).getHttpMethod( url, parameters, method );
-    
+
     doThrow( new IllegalArgumentException() ).when( httpClient ).executeMethod( any( HostConfiguration.class ),
         eq( httpMethod ) );
     r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );

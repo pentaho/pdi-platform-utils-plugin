@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -51,6 +50,6 @@ public class ImageBuilderTest {
     ImageBuilder m = mock( ImageBuilder.class );
 
     Label label = imageBuilderSpy.createWidget( parent );
-    verify( label, times( 1) ).setImage( any( Image.class) );
+    verify( label, times( 1 ) ).setImage( any( Image.class ) );
   }
 }

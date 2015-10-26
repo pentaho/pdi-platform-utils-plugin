@@ -20,13 +20,11 @@ package org.pentaho.di.baserver.utils.widgets;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -62,6 +60,6 @@ public class ButtonBuilderTest {
     Button button = buttonBuilderSpy.createWidget( parent );
 
     assertEquals( text, button.getText() );
-    verify( button, times( 1) ).setText( text );
+    verify( button, times( 1 ) ).setText( text );
   }
 }

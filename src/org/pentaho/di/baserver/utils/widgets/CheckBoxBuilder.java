@@ -56,7 +56,7 @@ public class CheckBoxBuilder extends WidgetBuilder<Button> {
     return checkBox;
   }
 
-  protected Button createButton( Composite parent, int i) {
+  protected Button createButton( Composite parent, int i ) {
     return new Button( parent, i );
   }
 }

@@ -18,7 +18,6 @@
 
 package org.pentaho.di.baserver.utils.widgets;
 
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -27,7 +26,7 @@ import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public class WidgetBuilderTest {
   WidgetBuilderMock builder;

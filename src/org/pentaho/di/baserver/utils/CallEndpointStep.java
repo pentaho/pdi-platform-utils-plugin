@@ -19,6 +19,8 @@
 package org.pentaho.di.baserver.utils;
 
 
+import org.pentaho.di.baserver.utils.web.HttpConnectionHelper;
+import org.pentaho.di.baserver.utils.web.Response;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
@@ -33,8 +35,6 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.di.baserver.utils.web.HttpConnectionHelper;
-import org.pentaho.di.baserver.utils.web.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -116,7 +116,7 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       String password = environmentSubstitute( meta.getPassword() );
 
       response = connectionHelper.invokeEndpoint( serverUrl, username, password, moduleName, endpointPath, httpMethod,
-              queryParameters );
+          queryParameters );
     }
 
     int index = getInputRowMeta().size();
@@ -150,7 +150,7 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       int index = getInputRowMeta().indexOfValue( fieldName );
       if ( index >= 0 ) {
         ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( index );
-        Object valueData = rowData[index];
+        Object valueData = rowData[ index ];
         return valueMeta.getCompatibleString( valueData );
       }
 

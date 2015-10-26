@@ -18,10 +18,8 @@
 
 package org.pentaho.di.baserver.utils.widgets;
 
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.junit.Before;
@@ -31,7 +29,6 @@ import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.ColumnInfo;
 import org.pentaho.di.ui.core.widget.TableView;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -54,15 +51,15 @@ public class TableViewBuilderTest {
   public void testCreateWidget() throws Exception {
     TableView tableViewMock = mock( TableView.class );
     doReturn( tableViewMock ).when( tableViewBuilderSDpy ).createTableView( any( VariableSpace.class ),
-        any( Composite.class ), anyInt(), any( ColumnInfo[].class), anyInt(), any( ModifyListener.class ),
+        any( Composite.class ), anyInt(), any( ColumnInfo[].class ), anyInt(), any( ModifyListener.class ),
         any( PropsUI.class ) );
     Table tableMock = mock( Table.class );
     doReturn( tableMock ).when( tableViewMock ).getTable();
 
-    TableColumn[] tableColumnMock = new TableColumn[0];    ;
+    TableColumn[] tableColumnMock = new TableColumn[ 0 ]; ;
     doReturn( tableColumnMock ).when( tableMock ).getColumns();
 
-    tableViewBuilderSDpy.addColumnInfo( new ColumnInfo( "col", 0) );
+    tableViewBuilderSDpy.addColumnInfo( new ColumnInfo( "col", 0 ) );
     tableViewBuilderSDpy.setRowsCount( 0 );
     tableViewBuilderSDpy.setModifyListener( modifyListener );
     TableView tableView = tableViewBuilderSDpy.createWidget( parent );

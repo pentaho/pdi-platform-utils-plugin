@@ -49,7 +49,7 @@ public class ButtonBuilder extends WidgetBuilder<Button> {
     return button;
   }
 
-  protected Button createButton( Composite parent, int i) {
+  protected Button createButton( Composite parent, int i ) {
     return new Button( parent, i );
   }
 }

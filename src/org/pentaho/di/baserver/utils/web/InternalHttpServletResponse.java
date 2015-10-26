@@ -101,8 +101,8 @@ public class InternalHttpServletResponse implements HttpServletResponse {
 
   public String getContentAsString() throws UnsupportedEncodingException {
     flushBuffer();
-    return ( this.characterEncoding != null ) ? this.content.toString( this.characterEncoding ) :
-      this.content.toString();
+    return ( this.characterEncoding != null ) ? this.content.toString( this.characterEncoding )
+        : this.content.toString();
   }
 
   public int getContentLength() {
@@ -122,11 +122,17 @@ public class InternalHttpServletResponse implements HttpServletResponse {
 
   }
 
-  @Override public String getHeader(String name) { return ""; }
+  @Override public String getHeader( String name ) {
+    return "";
+  }
 
-  @Override public Collection<String> getHeaders(String name) { return null; }
+  @Override public Collection<String> getHeaders( String name ) {
+    return null;
+  }
 
-  @Override public Collection<String> getHeaderNames() { return null; }
+  @Override public Collection<String> getHeaderNames() {
+    return null;
+  }
 
   @Override
   public String getContentType() {
