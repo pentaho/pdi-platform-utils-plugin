@@ -18,22 +18,28 @@
 
 package org.pentaho.di.baserver.utils.widgets;
 
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.*;
 
 public class ButtonBuilderTest {
-  ButtonBuilder buttonBuilder;
+  ButtonBuilder buttonBuilder, buttonBuilderSpy;
   Composite parent = mock( Composite.class );
   PropsUI propsUI = mock( PropsUI.class );
 
   @Before
   public void setUp() throws Exception {
     buttonBuilder = new ButtonBuilder( parent, propsUI );
+    buttonBuilderSpy = spy( buttonBuilder );
   }
 
   @Test
@@ -42,5 +48,20 @@ public class ButtonBuilderTest {
     String labelText = "new-label-text"; //$NON-NLS-1$
     buttonBuilder.setLabelText( labelText );
     assertEquals( labelText, buttonBuilder.getLabelText() );
+  }
+
+  @Test
+  public void testCreateWidget() throws Exception {
+    String text = "button-text"; //$NON-NLS-1$
+    Button buttonMock = mock( Button.class );
+
+    doReturn( buttonMock ).when( buttonBuilderSpy ).createButton( any( Composite.class ), anyInt() );
+    doReturn( text ).when( buttonMock ).getText();
+
+    buttonBuilderSpy.setLabelText( text );
+    Button button = buttonBuilderSpy.createWidget( parent );
+
+    assertEquals( text, button.getText() );
+    verify( button, times( 1) ).setText( text );
   }
 }

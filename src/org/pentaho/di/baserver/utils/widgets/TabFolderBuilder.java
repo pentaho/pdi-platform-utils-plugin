@@ -22,7 +22,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
 import org.pentaho.di.ui.core.PropsUI;
 
-public final class TabFolderBuilder extends WidgetBuilder<CTabFolder> {
+public class TabFolderBuilder extends WidgetBuilder<CTabFolder> {
 
   public TabFolderBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
@@ -31,7 +31,11 @@ public final class TabFolderBuilder extends WidgetBuilder<CTabFolder> {
   @Override
   protected CTabFolder createWidget( Composite parent ) {
     // create tab folder
-    CTabFolder tabFolder = new CTabFolder( this.parent, SWT.BORDER );
+    CTabFolder tabFolder = createCTabFolder( this.parent, SWT.BORDER );
     return tabFolder;
+  }
+
+  protected CTabFolder createCTabFolder( Composite parent, int i) {
+    return new CTabFolder( parent, i );
   }
 }

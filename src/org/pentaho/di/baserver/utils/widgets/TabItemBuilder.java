@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Group;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.ui.core.PropsUI;
 
-public final class TabItemBuilder extends WidgetBuilder<Composite> {
+public class TabItemBuilder extends WidgetBuilder<Composite> {
   private String text;
 
   public TabItemBuilder setText( String text ) {
@@ -45,13 +45,21 @@ public final class TabItemBuilder extends WidgetBuilder<Composite> {
     setBottomPlacement( 100 );
     setLeftPlacement( 0 );
     setRightPlacement( 100 );
-    Composite serverTabItemControl = new Composite( parent, SWT.NONE );
+    Composite serverTabItemControl = createServerTabItemControl( parent, SWT.NONE );
     serverTabItemControl.setLayout( new FormLayout() );
     // create group
-    CTabItem tabItem = new CTabItem( (CTabFolder) parent, SWT.NONE );
+    CTabItem tabItem = createCTabItem( (CTabFolder) parent, SWT.NONE );
     tabItem.setText( this.text );
     tabItem.setControl( serverTabItemControl );
 
     return serverTabItemControl;
+  }
+
+  protected Composite createServerTabItemControl( Composite parent, int i) {
+    return new Composite( parent, i );
+  }
+
+  protected CTabItem createCTabItem( CTabFolder parent, int i) {
+    return new CTabItem( parent, i );
   }
 }

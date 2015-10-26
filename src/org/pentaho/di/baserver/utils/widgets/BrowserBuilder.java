@@ -22,10 +22,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.pentaho.di.ui.core.PropsUI;
-import sun.awt.FontDescriptor;
 
 public class BrowserBuilder extends WidgetBuilder<Browser> {
 
@@ -47,12 +45,20 @@ public class BrowserBuilder extends WidgetBuilder<Browser> {
   @Override
   protected Browser createWidget( Composite parent ) {
     // create button
-    Browser browser = new Browser( this.parent, SWT.BORDER );
+    Browser browser = createBrowser( parent, SWT.BORDER );
     browser.setText( this.labelText );
     FontData f = props.getDefaultFont();
-    Font font = new Font ( this.parent.getDisplay(), f.getName(), f.getHeight(), f.getStyle() );
+    Font font = createFont( parent, f );
     browser.setFont( font );
 
     return browser;
+  }
+
+  protected Browser createBrowser( Composite parent, int i ) {
+    return new Browser( parent, i );
+  }
+
+  protected Font createFont( Composite parent, FontData fontdata ) {
+    return new Font( parent.getDisplay(), fontdata.getName(), fontdata.getHeight(), fontdata.getStyle() );
   }
 }

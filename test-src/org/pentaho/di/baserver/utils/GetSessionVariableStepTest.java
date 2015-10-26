@@ -2,6 +2,7 @@ package org.pentaho.di.baserver.utils;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
@@ -9,10 +10,13 @@ import org.pentaho.di.job.Job;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.BaseStepData;
+import org.pentaho.di.trans.step.StepDataInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.metastore.api.IMetaStore;
 
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -78,5 +82,21 @@ public class GetSessionVariableStepTest {
 
     assertFalse( getSessionVariableStepSpy.processRow( smiSpy, getSessionVariableData ) );
     verify( getSessionVariableStepSpy, times(2) ).setOutputDone();
+  }
+
+  @Test
+  public void testDispose() throws Exception {
+    StepMetaInterface smi = new GetSessionVariableMeta();
+    StepDataInterface sdi = mock( GetSessionVariableData.class );
+
+    ArgumentCaptor< BaseStepData.StepExecutionStatus > argument =
+        ArgumentCaptor.forClass( BaseStepData.StepExecutionStatus.class );
+
+    getSessionVariableStepSpy.dispose( smi, sdi );
+    verify( sdi, times( 1 ) ).setStatus( any( BaseStepData.StepExecutionStatus.class ) );
+
+    verify( sdi ).setStatus( argument.capture() );
+    assertEquals( BaseStepData.StepExecutionStatus.STATUS_DISPOSED.toString(),
+        argument.getValue().toString() );
   }
 }

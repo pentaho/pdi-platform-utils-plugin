@@ -129,7 +129,7 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
     return true;
   }
 
-  private String getRowValue( Object[] rowData, String fieldName, String defaultValue ) throws KettleException {
+  protected String getRowValue( Object[] rowData, String fieldName, String defaultValue ) throws KettleException {
 
     // find a matching field
     int index = getInputRowMeta().indexOfValue( fieldName );

@@ -18,10 +18,7 @@
 
 package org.pentaho.di.baserver.utils.widgets;
 
-import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.junit.Before;
@@ -29,44 +26,35 @@ import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class BrowserBuilderTest {
-  BrowserBuilder browserBuilder, browserBuilderSpy;
+public class CheckBoxBuilderTest {
+  CheckBoxBuilder checkBoxBuilder, checkBoxBuilderSpy;
   Composite parent = mock( Composite.class );
   PropsUI propsUI = mock( PropsUI.class );
 
   @Before
   public void setUp() throws Exception {
-    browserBuilder = new BrowserBuilder( parent, propsUI );
-    browserBuilderSpy = spy( browserBuilder );
-  }
-
-  @Test
-  public void testSetLabelText() throws Exception {
-    assertEquals( "", browserBuilder.getLabelText() ); //$NON-NLS-1$
-    String labelText = "new-label-text"; //$NON-NLS-1$
-    browserBuilder.setLabelText( labelText );
-    assertEquals( labelText, browserBuilder.getLabelText() );
+    checkBoxBuilder = new CheckBoxBuilder( parent, propsUI );
+    checkBoxBuilderSpy = spy( checkBoxBuilder );
   }
 
   @Test
   public void testCreateWidget() throws Exception {
-    String text = "browser-text"; //$NON-NLS-1$
+    String text = "checkbox-text"; //$NON-NLS-1$
+    Button buttonMock = mock( Button.class );
+    doReturn( buttonMock ).when( checkBoxBuilderSpy ).createButton( any( Composite.class ), anyInt() );
+    doReturn( text ).when( buttonMock ).getText();
+    when( buttonMock.getListeners( anyInt() ) ).thenCallRealMethod();
 
-    Browser browserMock = mock( Browser.class );
-    doReturn( browserMock ).when( browserBuilderSpy ).createBrowser( any( Composite.class ), anyInt() );
-    doReturn( text ).when( browserMock ).getText();
-    doReturn( null ).when( browserBuilderSpy ).createFont(any( Composite.class), any( FontData.class ));
-
-    browserBuilderSpy.setLabelText( text );
-    Browser browser = browserBuilderSpy.createWidget( parent );
-
-    assertEquals( text, browser.getText() );
-    verify( browser, times( 1) ).setText( text );
-    verify( browser, times( 1) ).setFont( any( Font.class ) );
+    checkBoxBuilderSpy.setText( text );
+    checkBoxBuilderSpy.addSelectionListener( mock( SelectionListener.class ) );
+    Button button = checkBoxBuilderSpy.createWidget( parent );
+    assertEquals( text, button.getText() );
+    verify( button, times( 1 ) ).setText( text );
+    verify( button, times( 1 ) ).addSelectionListener( any( SelectionListener.class ) );
   }
 }

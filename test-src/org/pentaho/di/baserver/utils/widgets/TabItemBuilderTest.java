@@ -18,6 +18,8 @@
 
 package org.pentaho.di.baserver.utils.widgets;
 
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
@@ -25,39 +27,40 @@ import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
 
-public class LabelBuilderTest {
-  LabelBuilder labelBuilder, labelBuilderSpy;
-  Composite parent = mock( Composite.class );
+public class TabItemBuilderTest {
+  TabItemBuilder tabItemBuilder, tabItemBuilderSpy;
+  CTabFolder parent = mock( CTabFolder.class );
   PropsUI propsUI = mock( PropsUI.class );
 
   @Before
   public void setUp() throws Exception {
-    labelBuilder = new LabelBuilder( parent, propsUI );
-    labelBuilderSpy = spy( labelBuilder );
-  }
-
-  @Test
-  public void testSetText() throws Exception {
-    assertEquals( "", labelBuilder.getText() ); //$NON-NLS-1$
-    String labelText = "new-label-text"; //$NON-NLS-1$
-    labelBuilder.setText( labelText );
-    assertEquals( labelText, labelBuilder.getText() );
+    tabItemBuilder = new TabItemBuilder( parent, propsUI );
+    tabItemBuilderSpy = spy( tabItemBuilder );
   }
 
   @Test
   public void testCreateWidget() throws Exception {
-    String text = "label-text"; //$NON-NLS-1$
-    Label labelMock = mock( Label.class );
-    doReturn( labelMock ).when( labelBuilderSpy ).createLabel( any( Composite.class ), anyInt() );
-    doReturn( text ).when( labelMock ).getText();
+    String text = "tabitem-text"; //$NON-NLS-1$
+    Composite compositeMock = mock( Composite.class );
+    doReturn( compositeMock ).when( tabItemBuilderSpy ).createServerTabItemControl( any( Composite.class ), anyInt() );
+    CTabItem cTabItemMock = mock( CTabItem.class );
+    doReturn( cTabItemMock ).when( tabItemBuilderSpy ).createCTabItem( any( CTabFolder.class ), anyInt() );
 
-    labelBuilderSpy.setText( text );
-    Label label = labelBuilderSpy.createWidget( parent );
+    when( tabItemBuilderSpy.setTopPlacement( anyInt()) ).thenCallRealMethod();
 
-    assertEquals( text, label.getText() );
+    tabItemBuilderSpy.setText( text );
+    Composite composite = tabItemBuilderSpy.createWidget( parent );
+
+    assertNotNull( composite );
+    assertEquals( 0, tabItemBuilderSpy.getTopPlacement() );
+    assertEquals( 100, tabItemBuilderSpy.getBottomPlacement() );
+    assertEquals( 0, tabItemBuilderSpy.getLeftPlacement() );
+    assertEquals( 100, tabItemBuilderSpy.getRightPlacement() );
+
   }
 }

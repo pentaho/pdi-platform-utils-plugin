@@ -2,6 +2,7 @@ package org.pentaho.di.baserver.utils;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -9,6 +10,7 @@ import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.job.Job;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.BaseStepData;
 import org.pentaho.di.trans.step.StepDataInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
@@ -159,5 +161,21 @@ public class SetSessionVariableStepTest {
 
     doReturn( true ).when( ( SetSessionVariableMeta) smiSpy ).isUsingFormatting();
     assertEquals( setSessionVariableStepSpy.getRowValue( rowData, 0 ), "bar1" );
+  }
+
+  @Test
+  public void testDispose() throws Exception {
+    StepMetaInterface smi = new SetSessionVariableMeta();
+    StepDataInterface sdi = mock( SetSessionVariableData.class );
+
+    ArgumentCaptor< BaseStepData.StepExecutionStatus > argument =
+        ArgumentCaptor.forClass( BaseStepData.StepExecutionStatus.class );
+
+    setSessionVariableStepSpy.dispose( smi, sdi );
+    verify( sdi, times( 1 ) ).setStatus( any( BaseStepData.StepExecutionStatus.class ) );
+
+    verify( sdi ).setStatus( argument.capture() );
+    assertEquals( BaseStepData.StepExecutionStatus.STATUS_DISPOSED.toString(),
+        argument.getValue().toString() );
   }
 }

@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.ui.core.PropsUI;
 
-public final class SeparatorBuilder extends WidgetBuilder<Label> {
+public class SeparatorBuilder extends WidgetBuilder<Label> {
 
   public SeparatorBuilder( Composite parent, PropsUI props ) {
     super( parent, props );
@@ -31,6 +31,10 @@ public final class SeparatorBuilder extends WidgetBuilder<Label> {
 
   @Override
   protected Label createWidget( Composite parent ) {
-    return new Label( parent, SWT.SEPARATOR | SWT.HORIZONTAL );
+    return createLabel( parent, SWT.SEPARATOR | SWT.HORIZONTAL );
+  }
+
+  protected Label createLabel( Composite parent, int i) {
+    return new Label( parent, i );
   }
 }

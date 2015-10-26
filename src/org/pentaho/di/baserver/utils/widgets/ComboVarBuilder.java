@@ -20,6 +20,7 @@ package org.pentaho.di.baserver.utils.widgets;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.ComboVar;
@@ -29,7 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public final class ComboVarBuilder extends WidgetBuilder<ComboVar> {
+public class ComboVarBuilder extends WidgetBuilder<ComboVar> {
 
   private VariableSpace variableSpace;
   private List<String> items = new ArrayList<String>();
@@ -55,9 +56,13 @@ public final class ComboVarBuilder extends WidgetBuilder<ComboVar> {
 
   @Override
   protected ComboVar createWidget( Composite parent ) {
-    ComboVar comboVar = new ComboVar( this.variableSpace, this.parent, SWT.BORDER );
+    ComboVar comboVar = createComboVar( this.variableSpace, parent, SWT.BORDER );
     String[] itemsArray = this.items.toArray( new String[ items.size() ] );
     comboVar.setItems( itemsArray );
     return comboVar;
+  }
+
+  protected ComboVar createComboVar( VariableSpace variableSpace, Composite parent, int i) {
+    return new ComboVar( variableSpace, parent, i );
   }
 }
