@@ -41,6 +41,6 @@ public class TextBoxBuilderTest {
     assertEquals( "", textBoxBuilder.getDefaultText() ); //$NON-NLS-1$
     String labelText = "new-textbox-text"; //$NON-NLS-1$
     textBoxBuilder.setDefaultText( labelText );
-    assertEquals( labelText, textBoxBuilder.getDefaultText( ) );
+    assertEquals( labelText, textBoxBuilder.getDefaultText() );
   }
 }

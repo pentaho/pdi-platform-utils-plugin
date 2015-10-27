@@ -27,7 +27,7 @@ import org.pentaho.di.ui.core.PropsUI;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class RadioBuilder extends WidgetBuilder<Button> {
+public class RadioBuilder extends WidgetBuilder<Button> {
 
   private String text;
   private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
@@ -48,11 +48,15 @@ public final class RadioBuilder extends WidgetBuilder<Button> {
 
   @Override
   protected Button createWidget( Composite parent ) {
-    Button radio = new Button( parent, SWT.RADIO );
+    Button radio = createButton( parent, SWT.RADIO );
     radio.setText( text );
     for ( SelectionListener selectionListener : selectionListeners ) {
       radio.addSelectionListener( selectionListener );
     }
     return radio;
+  }
+
+  protected Button createButton( Composite parent, int i ) {
+    return new Button( parent, i );
   }
 }

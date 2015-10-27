@@ -42,8 +42,8 @@ public class InspectorTest {
   private Inspector inspector, inspectorSpy;
 
   private String SERVER_URL = "http://localhost:8080/pentaho",
-    USERNAME = "admin",
-    PASSWORD = "password";
+  USERNAME = "admin",
+  PASSWORD = "password";
 
   @Before
   public void setUp() throws Exception {
@@ -126,7 +126,7 @@ public class InspectorTest {
   @Test
   public void testGetEndpoints() throws Exception {
     String moduleName = "myModule",
-      path = "myPath";
+        path = "myPath";
 
     Map<String, LinkedList<Endpoint>> moduleEndpoints = mock( Map.class );
     doReturn( null ).when( moduleEndpoints ).get( path );
@@ -140,8 +140,8 @@ public class InspectorTest {
   @Test
   public void testGetDefaultEndpoint() throws Exception {
     String moduleName = "myModule",
-      path = "myPath",
-      endpointId = "myEndpoint";
+        path = "myPath",
+        endpointId = "myEndpoint";
 
     doReturn( null ).when( inspectorSpy ).getEndpoints( moduleName, path );
     assertNull( inspectorSpy.getDefaultEndpoint( moduleName, path ) );
@@ -201,7 +201,7 @@ public class InspectorTest {
   @Test
   public void testInspectEndpoints() throws Exception {
     String moduleName = "myModule",
-      applicationWadlEndpoint = SERVER_URL + moduleName + "/application.wadl";
+        applicationWadlEndpoint = SERVER_URL + moduleName + "/application.wadl";
 
     doReturn( "" ).when( inspectorSpy ).getApplicationWadlEndpoint( moduleName );
     doReturn( null ).when( inspectorSpy ).callHttp( anyString() );
@@ -222,8 +222,8 @@ public class InspectorTest {
 
     List<Endpoint> endpointList = new ArrayList<Endpoint>();
     Endpoint endpoint1 = new Endpoint(),
-      endpoint2 = new Endpoint(),
-      endpoint3 = new Endpoint();
+        endpoint2 = new Endpoint(),
+        endpoint3 = new Endpoint();
 
     endpoint1.setPath( "path" );
     endpoint2.setPath( "path" );

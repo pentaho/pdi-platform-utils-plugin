@@ -18,22 +18,28 @@
 
 package org.pentaho.di.baserver.utils.widgets;
 
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.*;
 
 public class BrowserBuilderTest {
-  BrowserBuilder browserBuilder;
+  BrowserBuilder browserBuilder, browserBuilderSpy;
   Composite parent = mock( Composite.class );
   PropsUI propsUI = mock( PropsUI.class );
 
   @Before
   public void setUp() throws Exception {
     browserBuilder = new BrowserBuilder( parent, propsUI );
+    browserBuilderSpy = spy( browserBuilder );
   }
 
   @Test
@@ -42,5 +48,22 @@ public class BrowserBuilderTest {
     String labelText = "new-label-text"; //$NON-NLS-1$
     browserBuilder.setLabelText( labelText );
     assertEquals( labelText, browserBuilder.getLabelText() );
+  }
+
+  @Test
+  public void testCreateWidget() throws Exception {
+    String text = "browser-text"; //$NON-NLS-1$
+
+    Browser browserMock = mock( Browser.class );
+    doReturn( browserMock ).when( browserBuilderSpy ).createBrowser( any( Composite.class ), anyInt() );
+    doReturn( text ).when( browserMock ).getText();
+    doReturn( null ).when( browserBuilderSpy ).createFont( any( Composite.class ), any( FontData.class ) );
+
+    browserBuilderSpy.setLabelText( text );
+    Browser browser = browserBuilderSpy.createWidget( parent );
+
+    assertEquals( text, browser.getText() );
+    verify( browser, times( 1 ) ).setText( text );
+    verify( browser, times( 1 ) ).setFont( any( Font.class ) );
   }
 }

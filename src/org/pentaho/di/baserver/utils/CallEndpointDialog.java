@@ -50,7 +50,7 @@ public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
   }
 
   @Override protected int getMinimumHeight() {
-    if( Const.isLinux() ) {
+    if ( Const.isLinux() ) {
       return 600;
     } else {
       return 555;
@@ -109,7 +109,7 @@ public class CallEndpointDialog extends BAServerCommonDialog<CallEndpointMeta> {
         transMeta,
         changeListener
     );
-    tabFolder.setSelection(0);
+    tabFolder.setSelection( 0 );
   }
 
   @Override

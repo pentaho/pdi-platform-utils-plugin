@@ -27,7 +27,6 @@ import org.pentaho.di.repository.ObjectId;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.BaseStep;
 import org.pentaho.di.trans.step.StepDataInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.metastore.api.IMetaStore;
@@ -40,7 +39,6 @@ import static junit.framework.Assert.*;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 public class SetSessionVariableMetaTest {
   private SetSessionVariableMeta setSessionVariableMeta;
@@ -189,7 +187,7 @@ public class SetSessionVariableMetaTest {
     setSessionVariableMeta.saveRep( rep, metaStore, id_transformation, id_step );
 
     verify( rep, times( 3 ) )
-      .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyString() );
+        .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyString() );
     verify( rep ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyBoolean() );
   }
 
@@ -208,7 +206,7 @@ public class SetSessionVariableMetaTest {
 
     setSessionVariableMeta.allocate( 1 );
     setSessionVariableMeta
-      .check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository, metaStore );
+        .check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository, metaStore );
     verify( remarks, times( 2 ) ).add( any( CheckResultInterface.class ) );
   }
 }

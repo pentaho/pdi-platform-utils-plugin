@@ -41,6 +41,6 @@ public class TextAreaBuilderTest {
     assertEquals( "", textAreaBuilder.getDefaultText() ); //$NON-NLS-1$
     String labelText = "new-textarea-text"; //$NON-NLS-1$
     textAreaBuilder.setDefaultText( labelText );
-    assertEquals( labelText, textAreaBuilder.getDefaultText( ) );
+    assertEquals( labelText, textAreaBuilder.getDefaultText() );
   }
 }

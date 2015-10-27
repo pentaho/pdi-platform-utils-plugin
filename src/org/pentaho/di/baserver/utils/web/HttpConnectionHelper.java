@@ -18,9 +18,21 @@
 
 package org.pentaho.di.baserver.utils.web;
 
-import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.HeadMethod;
+import org.apache.commons.httpclient.methods.OptionsMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.di.cluster.SlaveConnectionManager;
@@ -32,11 +44,11 @@ import org.pentaho.platform.web.servlet.JAXRSPluginServlet;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.web.context.request.RequestContextListener;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequestEvent;
-import javax.servlet.DispatcherType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -306,7 +318,7 @@ public class HttpConnectionHelper {
 
   public Response callHttp( String url, Map<String, String> queryParameters, String httpMethod, String user,
       String password )
-      throws IOException, KettleStepException {
+    throws IOException, KettleStepException {
 
     // used for calculating the responseTime
     long startTime = System.currentTimeMillis();

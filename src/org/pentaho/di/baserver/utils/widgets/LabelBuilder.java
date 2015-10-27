@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.ui.core.PropsUI;
 
-public final class LabelBuilder extends WidgetBuilder<Label> {
+public class LabelBuilder extends WidgetBuilder<Label> {
 
   private String text = "";
 
@@ -42,8 +42,12 @@ public final class LabelBuilder extends WidgetBuilder<Label> {
 
   @Override
   protected Label createWidget( Composite parent ) {
-    Label label = new Label( parent, SWT.RIGHT );
+    Label label = createLabel( parent, SWT.RIGHT );
     label.setText( text );
     return label;
+  }
+
+  protected Label createLabel( Composite parent, int i ) {
+    return new Label( parent, i );
   }
 }

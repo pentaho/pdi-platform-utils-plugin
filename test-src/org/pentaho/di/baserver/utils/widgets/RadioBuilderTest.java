@@ -18,8 +18,9 @@
 
 package org.pentaho.di.baserver.utils.widgets;
 
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
@@ -29,35 +30,30 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
 
-public class LabelBuilderTest {
-  LabelBuilder labelBuilder, labelBuilderSpy;
+public class RadioBuilderTest {
+  RadioBuilder radioBuilder, radioBuilderSpy;
   Composite parent = mock( Composite.class );
   PropsUI propsUI = mock( PropsUI.class );
 
   @Before
   public void setUp() throws Exception {
-    labelBuilder = new LabelBuilder( parent, propsUI );
-    labelBuilderSpy = spy( labelBuilder );
-  }
-
-  @Test
-  public void testSetText() throws Exception {
-    assertEquals( "", labelBuilder.getText() ); //$NON-NLS-1$
-    String labelText = "new-label-text"; //$NON-NLS-1$
-    labelBuilder.setText( labelText );
-    assertEquals( labelText, labelBuilder.getText() );
+    radioBuilder = new RadioBuilder( parent, propsUI );
+    radioBuilderSpy = spy( radioBuilder );
   }
 
   @Test
   public void testCreateWidget() throws Exception {
-    String text = "label-text"; //$NON-NLS-1$
-    Label labelMock = mock( Label.class );
-    doReturn( labelMock ).when( labelBuilderSpy ).createLabel( any( Composite.class ), anyInt() );
-    doReturn( text ).when( labelMock ).getText();
+    String text = "radio-text"; //$NON-NLS-1$
+    Button buttonMock = mock( Button.class );
+    doReturn( buttonMock ).when( radioBuilderSpy ).createButton( any( Composite.class ), anyInt() );
+    doReturn( text ).when( buttonMock ).getText();
+    when( buttonMock.getListeners( anyInt() ) ).thenCallRealMethod();
 
-    labelBuilderSpy.setText( text );
-    Label label = labelBuilderSpy.createWidget( parent );
-
-    assertEquals( text, label.getText() );
+    radioBuilderSpy.setText( text );
+    radioBuilderSpy.addSelectionListener( mock( SelectionListener.class ) );
+    Button button = radioBuilderSpy.createWidget( parent );
+    assertEquals( text, button.getText() );
+    verify( button, times( 1 ) ).setText( text );
+    verify( button, times( 1 ) ).addSelectionListener( any( SelectionListener.class ) );
   }
 }

@@ -49,13 +49,13 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 @Step( id = "CallEndpointStep",
-  name = "CallEndpointMeta.Name",
-  image = "icons/callendpoint.svg",
-  description = "CallEndpointMeta.Description",
-  i18nPackageName = "pt.webdetails.di.baserverutils",
-  categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BAServer",
-  isSeparateClassLoaderNeeded = true,
-  documentationUrl = "http://wiki.pentaho.com/display/EAI/Call+Endpoint" )
+    name = "CallEndpointMeta.Name",
+    image = "icons/callendpoint.svg",
+    description = "CallEndpointMeta.Description",
+    i18nPackageName = "pt.webdetails.di.baserverutils",
+    categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BAServer",
+    isSeparateClassLoaderNeeded = true,
+    documentationUrl = "http://wiki.pentaho.com/display/EAI/Call+Endpoint" )
 public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -282,7 +282,8 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     xml.append( "    " ).append( XMLHandler.addTagValue( "serverUrl", this.serverURL ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "userName", this.userName ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "password", this.password ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "isBypassingAuthentication", this.isBypassingAuthentication ) );
+    xml.append( "    " )
+        .append( XMLHandler.addTagValue( "isBypassingAuthentication", this.isBypassingAuthentication ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "moduleName", this.moduleName ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "isModuleFromField", this.isModuleFromField ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "endpointPath", this.endpointPath ) );
@@ -317,7 +318,8 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       if ( this.password == null ) {
         this.password = "";
       }
-      this.isBypassingAuthentication = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "isBypassingAuthentication" ) );
+      this.isBypassingAuthentication =
+          "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepNode, "isBypassingAuthentication" ) );
       this.moduleName = XMLHandler.getTagValue( stepNode, "moduleName" );
       if ( this.moduleName == null ) {
         this.moduleName = "";
@@ -355,12 +357,11 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       }
     } catch ( Exception e ) {
       throw new KettleXMLException(
-        BaseMessages.getString( PKG, "BAServerUtils.RuntimeError.UnableToReadXML" ), e );
+          BaseMessages.getString( PKG, "BAServerUtils.RuntimeError.UnableToReadXML" ), e );
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws KettleException {
+  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws KettleException {
     try {
       this.serverURL = rep.getStepAttributeString( id_step, "serverUrl" );
       this.userName = rep.getStepAttributeString( id_step, "userName" );
@@ -383,7 +384,7 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       }
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
-        PKG, "BAServerUtils.RuntimeError.UnableToReadRepository" ), e );
+          PKG, "BAServerUtils.RuntimeError.UnableToReadRepository" ), e );
     }
   }
 
@@ -393,7 +394,8 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       rep.saveStepAttribute( id_transformation, id_step, "serverUrl", this.serverURL );
       rep.saveStepAttribute( id_transformation, id_step, "userName", this.userName );
       rep.saveStepAttribute( id_transformation, id_step, "password", this.password );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "isBypassingAuthentication", this.isBypassingAuthentication );
+      rep.saveStepAttribute( id_transformation, id_step, 0, "isBypassingAuthentication",
+          this.isBypassingAuthentication );
       rep.saveStepAttribute( id_transformation, id_step, "moduleName", this.moduleName );
       rep.saveStepAttribute( id_transformation, id_step, 0, "isModuleFromField", this.isModuleFromField );
       rep.saveStepAttribute( id_transformation, id_step, "endpointPath", this.endpointPath );
@@ -404,13 +406,13 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
       rep.saveStepAttribute( id_transformation, id_step, "responseTimeField", this.responseTimeField );
       for ( int i = 0; i < fieldName.length; i++ ) {
         rep.saveStepAttribute( id_transformation, id_step, i, "queryParameters_fieldName",
-          Const.isEmpty( fieldName[ i ] ) ? "" : fieldName[ i ] );
+            Const.isEmpty( fieldName[ i ] ) ? "" : fieldName[ i ] );
         rep.saveStepAttribute( id_transformation, id_step, i, "queryParameters_parameter", parameter[ i ] );
         rep.saveStepAttribute( id_transformation, id_step, i, "queryParameters_defaultValue", defaultValue[ i ] );
       }
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
-        PKG, "BAServerUtils.RuntimeError.UnableToSaveRepository", "" + id_step ), e );
+          PKG, "BAServerUtils.RuntimeError.UnableToSaveRepository", "" + id_step ), e );
     }
   }
 
@@ -421,22 +423,22 @@ public class CallEndpointMeta extends BaseStepMeta implements StepMetaInterface 
     // see if we have fields from previous steps
     if ( prev == null || prev.size() == 0 ) {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING,
-        BaseMessages.getString( PKG, "BAServerUtils.CheckResult.NotReceivingFieldsFromPreviousSteps" ),
-        stepMeta ) );
+          BaseMessages.getString( PKG, "BAServerUtils.CheckResult.NotReceivingFieldsFromPreviousSteps" ),
+          stepMeta ) );
     } else {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages
-        .getString( PKG, "BAServerUtils.CheckResult.ReceivingFieldsFromPreviousSteps", "" + prev.size() ),
-        stepMeta ) );
+          .getString( PKG, "BAServerUtils.CheckResult.ReceivingFieldsFromPreviousSteps", "" + prev.size() ),
+          stepMeta ) );
     }
 
     // see if we have input streams leading to this step
     if ( input.length > 0 ) {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
-        BaseMessages.getString( PKG, "BAServerUtils.CheckResult.ReceivingInfoFromOtherSteps" ), stepMeta ) );
+          BaseMessages.getString( PKG, "BAServerUtils.CheckResult.ReceivingInfoFromOtherSteps" ), stepMeta ) );
     } else {
       remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
-        BaseMessages.getString( PKG, "BAServerUtils.CheckResult.NotReceivingInfoFromOtherSteps" ),
-        stepMeta ) );
+          BaseMessages.getString( PKG, "BAServerUtils.CheckResult.NotReceivingInfoFromOtherSteps" ),
+          stepMeta ) );
     }
   }
 

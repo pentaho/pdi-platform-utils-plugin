@@ -37,7 +37,8 @@ public class OutputFieldsTab extends Tab {
   private final TextVar statusCodeNameText;
   private final TextVar responseTimeNameText;
 
-  public OutputFieldsTab( CTabFolder tabFolder, PropsUI props, VariableSpace transMeta, ModifyListener modifyListener ) {
+  public OutputFieldsTab( CTabFolder tabFolder, PropsUI props, VariableSpace transMeta,
+                          ModifyListener modifyListener ) {
     super( tabFolder, BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.OutputFields.Title" ), props );
 
     final Field<TextVar> resultNameField = new TextVarFieldBuilder( this, props )

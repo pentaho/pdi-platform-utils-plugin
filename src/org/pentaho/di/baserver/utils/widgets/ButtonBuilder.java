@@ -43,9 +43,13 @@ public class ButtonBuilder extends WidgetBuilder<Button> {
   @Override
   protected Button createWidget( Composite parent ) {
     // create button
-    Button button = new Button( this.parent, SWT.PUSH );
+    Button button = createButton( parent, SWT.PUSH );
     button.setText( this.labelText );
 
     return button;
+  }
+
+  protected Button createButton( Composite parent, int i ) {
+    return new Button( parent, i );
   }
 }

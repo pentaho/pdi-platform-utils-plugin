@@ -42,18 +42,21 @@ public class ParametersTab extends Tab {
   private final TableView queryParameters;
 
   public ParametersTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, CallEndpointMeta metaInfo,
-      ModifyListener modifyListener, String stepName, LogChannel log ) {
+                        ModifyListener modifyListener, String stepName, LogChannel log ) {
     super( tabFolder, BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Parameters.Title" ), props );
 
-    ColumnInfo cFieldName = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Parameters.Field" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
+    ColumnInfo cFieldName =
+        new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Parameters.Field" ),
+            ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
 
-    ColumnInfo cParameter = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Parameters.Parameter" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false );
+    ColumnInfo cParameter =
+        new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Parameters.Parameter" ),
+            ColumnInfo.COLUMN_TYPE_TEXT, false );
     cParameter.setUsingVariables( true );
 
-    ColumnInfo cDefaultValue = new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Parameters.Default" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false );
+    ColumnInfo cDefaultValue =
+        new ColumnInfo( BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Parameters.Default" ),
+            ColumnInfo.COLUMN_TYPE_TEXT, false );
     cDefaultValue.setUsingVariables( true );
     cDefaultValue.setToolTip( BaseMessages.getString( PKG, "SetSessionVariableDialog.Column.DefaultValue.Tooltip" ) );
 

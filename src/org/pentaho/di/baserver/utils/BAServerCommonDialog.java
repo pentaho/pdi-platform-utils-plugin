@@ -43,12 +43,7 @@ import org.pentaho.di.baserver.utils.widgets.SeparatorBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
 import org.pentaho.di.baserver.utils.widgets.fields.TextBoxFieldBuilder;
 import org.pentaho.di.core.Const;
-import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettlePluginException;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
@@ -56,14 +51,12 @@ import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
-import org.pentaho.di.ui.core.ConstUI;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
-import org.pentaho.di.ui.util.SwtSvgImageUtil;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 
-public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseStepDialog implements StepDialogInterface {
+public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseStepDialog
+    implements StepDialogInterface {
   public static final int LEFT_PLACEMENT = 0;
   public static final int RIGHT_PLACEMENT = 100;
   public static final int LARGE_MARGIN = 15;
@@ -105,7 +98,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     shell.setText( BaseMessages.getString( PKG, getTitleKey() ) );
 
     changed = metaInfo.hasChanged();
-    
+
     // create form layout
     FormLayout formLayout = new FormLayout();
     formLayout.marginHeight = LARGE_MARGIN;
@@ -115,7 +108,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     shell.setSize( getMinimumWidth(), getMinimumHeight() );
 
     props.setLook( shell );
-    setShellImage( shell, (StepMetaInterface) metaInfo);
+    setShellImage( shell, (StepMetaInterface) metaInfo );
 
     final Control top = buildStepNameInput( this.shell );
     final Composite container = new Composite( shell, SWT.NONE );
@@ -139,7 +132,7 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
     containerLD.right = new FormAttachment( RIGHT_PLACEMENT );
     container.setLayoutData( containerLD );
 
-    stepName.addModifyListener(changeListener);
+    stepName.addModifyListener( changeListener );
 
     // listener to detect X or something that kills this window
     ShellListener lsShell = new ShellAdapter() {
@@ -211,25 +204,25 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
   }
 
   protected String[] getFieldNames() {
-      StepMeta stepMeta = transMeta.findStep( stepname );
-      if ( stepMeta != null ) {
-        try {
-          // get field names from setTop steps
-          RowMetaInterface row = transMeta.getPrevStepFields( stepMeta );
-          java.util.List<String> entries = new ArrayList<String>();
-          for ( int i = 0; i < row.size(); i++ ) {
-            entries.add( row.getValueMeta( i ).getName() );
-          }
-          String[] fieldNames = entries.toArray( new String[ entries.size() ] );
-
-          // sort field names and add them to the combo box
-          Const.sortStrings( fieldNames );
-          return fieldNames;
-        } catch ( KettleException e ) {
-          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+    StepMeta stepMeta = transMeta.findStep( stepname );
+    if ( stepMeta != null ) {
+      try {
+        // get field names from setTop steps
+        RowMetaInterface row = transMeta.getPrevStepFields( stepMeta );
+        java.util.List<String> entries = new ArrayList<String>();
+        for ( int i = 0; i < row.size(); i++ ) {
+          entries.add( row.getValueMeta( i ).getName() );
         }
+        String[] fieldNames = entries.toArray( new String[ entries.size() ] );
+
+        // sort field names and add them to the combo box
+        Const.sortStrings( fieldNames );
+        return fieldNames;
+      } catch ( KettleException e ) {
+        logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
       }
-    return new String[0];
+    }
+    return new String[ 0 ];
   }
 
   protected void loadData( T metaInfo ) {
@@ -272,12 +265,12 @@ public abstract class BAServerCommonDialog<T extends BaseStepMeta> extends BaseS
         .setWidth( FIELD_WIDTH )
         .build();
     stepName = field.getControl();
-    stepName.addModifyListener(new ModifyListener() {
+    stepName.addModifyListener( new ModifyListener() {
       @Override
-      public void modifyText(ModifyEvent modifyEvent) {
+      public void modifyText( ModifyEvent modifyEvent ) {
         processInputChange();
       }
-    });
+    } );
 
     // icon
     final Label icon = new ImageBuilder( parent, this.props )

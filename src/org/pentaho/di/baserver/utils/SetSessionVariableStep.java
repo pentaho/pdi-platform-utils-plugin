@@ -90,7 +90,7 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
 
       // should not happen, received more than one row
       throw new KettleStepException(
-        BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.MoreThanOneRowReceived" ) );
+          BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.MoreThanOneRowReceived" ) );
     }
   }
 
@@ -98,7 +98,7 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
     // should have a non-empty variable name
     if ( Const.isEmpty( varName ) ) {
       throw new KettleException(
-        BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.EmptyVariableName", value ) );
+          BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.EmptyVariableName", value ) );
     } else if ( this.getData().getBlackList().contains( varName ) ) {
       throw new KettleException( BaseMessages.getString( PKG, "SetSessionVariable.RuntimeError.VariableInBlacklist",
           varName ) );
@@ -137,12 +137,13 @@ public class SetSessionVariableStep extends BaseStep implements StepInterface {
     if ( index >= 0 ) {
       ValueMetaInterface valueMeta = getData().outputRowMeta.getValueMeta( index );
       Object valueData = rowData[ index ];
-      return getMeta().isUsingFormatting() ? valueMeta.getString( valueData ) : valueMeta.getCompatibleString( valueData );
+      return getMeta().isUsingFormatting() ? valueMeta.getString( valueData )
+          : valueMeta.getCompatibleString( valueData );
     }
 
     // otherwise, return default value
     logBasic( BaseMessages
-      .getString( PKG, "SetSessionVariable.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
+        .getString( PKG, "SetSessionVariable.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
     return getRowDefaultValue( i );
   }
 

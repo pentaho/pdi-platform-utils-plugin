@@ -27,7 +27,7 @@ import org.pentaho.di.ui.core.PropsUI;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CheckBoxBuilder extends WidgetBuilder<Button> {
+public class CheckBoxBuilder extends WidgetBuilder<Button> {
 
   private String text;
   private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
@@ -48,11 +48,15 @@ public final class CheckBoxBuilder extends WidgetBuilder<Button> {
 
   @Override
   protected Button createWidget( Composite parent ) {
-    Button checkBox = new Button( parent, SWT.CHECK );
+    Button checkBox = createButton( parent, SWT.CHECK );
     checkBox.setText( text );
     for ( SelectionListener selectionListener : selectionListeners ) {
       checkBox.addSelectionListener( selectionListener );
     }
     return checkBox;
+  }
+
+  protected Button createButton( Composite parent, int i ) {
+    return new Button( parent, i );
   }
 }

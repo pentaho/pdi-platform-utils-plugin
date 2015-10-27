@@ -33,7 +33,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -47,19 +48,23 @@ public class WadlParserTest {
   private static String PRIVATE = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.private" );
 
   private static String TEST_DATA_DEPRECATED =
-      "<visibility>Public</visibility><deprecated>true</deprecated><documentation>Retrieve the all the job(s) visible to the current users.</documentation>";
+      "<visibility>Public</visibility><deprecated>true</deprecated><documentation>Retrieve the all the job(s) visible"
+          + " to the current users.</documentation>";
   private static String TEST_DATA_RESULT_DEPRECATED = DEPRECATED
       + "Retrieve the all the job(s) visible to the current users.";
 
   private static String TEST_DATA =
-      "<visibility>Public</visibility><documentation>Retrieve the all the job(s) visible to the current users.</documentation>";
+      "<visibility>Public</visibility><documentation>Retrieve the all the job(s) visible to the current users"
+          + ".</documentation>";
   private static String TEST_DATA_RESULT = "Retrieve the all the job(s) visible to the current users.";
 
   private static String TEST_DATA_PRIVATE =
-      "<visibility>Private</visibility><deprecated>true</deprecated><documentation>Retrieve the all the job(s) visible to the current users.</documentation>";
+      "<visibility>Private</visibility><deprecated>true</deprecated><documentation>Retrieve the all the job(s) "
+          + "visible to the current users.</documentation>";
 
   private static String TEST_DATA_MULTILINE =
-      "<visibility>Public</visibility><deprecated>true</deprecated><documentation>Return a list of the permission roles in the platform.\r\n"
+      "<visibility>Public</visibility><deprecated>true</deprecated><documentation>Return a list of the permission "
+          + "roles in the platform.\r\n"
           + "\r\n"
           + " <p><b>Example Request:</b><br />\r\n"
           + "    GET pentaho/api/userrolelist/permission-roles\r\n"
@@ -106,7 +111,7 @@ public class WadlParserTest {
     verify( wadlParserSpy, times( 1 ) ).parseResources( eq( resources ), anyString() );
     assertEquals( endpointList.size(), 142 );
 
-    Endpoint endpoint = (Endpoint) endpointList.toArray()[0];
+    Endpoint endpoint = (Endpoint) endpointList.toArray()[ 0 ];
     assertEquals( endpoint.getHttpMethod(), HttpMethod.POST );
     assertEquals( endpoint.getId(), "addBlockout" );
     assertEquals( endpoint.getPath(), "/scheduler/blockout/add" );
@@ -115,21 +120,21 @@ public class WadlParserTest {
     assertEquals( endpoint.isSupported(), true );
     assertEquals( endpoint.getDocumentation().isEmpty(), false );
 
-    endpoint = (Endpoint) endpointList.toArray()[1];
+    endpoint = (Endpoint) endpointList.toArray()[ 1 ];
     assertEquals( endpoint.getHttpMethod(), HttpMethod.PUT );
     assertEquals( endpoint.getId(), "assignAllRolesToUser" );
     assertEquals( endpoint.getPath(), "/userroledao/assignAllRolesToUser" );
     Collection<QueryParam> queryParamList = endpoint.getQueryParams();
     assertEquals( queryParamList.size(), 2 );
-    assertEquals( ( (QueryParam) queryParamList.toArray()[0] ).getName(), "tenant" );
-    assertEquals( ( (QueryParam) queryParamList.toArray()[0] ).getType(), "xs:string" );
-    assertEquals( ( (QueryParam) queryParamList.toArray()[1] ).getName(), "userName" );
-    assertEquals( ( (QueryParam) queryParamList.toArray()[1] ).getType(), "xs:string" );
+    assertEquals( ( (QueryParam) queryParamList.toArray()[ 0 ] ).getName(), "tenant" );
+    assertEquals( ( (QueryParam) queryParamList.toArray()[ 0 ] ).getType(), "xs:string" );
+    assertEquals( ( (QueryParam) queryParamList.toArray()[ 1 ] ).getName(), "userName" );
+    assertEquals( ( (QueryParam) queryParamList.toArray()[ 1 ] ).getType(), "xs:string" );
     assertEquals( endpoint.isDeprecated(), false );
     assertEquals( endpoint.isSupported(), false );
     assertEquals( endpoint.getDocumentation().isEmpty(), false );
 
-    endpoint = (Endpoint) endpointList.toArray()[69];
+    endpoint = (Endpoint) endpointList.toArray()[ 69 ];
     assertEquals( endpoint.getHttpMethod(), HttpMethod.GET );
     assertEquals( endpoint.getId(), "getAllRoles" );
     assertEquals( endpoint.getPath(), "/userrolelist/allRoles" );

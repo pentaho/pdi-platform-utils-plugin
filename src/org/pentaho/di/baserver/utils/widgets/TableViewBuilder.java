@@ -32,7 +32,7 @@ import org.pentaho.di.ui.core.widget.TableView;
 
 import java.util.ArrayList;
 
-public final class TableViewBuilder extends WidgetBuilder<TableView> {
+public class TableViewBuilder extends WidgetBuilder<TableView> {
   public static final int MINIMUM_LAST_COLUMN_WIDTH = 20;
 
   private VariableSpace variableSpace;
@@ -64,8 +64,8 @@ public final class TableViewBuilder extends WidgetBuilder<TableView> {
   protected TableView createWidget( Composite parent ) {
     // create table view
     ColumnInfo[] columnsArray = columns.toArray( new ColumnInfo[ columns.size() ] );
-    final TableView tableView = new TableView( this.variableSpace, this.parent, SWT.BORDER | SWT.FULL_SELECTION
-        | SWT.MULTI, columnsArray, this.rowsCount, this.modifyListener, this.props );
+    final TableView tableView = createTableView( this.variableSpace, parent, SWT.BORDER | SWT.FULL_SELECTION
+      | SWT.MULTI, columnsArray, this.rowsCount, this.modifyListener, this.props );
     final Table table = tableView.getTable();
     // resize last column to remove extra empty column
     ControlAdapter columnResizeListener = new ControlAdapter() {
@@ -78,8 +78,8 @@ public final class TableViewBuilder extends WidgetBuilder<TableView> {
           columnsWidth += column.getWidth();
         }
         int lastColumnWidth = table.getClientArea().width - columnsWidth;
-        tableColumns[tableColumns.length - 1].setWidth( lastColumnWidth < MINIMUM_LAST_COLUMN_WIDTH
-            ? MINIMUM_LAST_COLUMN_WIDTH : lastColumnWidth );
+        tableColumns[ tableColumns.length - 1 ].setWidth( lastColumnWidth < MINIMUM_LAST_COLUMN_WIDTH
+          ? MINIMUM_LAST_COLUMN_WIDTH : lastColumnWidth );
       }
     };
     table.addControlListener( columnResizeListener );
@@ -87,5 +87,10 @@ public final class TableViewBuilder extends WidgetBuilder<TableView> {
       column.addControlListener( columnResizeListener );
     }
     return tableView;
+  }
+
+  protected TableView createTableView( VariableSpace variableSpace, Composite parent, int flags,
+       ColumnInfo[] columnsArray, int rowsCount, ModifyListener modifyListener, PropsUI props ) {
+    return new TableView( variableSpace, parent, flags, columnsArray, rowsCount, modifyListener, props );
   }
 }

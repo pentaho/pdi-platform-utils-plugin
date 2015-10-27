@@ -24,11 +24,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.ui.core.PropsUI;
 
-public final class ImageBuilder extends WidgetBuilder<Label> {
+public class ImageBuilder extends WidgetBuilder<Label> {
 
   private Image image;
 
-  public ImageBuilder setImage ( final Image image ) {
+  public ImageBuilder setImage( final Image image ) {
     this.image = image;
     return this;
   }
@@ -39,8 +39,12 @@ public final class ImageBuilder extends WidgetBuilder<Label> {
 
   @Override
   protected Label createWidget( Composite parent ) {
-    Label label = new Label( parent, SWT.RIGHT );
+    Label label = createLabel( parent, SWT.RIGHT );
     label.setImage( image );
     return label;
+  }
+
+  protected Label createLabel( Composite parent, int i ) {
+    return new Label( parent, i );
   }
 }

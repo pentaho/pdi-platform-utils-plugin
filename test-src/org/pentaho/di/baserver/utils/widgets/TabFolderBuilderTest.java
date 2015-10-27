@@ -18,46 +18,34 @@
 
 package org.pentaho.di.baserver.utils.widgets;
 
+import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.ui.core.PropsUI;
 
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
 
-public class LabelBuilderTest {
-  LabelBuilder labelBuilder, labelBuilderSpy;
+public class TabFolderBuilderTest {
+  TabFolderBuilder tabFolderBuilder, tabFolderBuilderSpy;
   Composite parent = mock( Composite.class );
   PropsUI propsUI = mock( PropsUI.class );
 
   @Before
   public void setUp() throws Exception {
-    labelBuilder = new LabelBuilder( parent, propsUI );
-    labelBuilderSpy = spy( labelBuilder );
-  }
-
-  @Test
-  public void testSetText() throws Exception {
-    assertEquals( "", labelBuilder.getText() ); //$NON-NLS-1$
-    String labelText = "new-label-text"; //$NON-NLS-1$
-    labelBuilder.setText( labelText );
-    assertEquals( labelText, labelBuilder.getText() );
+    tabFolderBuilder = new TabFolderBuilder( parent, propsUI );
+    tabFolderBuilderSpy = spy( tabFolderBuilder );
   }
 
   @Test
   public void testCreateWidget() throws Exception {
-    String text = "label-text"; //$NON-NLS-1$
-    Label labelMock = mock( Label.class );
-    doReturn( labelMock ).when( labelBuilderSpy ).createLabel( any( Composite.class ), anyInt() );
-    doReturn( text ).when( labelMock ).getText();
+    CTabFolder cTabFolderMock = mock( CTabFolder.class );
+    doReturn( cTabFolderMock ).when( tabFolderBuilderSpy ).createCTabFolder( any( Composite.class ), anyInt() );
 
-    labelBuilderSpy.setText( text );
-    Label label = labelBuilderSpy.createWidget( parent );
-
-    assertEquals( text, label.getText() );
+    CTabFolder label = tabFolderBuilderSpy.createWidget( parent );
+    assertNotNull( label );
   }
 }

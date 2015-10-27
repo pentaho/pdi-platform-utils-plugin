@@ -18,12 +18,6 @@
 
 package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,7 +42,6 @@ import org.pentaho.di.baserver.utils.widgets.LabelBuilder;
 import org.pentaho.di.baserver.utils.widgets.RadioBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.ComboVarFieldBuilder;
 import org.pentaho.di.baserver.utils.widgets.fields.Field;
-
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannel;
@@ -59,6 +52,12 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.ComboVar;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class EndpointTab extends Tab {
   public static final int FIELD_WIDTH = 250;
@@ -80,7 +79,7 @@ public class EndpointTab extends Tab {
   private boolean showNonSupportedEndpoints;
 
   public EndpointTab( CTabFolder tabFolder, PropsUI props, TransMeta transMeta, ModifyListener modifyListener,
-      SelectionListener selectionListener, String stepName, LogChannel log, ServerTab serverTab ) {
+                      SelectionListener selectionListener, String stepName, LogChannel log, ServerTab serverTab ) {
     super( tabFolder, BaseMessages.getString( PKG, "CallEndpointDialog.TabItem.Endpoint.Title" ), props );
     this.transMeta = transMeta;
     this.stepName = stepName;
@@ -139,7 +138,7 @@ public class EndpointTab extends Tab {
         .setTop( endpointLocationGroup )
         .setTopMargin( BAServerCommonDialog.LARGE_MARGIN )
         .setLeftPlacement( LEFT_PLACEMENT )
-        .setRightPlacement( RIGHT_PLACEMENT/2 )
+        .setRightPlacement( RIGHT_PLACEMENT / 2 )
         .setBottomPlacement( RIGHT_PLACEMENT )
         .build();
 
@@ -295,7 +294,7 @@ public class EndpointTab extends Tab {
       }
 
       List<String> endpointPaths = new ArrayList<String>( Arrays.asList( resourcePath.getItems() ) );
-      if ( endpointPaths.size() == 0) {
+      if ( endpointPaths.size() == 0 ) {
         endpointPath = "";
       } else if ( endpointPaths.indexOf( endpointPath ) < 0 ) {
         endpointPath = endpointPaths.get( 0 );
@@ -344,7 +343,7 @@ public class EndpointTab extends Tab {
 
     return new Boolean( value );
   }
-  
+
   private void updateEndpointPathsDetailsField() {
     String newValue = "";
     if ( fromServerRadio.getSelection() ) {
@@ -395,6 +394,6 @@ public class EndpointTab extends Tab {
         log.logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
       }
     }
-    return entries == null ? new String[0] : entries.toArray( new String[entries.size()] );
+    return entries == null ? new String[ 0 ] : entries.toArray( new String[ entries.size() ] );
   }
 }
