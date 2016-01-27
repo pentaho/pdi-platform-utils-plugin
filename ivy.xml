@@ -47,7 +47,7 @@
     <dependency org="org.eclipse.swt" name="swt-linux-x86_64" rev="3.7"/>
 
     <dependency org="junit"         name="junit"         rev='4.10'  conf="test->default" />
-    <dependency org="org.mockito"   name="mockito-all"   rev="1.8.4" conf="test, default->default"/>
+    <dependency org="org.mockito"   name="mockito-all"   rev="1.8.4" conf="test->default"/>
     <dependency org="jaxen"         name="jaxen"         rev="1.1.1" conf="test->default" />
     <dependency org="org.owasp.esapi"                  name="esapi"                rev="2.0.1"           transitive="false" conf="test->default"/>
     <dependency org="org.apache.commons" name="commons-vfs2" rev="2.1-20150824" transitive="false" conf="test->default"/>
