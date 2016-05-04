@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.web;
@@ -48,6 +48,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -166,7 +167,7 @@ public class HttpConnectionHelperTest {
   @Test
   public void teatInsertParameters() throws Exception {
     String httpMethod = "GET";
-    Map<String, String> queryParameters = new HashMap<String, String>();
+    Map<String, String> queryParameters = new LinkedHashMap<String, String>();
     queryParameters.put( "param1", "value1|" );
     queryParameters.put( "param2", "value2\\/" );
     queryParameters.put( "param3", "value3{}" );
