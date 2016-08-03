@@ -33,8 +33,8 @@
     <dependency org="org.springframework"          name="spring"                 rev="2.5.6"         transitive="false"/>
     <dependency org="org.springframework"          name="spring-beans"           rev="2.5.6"         transitive="false"/>
 
-    <dependency org="com.sun.jersey" name="jersey-servlet" rev="1.16" transitive="false" conf="test, default->default" />
-    <dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.16" transitive="false"/>
+    <dependency org="com.sun.jersey" name="jersey-servlet" rev="1.19.1" transitive="false" conf="test, default->default" />
+    <dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.19.1" transitive="false"/>
 
     <!--<dependency org="org.springframework"          name="spring-context"         rev="2.5.6"         transitive="false"/>
     <dependency org="org.springframework"          name="spring-context-support" rev="2.5.6"         transitive="false"/>
@@ -52,7 +52,7 @@
     <dependency org="org.owasp.esapi"                  name="esapi"                rev="2.0.1"           transitive="false" conf="test->default"/>
     <dependency org="org.apache.commons" name="commons-vfs2" rev="2.1-20150824" transitive="false" conf="test->default"/>
     <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" transitive="false" conf="test->default"/>
-    <dependency org="com.sun.jersey" name="jersey-core" rev="1.16" conf="test->default"/>
-    <dependency org="com.sun.jersey" name="jersey-server" rev="1.16" conf="test->default"/>
+    <dependency org="com.sun.jersey" name="jersey-core" rev="1.19.1" conf="test->default" transitive="false"/>
+    <dependency org="com.sun.jersey" name="jersey-server" rev="1.19.1" conf="test->default" transitive="false"/>
   </dependencies>
 </ivy-module>
