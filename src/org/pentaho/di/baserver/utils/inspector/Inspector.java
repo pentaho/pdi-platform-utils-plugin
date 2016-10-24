@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.inspector;
@@ -25,6 +25,7 @@ import org.dom4j.io.SAXReader;
 import org.pentaho.di.baserver.utils.web.HttpConnectionHelper;
 import org.pentaho.di.baserver.utils.web.Response;
 import org.pentaho.di.core.exception.KettleStepException;
+import org.pentaho.di.core.xml.XMLParserFactoryProducer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -268,7 +269,7 @@ public class Inspector {
   }
 
   protected Document getDocument( String result ) {
-    SAXReader reader = new SAXReader();
+    SAXReader reader = XMLParserFactoryProducer.getSAXReader( null );
     InputStream inputStream = new ByteArrayInputStream( result.getBytes() );
 
     try {
