@@ -18,26 +18,26 @@
 
 package org.pentaho.di.baserver.utils.web;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.httpclient.methods.OptionsMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.di.cluster.SlaveConnectionManager;
-import org.pentaho.di.core.Const;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.pentaho.di.core.exception.KettleStepException;
+import org.pentaho.di.core.util.HttpClientManager;
+import org.pentaho.di.core.util.HttpClientUtil;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.servlet.JAXRSPluginServlet;
@@ -51,11 +51,11 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequestEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -341,16 +341,13 @@ public class HttpConnectionHelper {
     // used for calculating the responseTime
     long startTime = System.currentTimeMillis();
 
-    HttpClient httpclient = getHttpClient();
-    HttpMethod method = getHttpMethod( url, httpParameters, httpMethod );
-    httpclient.getParams().setAuthenticationPreemptive( true );
-    Credentials credentials = getCredentials( user, password );
-    httpclient.getState().setCredentials( AuthScope.ANY, credentials );
-    HostConfiguration hostConfiguration = new HostConfiguration();
-
+    HttpClient httpclient = getHttpClient( user, password );
+    HttpRequestBase method = getHttpMethod( url, httpParameters, httpMethod );
+    HttpResponse httpResponse = null;
     int status;
     try {
-      status = httpclient.executeMethod( hostConfiguration, method );
+      httpResponse = httpclient.execute( method );
+      status = httpResponse.getStatusLine().getStatusCode();
     } catch ( IllegalArgumentException ex ) {
       status = -1;
     }
@@ -358,17 +355,17 @@ public class HttpConnectionHelper {
     Response response = new Response();
     if ( status != -1 ) {
       String body;
-      String encoding = "";
-      Header contentTypeHeader = method.getResponseHeader( "Content-Type" );
-      if ( contentTypeHeader != null ) {
-        String contentType = contentTypeHeader.getValue();
+      String encoding = UTF_8;
+      Header[] contentTypeHeader = method.getHeaders( "Content-Type" );
+      if ( contentTypeHeader != null && contentTypeHeader.length != 0 ) {
+        String contentType = contentTypeHeader[0].getValue();
         if ( contentType != null && contentType.contains( "charset" ) ) {
           encoding = contentType.replaceFirst( "^.*;\\s*charset\\s*=\\s*", "" ).replace( "\"", "" ).trim();
         }
       }
 
       // get the response
-      body = getContent( method, encoding );
+      body = HttpClientUtil.responseToString( httpResponse, Charset.forName( encoding ) );
       // Get response time
       long responseTime = System.currentTimeMillis() - startTime;
 
@@ -379,63 +376,47 @@ public class HttpConnectionHelper {
     return response;
   }
 
-  protected String getContent( HttpMethod method, String encoding ) throws IOException {
-    String body;
-    InputStreamReader inputStreamReader;
-
-    if ( !Const.isEmpty( encoding ) ) {
-      inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream(), encoding );
-    } else {
-      inputStreamReader = new InputStreamReader( method.getResponseBodyAsStream() );
-    }
-    StringBuilder bodyBuffer = new StringBuilder();
-    int c;
-    while ( ( c = inputStreamReader.read() ) != -1 ) {
-      bodyBuffer.append( (char) c );
-    }
-    inputStreamReader.close();
-    body = bodyBuffer.toString();
-    return body;
-  }
-
   protected Credentials getCredentials( String user, String password ) {
     return new UsernamePasswordCredentials( user, password );
   }
 
-  protected HttpMethod getHttpMethod( String url, List<HttpParameter> httpParameters, String httpMethod ) {
-
+  protected HttpRequestBase getHttpMethod( String url, List<HttpParameter> httpParameters, String httpMethod ) {
     Http method = Http.getHttpMethod( httpMethod );
 
     switch ( method ) {
       case GET:
-        return new GetMethod( url + constructQueryString( httpParameters, false ) );
+        return new HttpGet( url + constructQueryString( httpParameters, false ) );
       case POST:
-        PostMethod postMethod = new PostMethod( url + constructQueryString( httpParameters, false, HttpParameter.ParamType.QUERY ) );
+        HttpPost  postMethod = new HttpPost( url + constructQueryString( httpParameters, false, HttpParameter.ParamType.QUERY ) );
         setRequestEntity( postMethod, httpParameters, HttpParameter.ParamType.BODY, HttpParameter.ParamType.NONE );
         return postMethod;
       case PUT:
-        PutMethod putMethod = new PutMethod( url + constructQueryString( httpParameters, false, HttpParameter.ParamType.QUERY ) );
+        HttpPut putMethod = new HttpPut( url + constructQueryString( httpParameters, false, HttpParameter.ParamType.QUERY ) );
         setRequestEntity( putMethod, httpParameters, HttpParameter.ParamType.BODY, HttpParameter.ParamType.NONE );
         return putMethod;
       case DELETE:
-        return new DeleteMethod( url + constructQueryString( httpParameters, false ) );
+        return new HttpDelete( url + constructQueryString( httpParameters, false ) );
       case HEAD:
-        return new HeadMethod( url + constructQueryString( httpParameters, false ) );
+        return new HttpHead( url + constructQueryString( httpParameters, false ) );
       case OPTIONS:
-        return new OptionsMethod( url + constructQueryString( httpParameters, false ) );
+        return new HttpOptions( url + constructQueryString( httpParameters, false ) );
       default:
-        return new GetMethod( url + constructQueryString( httpParameters, false ) );
+        return new HttpGet( url + constructQueryString( httpParameters, false ) );
     }
   }
 
-  private void setRequestEntity( EntityEnclosingMethod method, List<HttpParameter> httpParameters,
+  private void setRequestEntity( HttpRequestBase method, List<HttpParameter> httpParameters,
                                  HttpParameter.ParamType... paramTypes ) {
     try {
       // TODO: this supports only FormParameters, need to support MultiPart messages with files,
       // simple string values with JSON and XML, plain text, both body and query parameters for PUT
       String queryString = constructQueryString( httpParameters, true, paramTypes );
-      method.setRequestEntity( new StringRequestEntity( queryString, APPLICATION_FORM_ENCODED, UTF_8 ) );
-    } catch ( UnsupportedEncodingException e ) {
+      StringEntity requestEntity = new StringEntity( queryString, ContentType.APPLICATION_FORM_URLENCODED );
+      if ( method instanceof HttpEntityEnclosingRequestBase ) {
+        HttpEntityEnclosingRequestBase httpEntityEnclosingRequestBase = (HttpEntityEnclosingRequestBase) method;
+        httpEntityEnclosingRequestBase.setEntity( requestEntity );
+      }
+    } catch ( Exception e ) {
       logger.error( "Failed", e );
     }
   }
@@ -491,7 +472,9 @@ public class HttpConnectionHelper {
     return query;
   }
 
-  protected HttpClient getHttpClient() {
-    return SlaveConnectionManager.getInstance().createHttpClient();
+  HttpClient getHttpClient( String user, String password ) {
+    HttpClientManager.HttpClientBuilderFacade clientBuilder = HttpClientManager.getInstance().createBuilder();
+    clientBuilder.setCredentials( user, password );
+    return clientBuilder.build();
   }
 }
