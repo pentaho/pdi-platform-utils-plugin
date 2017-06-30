@@ -13,21 +13,24 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.inspector;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import org.pentaho.di.baserver.utils.web.Http;
+import org.pentaho.di.baserver.utils.web.HttpParameter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class Endpoint implements Comparable<Endpoint> {
   // region Fields
 
   private String id;
   private String path;
-  private HttpMethod httpMethod;
-  private ArrayList<QueryParam> queryParams;
+  private Http httpMethod;
+  private Set<ParamDefinition> paramDefinitions;
   private boolean deprecated;
   private boolean supported;
   private String documentation;
@@ -52,16 +55,28 @@ public class Endpoint implements Comparable<Endpoint> {
     this.path = path;
   }
 
-  public HttpMethod getHttpMethod() {
+  public Http getHttpMethod() {
     return this.httpMethod;
   }
 
-  public void setHttpMethod( HttpMethod httpMethod ) {
+  public void setHttpMethod( Http httpMethod ) {
     this.httpMethod = httpMethod;
   }
 
-  public Collection<QueryParam> getQueryParams() {
-    return this.queryParams;
+  public Set<ParamDefinition> getParamDefinitions() {
+    return this.paramDefinitions;
+  }
+
+  public ParamDefinition getParameterDefinition( String paramName ) {
+    if ( paramName == null ) {
+      return null;
+    }
+    return paramDefinitions.stream().filter( description -> paramName.equals( description.getName() ) ).findAny().orElse( null );
+  }
+
+  public HttpParameter.ParamType getParameterType( String paramName ) {
+    ParamDefinition paramDefinition = getParameterDefinition( paramName );
+    return paramDefinition != null ? paramDefinition.getParamType() : null;
   }
 
   public boolean isDeprecated() {
@@ -93,7 +108,7 @@ public class Endpoint implements Comparable<Endpoint> {
   // region Constructors
 
   public Endpoint() {
-    this.queryParams = new ArrayList<QueryParam>();
+    this.paramDefinitions = new HashSet<ParamDefinition>();
   }
 
   // endregion
