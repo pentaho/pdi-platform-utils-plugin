@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.web;
@@ -56,11 +56,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class HttpConnectionHelper {
 
   public static final String UTF_8 = "UTF-8";
+  public static final String APPLICATION_FORM_ENCODED = "application/x-www-form-urlencoded";
+  public static final String CONTENT_TYPE = "Content-Type";
+
   private static final Log logger = LogFactory.getLog( HttpConnectionHelper.class );
 
   private static HttpConnectionHelper _instance = new HttpConnectionHelper();
@@ -69,9 +74,8 @@ public class HttpConnectionHelper {
     return _instance;
   }
 
-  public Response invokeEndpoint( final String serverUrl, final String userName, final String password,
-      final String moduleName, final String endpointPath, final String httpMethod,
-      final Map<String, String> queryParameters ) {
+  public Response invokeEndpoint( String serverUrl, String userName, String password,
+                                  String moduleName, String endpointPath, String httpMethod, List<HttpParameter> httpParameters ) {
 
     Response response = new Response();
 
@@ -95,7 +99,7 @@ public class HttpConnectionHelper {
     logger.info( "requestUrl = " + requestUrl );
 
     try {
-      response = callHttp( requestUrl, queryParameters, httpMethod, userName, password );
+      response = callHttp( requestUrl, httpParameters, httpMethod, userName, password );
     } catch ( IOException ex ) {
       logger.error( "Failed ", ex );
     } catch ( KettleStepException ex ) {
@@ -105,18 +109,18 @@ public class HttpConnectionHelper {
     return response;
   }
 
-  public Response invokeEndpoint( final String moduleName, final String endpointPath, final String httpMethod,
-      final Map<String, String> queryParameters ) {
+  public Response invokeEndpoint( String moduleName, String endpointPath, String httpMethod,
+                                  List<HttpParameter> httpParameters ) {
 
     if ( moduleName.equals( "platform" ) ) {
-      return invokePlatformEndpoint( endpointPath, httpMethod, queryParameters );
+      return invokePlatformEndpoint( endpointPath, httpMethod, httpParameters );
     } else {
-      return invokePluginEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
+      return invokePluginEndpoint( moduleName, endpointPath, httpMethod, httpParameters );
     }
   }
 
-  protected Response invokePlatformEndpoint( final String endpointPath, final String httpMethod,
-      final Map<String, String> queryParameters ) {
+  protected Response invokePlatformEndpoint( String endpointPath, String httpMethod,
+                                             List<HttpParameter> httpParameters ) {
 
     Response response = new Response();
 
@@ -145,11 +149,11 @@ public class HttpConnectionHelper {
       }
 
       final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
-          fullyQualifiedServerURL, "/api", endpointPath );
+        fullyQualifiedServerURL, "/api", endpointPath );
       servletRequest.setAttribute( "org.apache.catalina.core.DISPATCHER_TYPE", DispatcherType.FORWARD ); //FORWARD = 2
 
       try {
-        insertParameters( httpMethod, queryParameters, servletRequest );
+        insertParameters( httpMethod, httpParameters, servletRequest );
       } catch ( UnsupportedEncodingException e ) {
         logger.error( "Can't encode parameters" );
         return response;
@@ -190,24 +194,37 @@ public class HttpConnectionHelper {
     return response;
   }
 
-  protected void insertParameters( String httpMethod, Map<String, String> queryParameters,
-      InternalHttpServletRequest servletRequest ) throws UnsupportedEncodingException {
-    if ( !httpMethod.equals( "GET" ) ) {
-      StringBuilder s = new StringBuilder();
-      boolean first = true;
-      for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
-        if ( !first ) {
-          s.append( "&" );
+  protected void insertParameters( String httpMethod, List<HttpParameter> httpParameters,
+                                   InternalHttpServletRequest servletRequest ) throws UnsupportedEncodingException {
+    Http method = Http.getHttpMethod( httpMethod );
+
+    switch ( method ) {
+      case POST:
+      case PUT:
+      case DELETE: {
+        List<HttpParameter> queryParameters = httpParameters.stream().filter( param -> param.getParamType() == HttpParameter.ParamType.QUERY )
+          .collect( Collectors.toList() );
+        for ( HttpParameter parameter : queryParameters ) {
+          String value = parameter.getValue() != null ? URLEncoder.encode( parameter.getValue(), UTF_8 ) : null;
+          String name = parameter.getName() != null ? URLEncoder.encode( parameter.getName(), UTF_8 ) : null;
+          servletRequest.setParameter( name, value );
         }
-        s.append( entry.getKey() ).append( "=" ).append( URLEncoder.encode( entry.getValue(), UTF_8 ) );
-        first = false;
+        servletRequest.setContentType( APPLICATION_FORM_ENCODED );
+        servletRequest.putHeader( CONTENT_TYPE, APPLICATION_FORM_ENCODED );
+        String bodyQuery = constructQueryString( httpParameters, true, HttpParameter.ParamType.BODY, HttpParameter.ParamType.NONE );
+        servletRequest.setContent( bodyQuery.getBytes( UTF_8 ) );
+        break;
       }
-      servletRequest.setContentType( "application/x-www-form-urlencoded" );
-      servletRequest.setContent( s.toString().getBytes( ) );
-    } else {
-      for ( Map.Entry<String, String> entry : queryParameters.entrySet() ) {
-        String value = URLEncoder.encode( entry.getValue(), UTF_8 );
-        servletRequest.setParameter( entry.getKey(), value );
+      case OPTIONS:
+      case GET:
+      case HEAD:
+      default: {
+        for ( HttpParameter parameter : httpParameters ) {
+          String value = parameter.getValue() != null ? URLEncoder.encode( parameter.getValue(), UTF_8 ) : null;
+          String name = parameter.getName() != null ? URLEncoder.encode( parameter.getName(), UTF_8 ) : null;
+          servletRequest.setParameter( name, value );
+        }
+        break;
       }
     }
   }
@@ -224,8 +241,8 @@ public class HttpConnectionHelper {
     return PentahoSystem.getApplicationContext().getContext();
   }
 
-  protected Response invokePluginEndpoint( final String pluginName, final String endpointPath, final String httpMethod,
-      final Map<String, String> queryParameters ) {
+  protected Response invokePluginEndpoint( String pluginName, String endpointPath, String httpMethod,
+                                           List<HttpParameter> httpParameters ) {
 
     Response response = new Response();
     response.setStatusCode( 404 );
@@ -261,10 +278,10 @@ public class HttpConnectionHelper {
       return response;
     }
     final InternalHttpServletRequest servletRequest = new InternalHttpServletRequest( httpMethod,
-        fullyQualifiedServerURL, "/plugin", "/" + pluginName + "/api" + endpointPath );
+      fullyQualifiedServerURL, "/plugin", "/" + pluginName + "/api" + endpointPath );
 
     try {
-      insertParameters( httpMethod, queryParameters, servletRequest );
+      insertParameters( httpMethod, httpParameters, servletRequest );
     } catch ( UnsupportedEncodingException e ) {
       logger.error( "Can't encode parameters" );
       return response;
@@ -316,15 +333,16 @@ public class HttpConnectionHelper {
     return PentahoSystem.get( IPluginManager.class );
   }
 
-  public Response callHttp( String url, Map<String, String> queryParameters, String httpMethod, String user,
-      String password )
+  public Response callHttp( String url, List<HttpParameter> httpParameters,
+                            String httpMethod, String user,
+                            String password )
     throws IOException, KettleStepException {
 
     // used for calculating the responseTime
     long startTime = System.currentTimeMillis();
 
     HttpClient httpclient = getHttpClient();
-    HttpMethod method = getHttpMethod( url, queryParameters, httpMethod );
+    HttpMethod method = getHttpMethod( url, httpParameters, httpMethod );
     httpclient.getParams().setAuthenticationPreemptive( true );
     Credentials credentials = getCredentials( user, password );
     httpclient.getState().setCredentials( AuthScope.ANY, credentials );
@@ -384,73 +402,93 @@ public class HttpConnectionHelper {
     return new UsernamePasswordCredentials( user, password );
   }
 
-  protected HttpMethod getHttpMethod( String url, Map<String, String> queryParameters, String httpMethod ) {
-    org.pentaho.di.baserver.utils.inspector.HttpMethod method;
-    if ( httpMethod == null ) {
-      httpMethod = "";
-    }
-    try {
-      method = org.pentaho.di.baserver.utils.inspector.HttpMethod.valueOf( httpMethod );
-    } catch ( IllegalArgumentException e ) {
-      logger.warn( "Method '" + httpMethod + "' is not supported - using 'GET'" );
-      method = org.pentaho.di.baserver.utils.inspector.HttpMethod.GET;
-    }
+  protected HttpMethod getHttpMethod( String url, List<HttpParameter> httpParameters, String httpMethod ) {
+
+    Http method = Http.getHttpMethod( httpMethod );
 
     switch ( method ) {
       case GET:
-        return new GetMethod( url + constructQueryString( queryParameters ) );
+        return new GetMethod( url + constructQueryString( httpParameters, false ) );
       case POST:
-        PostMethod postMethod = new PostMethod( url );
-        setRequestEntity( postMethod, queryParameters );
+        PostMethod postMethod = new PostMethod( url + constructQueryString( httpParameters, false, HttpParameter.ParamType.QUERY ) );
+        setRequestEntity( postMethod, httpParameters, HttpParameter.ParamType.BODY, HttpParameter.ParamType.NONE );
         return postMethod;
       case PUT:
-        PutMethod putMethod = new PutMethod( url );
-        setRequestEntity( putMethod, queryParameters );
+        PutMethod putMethod = new PutMethod( url + constructQueryString( httpParameters, false, HttpParameter.ParamType.QUERY ) );
+        setRequestEntity( putMethod, httpParameters, HttpParameter.ParamType.BODY, HttpParameter.ParamType.NONE );
         return putMethod;
       case DELETE:
-        return new DeleteMethod( url + constructQueryString( queryParameters ) );
+        return new DeleteMethod( url + constructQueryString( httpParameters, false ) );
       case HEAD:
-        return new HeadMethod( url + constructQueryString( queryParameters ) );
+        return new HeadMethod( url + constructQueryString( httpParameters, false ) );
       case OPTIONS:
-        return new OptionsMethod( url + constructQueryString( queryParameters ) );
+        return new OptionsMethod( url + constructQueryString( httpParameters, false ) );
       default:
-        return new GetMethod( url + constructQueryString( queryParameters ) );
+        return new GetMethod( url + constructQueryString( httpParameters, false ) );
     }
   }
 
-  private void setRequestEntity( EntityEnclosingMethod method, Map<String, String> queryParameters ) {
+  private void setRequestEntity( EntityEnclosingMethod method, List<HttpParameter> httpParameters,
+                                 HttpParameter.ParamType... paramTypes ) {
     try {
       // TODO: this supports only FormParameters, need to support MultiPart messages with files,
       // simple string values with JSON and XML, plain text, both body and query parameters for PUT
-      String queryString = constructQueryString( queryParameters );
-      if ( !queryString.isEmpty() ) {
-        queryString = queryString.substring( 1 );
-      }
-      method.setRequestEntity( new StringRequestEntity( queryString, "application/x-www-form-urlencoded", UTF_8 ) );
+      String queryString = constructQueryString( httpParameters, true, paramTypes );
+      method.setRequestEntity( new StringRequestEntity( queryString, APPLICATION_FORM_ENCODED, UTF_8 ) );
     } catch ( UnsupportedEncodingException e ) {
       logger.error( "Failed", e );
     }
   }
 
-  private String constructQueryString( Map<String, String> queryParameters ) {
+  private String constructQueryString( List<HttpParameter> httpParameters, boolean escapeFirstCh,
+                                       HttpParameter.ParamType... paramTypes ) {
+
     StringBuilder queryString = new StringBuilder();
-    if ( queryParameters != null && !queryParameters.isEmpty() ) {
-      try {
-        boolean first = true;
-        for ( String parameterName : queryParameters.keySet() ) {
-          if ( first ) {
-            queryString.append( "?" );
-            first = false;
-          } else {
-            queryString.append( "&" );
+
+    if ( httpParameters != null && !httpParameters.isEmpty() ) {
+
+      List<HttpParameter.ParamType> acceptableParamTypes = Arrays.asList( paramTypes );
+
+      if ( !acceptableParamTypes.isEmpty() ) {
+        httpParameters = httpParameters.stream()
+          .filter( param -> acceptableParamTypes.contains( param.getParamType() ) ).collect( Collectors.toList() );
+      }
+
+      if ( !httpParameters.isEmpty() ) {
+        try {
+          boolean first = true;
+          for ( HttpParameter param : httpParameters ) {
+            if ( first ) {
+              queryString.append( "?" );
+              first = false;
+            } else {
+              queryString.append( "&" );
+            }
+            String name = param.getName() != null ? param.getName() : "";
+            String value = param.getValue();
+
+            if ( value != null ) {
+              queryString.append( URLEncoder.encode( name, UTF_8 ) )
+                .append( "=" ).append( URLEncoder.encode( value, UTF_8 ) );
+            } else {
+              queryString.append( URLEncoder.encode( name, UTF_8 ) );
+            }
           }
-          queryString.append( parameterName ).append( "=" ).append( URLEncoder.encode( queryParameters.get( parameterName ), UTF_8 ) );
+        } catch ( UnsupportedEncodingException e ) {
+          logger.error( "Failed ", e );
         }
-      } catch ( UnsupportedEncodingException e ) {
-        logger.error( "Failed ", e );
       }
     }
-    return queryString.toString();
+
+    String query = queryString.toString();
+
+    if ( escapeFirstCh ) {
+      if ( !query.isEmpty() ) {
+        query = query.substring( 1 );
+      }
+    }
+
+    return query;
   }
 
   protected HttpClient getHttpClient() {

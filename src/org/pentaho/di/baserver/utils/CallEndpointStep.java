@@ -13,13 +13,17 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils;
 
 
+import org.pentaho.di.baserver.utils.inspector.Endpoint;
+import org.pentaho.di.baserver.utils.inspector.Inspector;
+import org.pentaho.di.baserver.utils.web.Http;
 import org.pentaho.di.baserver.utils.web.HttpConnectionHelper;
+import org.pentaho.di.baserver.utils.web.HttpParameter;
 import org.pentaho.di.baserver.utils.web.Response;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
@@ -36,13 +40,15 @@ import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 public class CallEndpointStep extends BaseStep implements StepInterface {
   private static Class<?> PKG = CallEndpointMeta.class; // for i18n purposes, needed by Translator2!!
   private CallEndpointMeta meta;
   private CallEndpointData data;
+  private Inspector inspector;
+  private HttpConnectionHelper connectionHelper;
 
   public CallEndpointStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
                            TransMeta transMeta,
@@ -53,15 +59,15 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (CallEndpointMeta) smi;
     data = (CallEndpointData) sdi;
-
+    inspector = Inspector.getInstance();
+    connectionHelper = HttpConnectionHelper.getInstance();
+    inspector.refreshSettings( meta.getServerURL(), meta.getUserName(), meta.getPassword() );
     return super.init( smi, sdi );
   }
 
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
     meta = (CallEndpointMeta) smi;
     data = (CallEndpointData) sdi;
-
-    HttpConnectionHelper connectionHelper = HttpConnectionHelper.getInstance();
 
     // get next row
     Object[] rowData = getRow();
@@ -91,10 +97,32 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       httpMethod = environmentSubstitute( meta.getHttpMethod() );
     }
 
-    Map<String, String> queryParameters = new HashMap<String, String>();
-    for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-      queryParameters.put( meta.getParameter()[ i ], getRowValue( rowData, i ) );
+    if ( moduleName == null || endpointPath == null ) {
+      log.logError( "Module name or endpoint path is not specified" );
+      throw new KettleException( "Module name or endpoint path is not specified" );
     }
+
+    List<HttpParameter> httpParameters = new ArrayList<>();
+    for ( int i = 0; i < meta.getFieldName().length; i++ ) {
+      HttpParameter httpParameter = new HttpParameter();
+      httpParameter.setName( meta.getParameter()[ i ] );
+      httpParameter.setValue( getRowValue( rowData, i ) );
+      httpParameters.add( httpParameter );
+    }
+
+    Http method = Http.getHttpMethod( httpMethod );
+
+    Endpoint endpoint = inspector.getEndpoint( moduleName, endpointPath, method );
+
+    if ( endpoint != null ) {
+      for ( HttpParameter httpParameter : httpParameters ) {
+        HttpParameter.ParamType paramType = endpoint.getParameterType( httpParameter.getName() );
+        if ( paramType != null ) {
+          httpParameter.setParamType( paramType );
+        }
+      }
+    }
+
 
     Response response = null;
 
@@ -102,7 +130,7 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       try {
         IPentahoSession session = PentahoSessionHolder.getSession();
         if ( session != null ) {
-          response = connectionHelper.invokeEndpoint( moduleName, endpointPath, httpMethod, queryParameters );
+          response = connectionHelper.invokeEndpoint( moduleName, endpointPath, httpMethod, httpParameters );
         }
       } catch ( NoClassDefFoundError ex ) {
         logBasic( "No valid session. Falling back to normal authentication mode." );
@@ -116,7 +144,7 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
       String password = environmentSubstitute( meta.getPassword() );
 
       response = connectionHelper.invokeEndpoint( serverUrl, username, password, moduleName, endpointPath, httpMethod,
-          queryParameters );
+        httpParameters );
     }
 
     int index = getInputRowMeta().size();
@@ -142,7 +170,7 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
     return defaultValue;
   }
 
-  private String getRowValue( Object[] rowData, int i ) throws KettleException {
+  String getRowValue( Object[] rowData, int i ) throws KettleException {
 
     // find a matching field
     String fieldName = meta.getFieldName()[ i ];
@@ -156,7 +184,7 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
 
       // otherwise, return default value
       logBasic( BaseMessages
-          .getString( PKG, "CallEndpoint.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
+        .getString( PKG, "CallEndpoint.Log.UnableToFindFieldUsingDefault", fieldName, getRowDefaultValue( i ) ) );
     }
     return getRowDefaultValue( i );
   }
@@ -171,4 +199,5 @@ public class CallEndpointStep extends BaseStep implements StepInterface {
 
     super.dispose( smi, sdi );
   }
+
 }

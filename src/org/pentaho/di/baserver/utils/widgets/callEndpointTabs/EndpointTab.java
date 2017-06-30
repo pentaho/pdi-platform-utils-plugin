@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Label;
 import org.pentaho.di.baserver.utils.BAServerCommonDialog;
 import org.pentaho.di.baserver.utils.CallEndpointMeta;
 import org.pentaho.di.baserver.utils.inspector.Endpoint;
-import org.pentaho.di.baserver.utils.inspector.HttpMethod;
+import org.pentaho.di.baserver.utils.web.Http;
 import org.pentaho.di.baserver.utils.inspector.Inspector;
 import org.pentaho.di.baserver.utils.widgets.BrowserBuilder;
 import org.pentaho.di.baserver.utils.widgets.ButtonBuilder;
@@ -352,7 +352,7 @@ public class EndpointTab extends Tab {
       String method = transMeta.environmentSubstitute( httpMethod.getText() );
       Iterable<Endpoint> endpoints = Inspector.getInstance().getEndpoints( moduleName, endpointPath );
       for ( Endpoint endpoint : endpoints ) {
-        if ( method.isEmpty() || endpoint.getHttpMethod().equals( HttpMethod.valueOf( method ) ) ) {
+        if ( method.isEmpty() || endpoint.getHttpMethod().equals( Http.valueOf( method ) ) ) {
           if ( endpoint.isDeprecated() ) {
             newValue = BaseMessages.getString( CallEndpointMeta.class, "WadlParser.endpoint.deprecated" ) + "<br/>";
           }
