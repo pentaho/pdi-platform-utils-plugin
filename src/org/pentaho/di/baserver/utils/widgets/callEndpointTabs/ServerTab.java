@@ -13,12 +13,12 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets.callEndpointTabs;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -124,7 +124,7 @@ public class ServerTab extends Tab {
     String password = getPassword();
     int serverStatus = Inspector.getInstance().checkServerStatus( serverUrl, userName, password );
     MessageBox messageBox = new MessageBox( getShell() );
-    switch( serverStatus ) {
+    switch ( serverStatus ) {
       case HttpStatus.SC_OK:
         if ( !showDialogOnSuccess ) {
           return true;
