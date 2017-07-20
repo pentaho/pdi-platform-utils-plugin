@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.web;
@@ -40,12 +40,14 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.security.Principal;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Collection;
 
 public class InternalHttpServletRequest implements HttpServletRequest {
 
@@ -70,6 +72,7 @@ public class InternalHttpServletRequest implements HttpServletRequest {
 
   private HashMap<String, String[]> parameters = new HashMap<String, String[]>();
   private HashMap<String, Object> attributes = new HashMap<String, Object>();
+  private HashMap<String, String> headers = new HashMap<String, String>();
 
 
   @Override
@@ -257,16 +260,21 @@ public class InternalHttpServletRequest implements HttpServletRequest {
     return 0;
   }
 
+  public void putHeader( String name, String value ) {
+    headers.put( name, value );
+  }
+
   @Override public String getHeader( String s ) {
-    return null;
+    return headers.get( s );
   }
 
   @Override public Enumeration getHeaders( String s ) {
-    return Collections.enumeration( Collections.emptyList() );
+    return Collections.enumeration( headers.values() );
   }
 
   @Override public Enumeration getHeaderNames() {
-    return Collections.enumeration( Collections.emptyList() );
+    Set<String> set = new HashSet<String>( headers.keySet() );
+    return Collections.enumeration( set );
   }
 
   @Override public int getIntHeader( String s ) {
