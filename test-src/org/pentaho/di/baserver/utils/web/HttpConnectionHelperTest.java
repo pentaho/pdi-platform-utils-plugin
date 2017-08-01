@@ -18,22 +18,20 @@
 
 package org.pentaho.di.baserver.utils.web;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.httpclient.methods.OptionsMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.auth.Credentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -43,28 +41,17 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.*;
 
 public class HttpConnectionHelperTest {
   HttpConnectionHelper httpConnectionHelper, httpConnectionHelperSpy;
@@ -321,48 +308,31 @@ public class HttpConnectionHelperTest {
   @Test
   public void testCallHttp() throws Exception {
     String url = "http://localhost:8080/pentaho",
-        user = "admin",
-        password = "password",
-        method = "GET";
-    List<HttpParameter> parameters = null;
+      user = "admin",
+      password = "password",
+      method = "GET";
+    List<HttpParameter> parameters = new ArrayList<>();
 
     Response r;
 
     HttpClient httpClient = mock( HttpClient.class );
-    HttpClientParams httpClientParams = mock( HttpClientParams.class );
-    doNothing().when( httpClientParams ).setAuthenticationPreemptive( true );
-    doReturn( httpClientParams ).when( httpClient ).getParams();
-    HttpState httpState = mock( HttpState.class );
+
     Credentials credentials = mock( Credentials.class );
     doReturn( credentials ).when( httpConnectionHelperSpy ).getCredentials( user, password );
-    doNothing().when( httpState ).setCredentials( AuthScope.ANY, credentials );
-    doReturn( httpState ).when( httpClient ).getState();
+    doReturn( httpClient ).when( httpConnectionHelperSpy ).getHttpClient( anyString(), anyString() );
 
-    doReturn( httpClient ).when( httpConnectionHelperSpy ).getHttpClient();
-    HttpMethod httpMethod = mock( HttpMethod.class );
-    doReturn( httpMethod ).when( httpConnectionHelperSpy ).getHttpMethod( url, parameters, method );
+    HttpResponse httpResponse = mock( HttpResponse.class );
 
-    doThrow( new IllegalArgumentException() ).when( httpClient ).executeMethod( any( HostConfiguration.class ),
-        eq( httpMethod ) );
-    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
-    assertEquals( r.getStatusCode(), new Response().getStatusCode() );
+    BasicHttpEntity httpEntity = new BasicHttpEntity();
+    httpEntity.setContent( new ByteArrayInputStream( "content".getBytes() ) );
+    doReturn( httpEntity ).when( httpResponse ).getEntity();
 
-    doReturn( 1 ).when( httpClient ).executeMethod( any( HostConfiguration.class ), eq( httpMethod ) );
-    doReturn( null ).when( httpMethod ).getResponseHeaders( "Content-Type" );
-    doReturn( "content" ).when( httpConnectionHelperSpy ).getContent( eq( httpMethod ), anyString() );
-    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
-    assertEquals( r.getResult(), "content" );
+    StatusLine statusLine = mock( StatusLine.class );
+    doReturn( statusLine ).when( httpResponse ).getStatusLine();
+    doReturn( 1 ).when( statusLine ).getStatusCode();
+    doReturn( httpResponse ).when( httpClient ).execute( any( HttpRequestBase.class ) );
 
-    Header header = mock( Header.class );
-    doReturn( null ).when( header ).getValue();
-    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
-    assertEquals( r.getResult(), "content" );
-
-    doReturn( "test" ).when( header ).getValue();
-    r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
-    assertEquals( r.getResult(), "content" );
-
-    doReturn( "charset=utf8" ).when( header ).getValue();
+    parameters.add( new HttpParameter( "Content-Type", "content" ) );
     r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );
     assertEquals( r.getResult(), "content" );
   }
@@ -375,56 +345,46 @@ public class HttpConnectionHelperTest {
     httpParameters.add( new HttpParameter( "param3", "value3" ) );
     String url = "http://localhost:8080/pentaho";
 
-    HttpMethod method = httpConnectionHelperSpy.getHttpMethod( url, httpParameters, "GET" );
-    assertEquals( method.getClass(), GetMethod.class );
+    HttpRequestBase method = httpConnectionHelperSpy.getHttpMethod( url, httpParameters, "GET" );
+    assertEquals( method.getClass(), HttpGet.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    assertNotNull( method.getQueryString() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParameters, "PUT" );
-    assertEquals( method.getClass(), PutMethod.class );
+    assertEquals( method.getClass(), HttpPut.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    RequestEntity requestEntity = ( (PutMethod) method ).getRequestEntity();
+    HttpEntity requestEntity = ( (HttpPut) method ).getEntity();
     assertNotNull( requestEntity );
-    assertEquals( requestEntity.getContentType(), "application/x-www-form-urlencoded; charset=UTF-8" );
-    assertNull( method.getQueryString() );
-    assertEquals( requestEntity.getClass(), StringRequestEntity.class );
-    assertNotNull( ( (StringRequestEntity) requestEntity ).getContent() );
+    assertEquals( requestEntity.getClass(), StringEntity.class );
+    assertNotNull( ( (StringEntity) requestEntity ).getContent() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParameters, "POST" );
-    assertEquals( method.getClass(), PostMethod.class );
+    assertEquals( method.getClass(), HttpPost.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    requestEntity = ( (PostMethod) method ).getRequestEntity();
+    requestEntity = ( (HttpPost) method ).getEntity();
     assertNotNull( requestEntity );
-    assertEquals( requestEntity.getContentType(), "application/x-www-form-urlencoded; charset=UTF-8" );
-    assertNull( method.getQueryString() );
-    assertEquals( requestEntity.getClass(), StringRequestEntity.class );
-    assertNotNull( ( (StringRequestEntity) requestEntity ).getContent() );
+    assertEquals( requestEntity.getClass(), StringEntity.class );
+    assertNotNull( ( (StringEntity) requestEntity ).getContent() );
 
     // POST without parameters
     method = httpConnectionHelperSpy.getHttpMethod( url, null, "POST" );
-    assertEquals( method.getClass(), PostMethod.class );
+    assertEquals( method.getClass(), HttpPost.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    requestEntity = ( (PostMethod) method ).getRequestEntity();
+    requestEntity = ( (HttpPost) method ).getEntity();
     assertNotNull( requestEntity );
-    assertEquals( requestEntity.getContentType(), "application/x-www-form-urlencoded; charset=UTF-8" );
-    assertNull( method.getQueryString() );
-    assertEquals( requestEntity.getClass(), StringRequestEntity.class );
-    assertNotNull( ( (StringRequestEntity) requestEntity ).getContent() );
+    assertEquals( requestEntity.getClass(), StringEntity.class );
+    assertNotNull( ( (StringEntity) requestEntity ).getContent() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParameters, "DELETE" );
-    assertEquals( method.getClass(), DeleteMethod.class );
+    assertEquals( method.getClass(), HttpDelete.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    assertNotNull( method.getQueryString() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParameters, "HEAD" );
-    assertEquals( method.getClass(), HeadMethod.class );
+    assertEquals( method.getClass(), HttpHead.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    assertNotNull( method.getQueryString() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParameters, "OPTIONS" );
-    assertEquals( method.getClass(), OptionsMethod.class );
+    assertEquals( method.getClass(), HttpOptions.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    assertNotNull( method.getQueryString() );
   }
 
   @Test
@@ -437,61 +397,49 @@ public class HttpConnectionHelperTest {
     httpParametersWadl.add( new HttpParameter( "param5", "value5", HttpParameter.ParamType.NONE ) );
     String url = "http://localhost:8080/pentaho";
 
-    HttpMethod method = httpConnectionHelperSpy.getHttpMethod( url, httpParametersWadl, "GET" );
-    assertEquals( method.getClass(), GetMethod.class );
+    HttpRequestBase method = httpConnectionHelperSpy.getHttpMethod( url, httpParametersWadl, "GET" );
+    assertEquals( method.getClass(), HttpGet.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    assertNotNull( method.getQueryString() );
-    assertEquals( "param1=value1%7C&param2=value2%5C%2F&param3=value3%7B%7D&param4=value4&param5=value5", method.getQueryString() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParametersWadl, "PUT" );
-    assertEquals( method.getClass(), PutMethod.class );
+    assertEquals( method.getClass(), HttpPut.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    RequestEntity requestEntity = ( (PutMethod) method ).getRequestEntity();
+    HttpEntity requestEntity = ( (HttpPut) method ).getEntity();
+    assertNotNull( requestEntity.getContent() );
+
     assertNotNull( requestEntity );
-    assertEquals( requestEntity.getContentType(), "application/x-www-form-urlencoded; charset=UTF-8" );
-    assertEquals( "param1=value1%7C&param2=value2%5C%2F", method.getQueryString() );
-    assertEquals( requestEntity.getClass(), StringRequestEntity.class );
-    assertNotNull( ( (StringRequestEntity) requestEntity ).getContent() );
-    assertEquals( "param3=value3%7B%7D&param4=value4&param5=value5", ( (StringRequestEntity) requestEntity ).getContent() );
+    assertEquals( requestEntity.getClass(), StringEntity.class );
+    assertNotNull( ( (StringEntity) requestEntity ).getContent() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParametersWadl, "POST" );
-    assertEquals( method.getClass(), PostMethod.class );
+    assertEquals( method.getClass(), HttpPost.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    requestEntity = ( (PostMethod) method ).getRequestEntity();
+    requestEntity = ( (HttpPost) method ).getEntity();
     assertNotNull( requestEntity );
-    assertEquals( requestEntity.getContentType(), "application/x-www-form-urlencoded; charset=UTF-8" );
-    assertEquals( "param1=value1%7C&param2=value2%5C%2F", method.getQueryString() );
-    assertEquals( requestEntity.getClass(), StringRequestEntity.class );
-    assertNotNull( ( (StringRequestEntity) requestEntity ).getContent() );
-    assertEquals( "param3=value3%7B%7D&param4=value4&param5=value5", ( (StringRequestEntity) requestEntity ).getContent() );
+    assertEquals( requestEntity.getClass(), StringEntity.class );
+    assertNotNull( ( (StringEntity) requestEntity ).getContent() );
 
     // POST without parameters
     method = httpConnectionHelperSpy.getHttpMethod( url, null, "POST" );
-    assertEquals( method.getClass(), PostMethod.class );
+    assertEquals( method.getClass(), HttpPost.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    requestEntity = ( (PostMethod) method ).getRequestEntity();
+    requestEntity = ( (HttpPost) method ).getEntity();
     assertNotNull( requestEntity );
-    assertEquals( requestEntity.getContentType(), "application/x-www-form-urlencoded; charset=UTF-8" );
-    assertNull( method.getQueryString() );
-    assertEquals( requestEntity.getClass(), StringRequestEntity.class );
-    assertEquals( "", ( (StringRequestEntity) requestEntity ).getContent() );
+    assertEquals( requestEntity.getClass(), StringEntity.class );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParametersWadl, "DELETE" );
-    assertEquals( method.getClass(), DeleteMethod.class );
+    assertEquals( method.getClass(), HttpDelete.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    assertNotNull( method.getQueryString() );
-    assertEquals( "param1=value1%7C&param2=value2%5C%2F&param3=value3%7B%7D&param4=value4&param5=value5", method.getQueryString() );
+    assertNotNull( method.getRequestLine() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParametersWadl, "HEAD" );
-    assertEquals( method.getClass(), HeadMethod.class );
+    assertEquals( method.getClass(), HttpHead.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    assertNotNull( method.getQueryString() );
-    assertEquals( "param1=value1%7C&param2=value2%5C%2F&param3=value3%7B%7D&param4=value4&param5=value5", method.getQueryString() );
+    assertNotNull( method.getRequestLine() );
 
     method = httpConnectionHelperSpy.getHttpMethod( url, httpParametersWadl, "OPTIONS" );
-    assertEquals( method.getClass(), OptionsMethod.class );
+    assertEquals( method.getClass(), HttpOptions.class );
     assertTrue( method.getURI().toString().startsWith( url ) );
-    assertNotNull( method.getQueryString() );
-    assertEquals( "param1=value1%7C&param2=value2%5C%2F&param3=value3%7B%7D&param4=value4&param5=value5", method.getQueryString() );
+    assertNotNull( method.getRequestLine() );
   }
 }

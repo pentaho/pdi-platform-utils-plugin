@@ -18,7 +18,7 @@
 
 package org.pentaho.di.baserver.utils.inspector;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.dom4j.Document;
 import org.junit.Before;
 import org.junit.Test;
