@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2016 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.inspector;
@@ -22,7 +22,9 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import org.pentaho.di.baserver.utils.web.Http;
 import org.pentaho.di.baserver.utils.web.HttpConnectionHelper;
+import org.pentaho.di.baserver.utils.web.HttpParameter;
 import org.pentaho.di.baserver.utils.web.Response;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.xml.XMLParserFactoryProducer;
@@ -36,6 +38,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.List;
 
 public class Inspector {
 
@@ -79,6 +82,13 @@ public class Inspector {
 
   protected WadlParser getParser() {
     return parser;
+  }
+
+
+  public void refreshSettings( String serverUrl, String userName, String password ) {
+    this.serverUrl = serverUrl;
+    this.userName = userName;
+    this.password = password;
   }
 
   /**
@@ -168,13 +178,22 @@ public class Inspector {
    * @param path
    * @return
    */
-  public Iterable<Endpoint> getEndpoints( String moduleName, String path ) {
+  public List<Endpoint> getEndpoints( String moduleName, String path ) {
     Map<String, LinkedList<Endpoint>> moduleEndpoints = getEndpointMap( moduleName );
-    Iterable<Endpoint> endpoints = moduleEndpoints.get( path );
+    List<Endpoint> endpoints = moduleEndpoints.get( path );
     if ( endpoints != null ) {
       return endpoints;
     }
     return Collections.emptyList();
+  }
+
+  public Endpoint getEndpoint( String moduleName, String path, Http httpMethod ) {
+    Map<String, LinkedList<Endpoint>> moduleEndpoints = getEndpointMap( moduleName );
+    List<Endpoint> endpoints = moduleEndpoints.get( path );
+    if ( endpoints != null ) {
+      return endpoints.stream().filter( endpoint -> endpoint.getHttpMethod() == httpMethod ).findAny().orElse( null );
+    }
+    return null;
   }
 
   /**
@@ -290,14 +309,15 @@ public class Inspector {
   }
 
   protected Response callHttp( String endpointUrl ) {
-    return callHttp( endpointUrl, null, null );
+    return callHttp( endpointUrl, Collections.emptyList(), null );
   }
 
-  protected Response callHttp( String endpointUrl, Map<String, String> queryParameters, String httpMethod ) {
+  protected Response callHttp( String endpointUrl, List<HttpParameter> httpParameters,
+                               String httpMethod ) {
     Response response = null;
     try {
       response = HttpConnectionHelper.getInstance()
-          .callHttp( endpointUrl, queryParameters, httpMethod, this.getUserName(), this.getPassword() );
+        .callHttp( endpointUrl, httpParameters, httpMethod, this.getUserName(), this.getPassword() );
     } catch ( IOException e ) {
       // do nothing
     } catch ( KettleStepException e ) {

@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.inspector;
@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.dom4j.Document;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.di.baserver.utils.web.Http;
 import org.pentaho.di.baserver.utils.web.Response;
 
 import java.util.ArrayList;
@@ -32,8 +33,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
 
 public class InspectorTest {
 
@@ -42,8 +53,8 @@ public class InspectorTest {
   private Inspector inspector, inspectorSpy;
 
   private String SERVER_URL = "http://localhost:8080/pentaho",
-  USERNAME = "admin",
-  PASSWORD = "password";
+    USERNAME = "admin",
+    PASSWORD = "password";
 
   @Before
   public void setUp() throws Exception {
@@ -126,7 +137,7 @@ public class InspectorTest {
   @Test
   public void testGetEndpoints() throws Exception {
     String moduleName = "myModule",
-        path = "myPath";
+      path = "myPath";
 
     Map<String, LinkedList<Endpoint>> moduleEndpoints = mock( Map.class );
     doReturn( null ).when( moduleEndpoints ).get( path );
@@ -140,8 +151,8 @@ public class InspectorTest {
   @Test
   public void testGetDefaultEndpoint() throws Exception {
     String moduleName = "myModule",
-        path = "myPath",
-        endpointId = "myEndpoint";
+      path = "myPath",
+      endpointId = "myEndpoint";
 
     doReturn( null ).when( inspectorSpy ).getEndpoints( moduleName, path );
     assertNull( inspectorSpy.getDefaultEndpoint( moduleName, path ) );
@@ -201,7 +212,7 @@ public class InspectorTest {
   @Test
   public void testInspectEndpoints() throws Exception {
     String moduleName = "myModule",
-        applicationWadlEndpoint = SERVER_URL + moduleName + "/application.wadl";
+      applicationWadlEndpoint = SERVER_URL + moduleName + "/application.wadl";
 
     doReturn( "" ).when( inspectorSpy ).getApplicationWadlEndpoint( moduleName );
     doReturn( null ).when( inspectorSpy ).callHttp( anyString() );
@@ -222,8 +233,8 @@ public class InspectorTest {
 
     List<Endpoint> endpointList = new ArrayList<Endpoint>();
     Endpoint endpoint1 = new Endpoint(),
-        endpoint2 = new Endpoint(),
-        endpoint3 = new Endpoint();
+      endpoint2 = new Endpoint(),
+      endpoint3 = new Endpoint();
 
     endpoint1.setPath( "path" );
     endpoint2.setPath( "path" );
@@ -241,12 +252,12 @@ public class InspectorTest {
   @Test
   public void testGetDocument() throws Exception {
     String result = "<application xmlns=\"http://wadl.dev.java.net/2009/02\">\n"
-        + "  <resources base=\"http://localhost:8080/pentaho/api/\">\n" + "    <resource path=\"\">\n"
-        + "      <method id=\"doGetRoot\" name=\"GET\">\n" + "        <response>\n"
-        + "          <representation mediaType=\"*/*\"/>\n" + "        </response>\n" + "      </method>\n"
-        + "      <resource path=\"docs\">\n" + "        <method id=\"doGetDocs\" name=\"GET\">\n"
-        + "          <response>\n" + "            <representation mediaType=\"*/*\"/>\n" + "          </response>\n"
-        + "        </method>\n" + "      </resource>\n" + "    </resource>\n" + "  </resources>\n" + "</application>\n";
+      + "  <resources base=\"http://localhost:8080/pentaho/api/\">\n" + "    <resource path=\"\">\n"
+      + "      <method id=\"doGetRoot\" name=\"GET\">\n" + "        <response>\n"
+      + "          <representation mediaType=\"*/*\"/>\n" + "        </response>\n" + "      </method>\n"
+      + "      <resource path=\"docs\">\n" + "        <method id=\"doGetDocs\" name=\"GET\">\n"
+      + "          <response>\n" + "            <representation mediaType=\"*/*\"/>\n" + "          </response>\n"
+      + "        </method>\n" + "      </resource>\n" + "    </resource>\n" + "  </resources>\n" + "</application>\n";
 
     assertNotNull( inspectorSpy.getDocument( result ) );
     assertNull( inspectorSpy.getDocument( "" ) );
@@ -258,15 +269,15 @@ public class InspectorTest {
 
     doReturn( SERVER_URL ).when( inspectorSpy ).getServerUrl();
     assertEquals( inspectorSpy.getApplicationWadlEndpoint( moduleName ),
-        SERVER_URL + "/plugin/" + moduleName + "/api/application.wadl" );
+      SERVER_URL + "/plugin/" + moduleName + "/api/application.wadl" );
     assertEquals( inspectorSpy.getApplicationWadlEndpoint( DEFAULT_PLATFORM_NAME ),
-        SERVER_URL + "/api/application.wadl" );
+      SERVER_URL + "/api/application.wadl" );
 
     doReturn( SERVER_URL + "/" ).when( inspectorSpy ).getServerUrl();
     assertEquals( inspectorSpy.getApplicationWadlEndpoint( moduleName ),
-        SERVER_URL + "/plugin/" + moduleName + "/api/application.wadl" );
+      SERVER_URL + "/plugin/" + moduleName + "/api/application.wadl" );
     assertEquals( inspectorSpy.getApplicationWadlEndpoint( DEFAULT_PLATFORM_NAME ),
-        SERVER_URL + "/api/application.wadl" );
+      SERVER_URL + "/api/application.wadl" );
   }
 
   @Test
@@ -276,4 +287,68 @@ public class InspectorTest {
     verify( inspectorSpy ).getUserName();
     verify( inspectorSpy ).getPassword();
   }
+
+  @Test
+  public void testRefreshSettings() {
+    inspectorSpy.refreshSettings( null, null, null );
+    assertNull( inspectorSpy.getServerUrl() );
+    assertNull( inspectorSpy.getUserName() );
+    assertNull( inspectorSpy.getPassword() );
+    inspectorSpy.refreshSettings( "serverUrl", "username", "password" );
+    assertEquals( "serverUrl", inspectorSpy.getServerUrl() );
+    assertEquals( "username", inspectorSpy.getUserName() );
+    assertEquals( "password", inspectorSpy.getPassword() );
+  }
+
+  @Test
+  public void testGetEndpoint() throws Exception {
+    Map<String, LinkedList<Endpoint>> endpointMap = initializeEndpointMap();
+    doReturn( endpointMap ).when( inspectorSpy ).getEndpointMap( eq( "moduleName" ) );
+    Endpoint endpoint = inspectorSpy.getEndpoint( "moduleName", "path1", Http.PUT );
+    assertNotNull( endpoint );
+    assertEquals( Http.PUT, endpoint.getHttpMethod() );
+    endpoint = inspectorSpy.getEndpoint( "moduleName", "path1", Http.GET );
+    assertNotNull( endpoint );
+    assertEquals( Http.GET, endpoint.getHttpMethod() );
+    endpoint = inspectorSpy.getEndpoint( "moduleName", "path1", Http.DELETE );
+    assertNull( endpoint );
+    endpoint = inspectorSpy.getEndpoint( "moduleName", "path5", Http.GET );
+    assertNotNull( endpoint );
+    assertEquals( Http.GET, endpoint.getHttpMethod() );
+    endpoint = inspectorSpy.getEndpoint( "moduleName", "path3", Http.POST );
+    assertNotNull( endpoint );
+    assertEquals( Http.POST, endpoint.getHttpMethod() );
+    assertNull( inspectorSpy.getEndpoint( "moduleName", "path not exist", Http.POST ) );
+  }
+
+  private Map<String, LinkedList<Endpoint>> initializeEndpointMap() {
+    Map<String, LinkedList<Endpoint>> endpointMap = new TreeMap<String, LinkedList<Endpoint>>();
+    LinkedList<Endpoint> endpoints = new LinkedList<>();
+    endpoints.add( createEndpoint( Http.POST ) );
+    endpoints.add( createEndpoint( Http.GET ) );
+    endpoints.add( createEndpoint( Http.PUT ) );
+    endpointMap.put( "path1", endpoints );
+    endpoints = new LinkedList<>();
+    endpoints.add( createEndpoint( Http.DELETE ) );
+    endpointMap.put( "path2", endpoints );
+    endpoints = new LinkedList<>();
+    endpoints.add( createEndpoint( Http.POST ) );
+    endpoints.add( createEndpoint( Http.PUT ) );
+    endpointMap.put( "path3", endpoints );
+    endpoints = new LinkedList<>();
+    endpoints.add( createEndpoint( Http.HEAD ) );
+    endpointMap.put( "path4", endpoints );
+    endpoints = new LinkedList<>();
+    endpoints.add( createEndpoint( Http.POST ) );
+    endpoints.add( createEndpoint( Http.GET ) );
+    endpointMap.put( "path5", endpoints );
+    return endpointMap;
+  }
+
+  private Endpoint createEndpoint( Http httpMethod ) {
+    Endpoint endpoint = new Endpoint();
+    endpoint.setHttpMethod( httpMethod );
+    return endpoint;
+  }
+
 }

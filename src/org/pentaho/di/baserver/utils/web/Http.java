@@ -13,16 +13,38 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2015 Pentaho Corporation.  All rights reserved.
+ * Copyright 2006 - 2017 Pentaho Corporation.  All rights reserved.
  */
 
-package org.pentaho.di.baserver.utils.inspector;
+package org.pentaho.di.baserver.utils.web;
 
-public enum HttpMethod {
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public enum Http {
+
   GET,
   POST,
   PUT,
   DELETE,
   HEAD,
-  OPTIONS
+  OPTIONS;
+
+  private static final Log logger = LogFactory.getLog( Http.class );
+
+  public static Http getHttpMethod( String httpMethod ) {
+    Http method;
+    if ( httpMethod == null ) {
+      httpMethod = "";
+    }
+    try {
+      httpMethod = httpMethod.toUpperCase();
+      method = Http.valueOf( httpMethod );
+    } catch ( IllegalArgumentException e ) {
+      logger.warn( "Method '" + httpMethod + "' is not supported - using 'GET'" );
+      method = Http.GET;
+    }
+    return method;
+  }
+
 }
