@@ -109,7 +109,8 @@ public class WadlParserTest {
     wadlParserSpy = spy( wadlParser );
     testableWadlParser = new TestableWadlParser();
 
-    InputStream is = new FileInputStream( new File( "test-res/wadl.xml" ) );
+    File wadlFile = new File( this.getClass().getResource("/wadl.xml").getFile() );
+    InputStream is = new FileInputStream( wadlFile );
     SAXReader reader = new SAXReader();
     doc = reader.read( is );
   }

@@ -1,17 +1,60 @@
-BA Server Utils
-===============
+# pdi-platform-utils-plugin #
+_Collection of kettle steps to interact with BA Server services._
 
-Collection of kettle steps to interact with BA Server services.
-
-RELEASE-0.1
-* __Get session variables__: reads session variables from the current user session in the BA Server
-* __Set session variables__: writes session variables to the current user session in the BA Server
-RELEASE-0.2
-* __Call endpoint__: inspects the BA Server to list available endpoints / invokes a BA Server endpoint
+* Maven, version 3+
+* Java JDK 1.8
+* This [settings.xml](https://github.com/pentaho/maven-parent-poms/blob/master/maven-support-files/settings.xml) in your \<user-home\>/.m2 directory
 
 
-## Additional info
+__Build for nightly/release__
 
-The steps **Get session variables** and **Set session variables** read and write user session variables. In order to
-simulate user session variables in Spoon (for testing purposes) the variables will be read from and written to internal
-variables with a prefix `_FAKE_SESSION_`.
+All required profiles are activated by the presence of a property named "release".
+
+```
+$ mvn clean install -Drelease
+```
+
+This will build, unit test, and package the whole project (all of the sub-modules). The artifact will be generated in: ```target```
+
+__Build for CI/dev__
+
+The `release` builds will compile the source for production (meaning potential obfuscation and/or uglification). To build without that happening, just eliminate the `release` property.
+
+```
+$ mvn clean install
+```
+
+
+__Unit tests__
+
+This will run all tests in the project (and sub-modules).
+```
+$ mvn test
+```
+
+If you want to remote debug a single java unit test (default port is 5005):
+```
+$ cd core
+$ mvn test -Dtest=<<YourTest>> -Dmaven.surefire.debug
+```
+
+__Integration tests__
+In addition to the unit tests, there are integration tests in the core project.
+```
+$ mvn verify -DrunITs
+```
+
+To run a single integration test:
+```
+$ mvn verify -DrunITs -Dit.test=<<YourIT>>
+```
+
+To run a single integration test in debug mode (for remote debugging in an IDE) on the default port of 5005:
+```
+$ mvn verify -DrunITs -Dit.test=<<YourIT>> -Dmaven.failsafe.debug
+```
+
+__IntelliJ__
+
+* Don't use IntelliJ's built-in maven. Make it use the same one you use from the commandline.
+  * Project Preferences -> Build, Execution, Deployment -> Build Tools -> Maven ==> Maven home directory
