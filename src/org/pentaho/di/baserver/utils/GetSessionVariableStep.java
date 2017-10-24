@@ -132,14 +132,19 @@ public class GetSessionVariableStep extends BaseStep implements StepInterface {
 
     // did not find a session variable
     } catch ( NoClassDefFoundError e ) {
-      // get the PDI internal variable which simulates the session variable
-      String pdiVarName = "${" + SessionHelper.SIMULATED_SESSION_PREFIX + sessionVarName + "}";
-      value = environmentSubstitute( pdiVarName );
+      value = null;
+    }
+    
+    if(value == null){
+    	
+    	// get the PDI internal variable which simulates the session variable
+        String pdiVarName = "${" + SessionHelper.SIMULATED_SESSION_PREFIX + sessionVarName + "}";
+        value = environmentSubstitute( pdiVarName );
 
-      // did not find any internal variable, use default value
-      if ( value.equals( pdiVarName ) ) {
-        value = defaultValue;
-      }
+        // did not find any internal variable, use default value
+        if ( value.equals( pdiVarName ) ) {
+          value = defaultValue;
+        }
     }
 
     logBasic( BaseMessages.getString( PKG, "GetSessionVariable.Log.GetVariable", sessionVarName, value ) );
