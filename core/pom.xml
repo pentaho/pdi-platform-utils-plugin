@@ -14,7 +14,7 @@
   <version>8.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>Pentaho Enterprise Edition Project: ${project.artifactId}</name>
+  <name>Pentaho Community Edition Project: ${project.artifactId}</name>
   <description>Pentaho Platform Utils Plugin Core</description>
   <url>http://www.pentaho.com</url>
 
