@@ -15,7 +15,7 @@
   <version>8.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>Pentaho Enterprise Edition Project: pdi-platform-utils-plugin</name>
+  <name>Pentaho Community Edition Project: pdi-platform-utils-plugin</name>
 
   <dependencies>
     <dependency>

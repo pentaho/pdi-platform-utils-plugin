@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.pentaho</groupId>
-    <artifactId>pentaho-ee-jar-parent-pom</artifactId>
+    <groupId>org.pentaho</groupId>
+    <artifactId>pentaho-ce-jar-parent-pom</artifactId>
     <version>8.1-SNAPSHOT</version>
   </parent>
 
@@ -14,7 +14,7 @@
   <version>8.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>Pentaho Enterprise Edition Project: ${project.artifactId}</name>
+  <name>Pentaho Community Edition Project: ${project.artifactId}</name>
   <description>Pentaho Platform Utils Plugin</description>
   <url>http://www.pentaho.com</url>
 
