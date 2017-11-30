@@ -38,8 +38,8 @@
     <eula-wrap_attach-dist-phase />
 
     <!-- 'COMPILE' SCOPED DEPS -->
-    <pentaho-platform.version>8.1-SNAPSHOT</pentaho-platform.version>
-    <kettle.version>8.1-SNAPSHOT</kettle.version>
+    <platform.version>8.1-SNAPSHOT</platform.version>
+    <pdi.version>8.1-SNAPSHOT</pdi.version>
     <metastore.version>8.1-SNAPSHOT</metastore.version>
 
     <httpclient.version>4.5.3</httpclient.version>
@@ -71,7 +71,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${pentaho-platform.version}</version>
+      <version>${platform.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -83,7 +83,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${pentaho-platform.version}</version>
+      <version>${platform.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -95,7 +95,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
-      <version>${pentaho-platform.version}</version>
+      <version>${platform.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -120,7 +120,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${kettle.version}</version>
+      <version>${pdi.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -132,7 +132,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-engine</artifactId>
-      <version>${kettle.version}</version>
+      <version>${pdi.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -144,7 +144,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-ui-swt</artifactId>
-      <version>${kettle.version}</version>
+      <version>${pdi.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
