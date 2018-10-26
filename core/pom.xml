@@ -23,6 +23,18 @@
     <maven.build.timestamp.format>yyyy/MM/dd hh:mm</maven.build.timestamp.format>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <resources>
       <resource>
