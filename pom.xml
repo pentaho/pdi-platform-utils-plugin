@@ -42,7 +42,6 @@
     <pdi.version>9.0.0.0-SNAPSHOT</pdi.version>
     <metastore.version>9.0.0.0-SNAPSHOT</metastore.version>
 
-    <httpclient.version>4.5.3</httpclient.version>
     <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
     <jersey-servlet.version>1.19.1</jersey-servlet.version>
     <jersey-spring.version>1.19.1</jersey-spring.version>
@@ -155,7 +154,6 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>${httpclient.version}</version>
     </dependency>
 
     <dependency>
