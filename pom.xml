@@ -54,6 +54,7 @@
     <powermock-api-mockito.version>1.6.6</powermock-api-mockito.version>
     <powermock-core.version>1.6.6</powermock-core.version>
     <encoder.version>1.2</encoder.version>
+    <commons-vfs2.version>2.2</commons-vfs2.version>
     <jsr311-api.version>1.1.1</jsr311-api.version>
     <jersey-core.version>1.19.1</jersey-core.version>
     <jersey-server.version>1.19.1</jersey-server.version>
@@ -256,10 +257,10 @@
       </exclusions>
     </dependency>
 
-    <!-- This dependency is needed for testing, despite analysis saying it's unused -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-vfs2</artifactId>
+      <version>${commons-vfs2.version}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
