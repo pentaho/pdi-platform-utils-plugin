@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2021 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils;
@@ -46,6 +46,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 
 import java.util.List;
 
@@ -66,6 +67,7 @@ import static org.mockito.Mockito.times;
 
 
 @RunWith( PowerMockRunner.class )
+@PowerMockIgnore( "jdk.internal.reflect.*" )
 @PrepareForTest( { Inspector.class, HttpConnectionHelper.class, PentahoSessionHolder.class } )
 public class CallEndpointStepTest {
 
