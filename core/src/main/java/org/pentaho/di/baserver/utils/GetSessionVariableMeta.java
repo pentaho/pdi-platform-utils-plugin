@@ -56,7 +56,7 @@ import java.util.List;
   i18nPackageName = "pt.webdetails.di.baserverutils",
   categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BAServer",
   isSeparateClassLoaderNeeded = true,
-  documentationUrl = "http://wiki.pentaho.com/display/EAI/Get+Session+Variables" )
+  documentationUrl = "https://pentaho-community.atlassian.net/wiki/display/EAI/Get+Session+Variables" )
 public class GetSessionVariableMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = GetSessionVariableMeta.class; // for i18n purposes, needed by Translator2!!
 
