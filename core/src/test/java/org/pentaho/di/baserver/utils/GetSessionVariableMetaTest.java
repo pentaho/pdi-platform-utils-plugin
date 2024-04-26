@@ -13,13 +13,14 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
@@ -36,8 +37,15 @@ import org.w3c.dom.NodeList;
 import java.util.List;
 
 import static junit.framework.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class GetSessionVariableMetaTest {
   private GetSessionVariableMeta getSessionVariableMeta;
@@ -56,7 +64,7 @@ public class GetSessionVariableMetaTest {
     final StepDataInterface stepDataInterface = mock( StepDataInterface.class );
     final int cnr = 0;
     final TransMeta transMeta = mock( TransMeta.class );
-    doReturn( stepMeta ).when( transMeta ).findStep( anyString() );
+    doReturn( stepMeta ).when( transMeta ).findStep( any() );
     final Trans trans = mock( Trans.class );
 
     getSessionVariableMeta.getStep( stepMeta, stepDataInterface, cnr, transMeta, trans );
@@ -108,7 +116,7 @@ public class GetSessionVariableMetaTest {
     RowMetaInterface[] info = new RowMetaInterface[ 1 ];
     StepMeta nextStep = mock( StepMeta.class );
     VariableSpace space = mock( VariableSpace.class );
-    doReturn( "" ).when( space ).environmentSubstitute( anyString() );
+    doReturn( "" ).when( space ).environmentSubstitute( Mockito.<String>any() );
     Repository repository = mock( Repository.class );
     IMetaStore metaStore = mock( IMetaStore.class );
 
@@ -116,8 +124,8 @@ public class GetSessionVariableMetaTest {
     getSessionVariableMeta.setVariableName( new String[] { "vn" } );
     getSessionVariableMeta.getFields( inputRowMeta, name, info, nextStep, space, repository, metaStore );
 
-    verify( space ).environmentSubstitute( anyString() );
-    verify( inputRowMeta ).mergeRowMeta( any( RowMetaInterface.class ) );
+    verify( space ).environmentSubstitute( Mockito.<String>any() );
+    verify( inputRowMeta ).mergeRowMeta( Mockito.<RowMetaInterface>any() );
   }
 
   @Test
@@ -161,11 +169,11 @@ public class GetSessionVariableMetaTest {
     final ObjectId id_step = mock( ObjectId.class );
     final List databases = mock( List.class );
 
-    doReturn( 1 ).when( rep ).countNrStepAttributes( eq( id_step ), anyString() );
+    doReturn( 1 ).when( rep ).countNrStepAttributes( eq( id_step ), any() );
     getSessionVariableMetaSpy.readRep( rep, metaStore, id_step, databases );
 
-    verify( rep, times( 9 ) ).getStepAttributeString( eq( id_step ), anyInt(), anyString() );
-    verify( rep, times( 2 ) ).getStepAttributeInteger( eq( id_step ), anyInt(), anyString() );
+    verify( rep, times( 9 ) ).getStepAttributeString( eq( id_step ), anyInt(), any() );
+    verify( rep, times( 2 ) ).getStepAttributeInteger( eq( id_step ), anyInt(), any() );
     verify( getSessionVariableMetaSpy ).allocate( anyInt() );
   }
 
@@ -180,10 +188,10 @@ public class GetSessionVariableMetaTest {
     getSessionVariableMeta.setFieldName( new String[] { "fn" } );
     getSessionVariableMeta.saveRep( rep, metaStore, id_transformation, id_step );
 
-    verify( rep, times( 9 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(),
-        anyString() );
-    verify( rep, times( 2 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(),
-        anyInt() );
+    verify( rep, times( 9 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), any(),
+        any() );
+    verify( rep, times( 2 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), any(),
+        anyLong() );
   }
 
   @Test
@@ -202,7 +210,7 @@ public class GetSessionVariableMetaTest {
     getSessionVariableMeta.allocate( 1 );
     getSessionVariableMeta.check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository,
         metaStore );
-    verify( remarks, times( 2 ) ).add( any( CheckResultInterface.class ) );
+    verify( remarks, times( 2 ) ).add( Mockito.<CheckResultInterface>any() );
   }
 
   @Test

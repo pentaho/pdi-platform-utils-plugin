@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets;
@@ -23,11 +23,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.ui.core.PropsUI;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 
 public class ImageBuilderTest {
   ImageBuilder imageBuilder, imageBuilderSpy;
@@ -44,12 +49,12 @@ public class ImageBuilderTest {
   public void testCreateWidget() throws Exception {
     Label labelMock = mock( Label.class );
 
-    doReturn( labelMock ).when( imageBuilderSpy ).createLabel( any( Composite.class ), anyInt() );
-    doReturn( null ).when( imageBuilderSpy ).setImage( any( Image.class ) );
+    doReturn( labelMock ).when( imageBuilderSpy ).createLabel( Mockito.<Composite>any(), anyInt() );
+    doReturn( null ).when( imageBuilderSpy ).setImage( Mockito.<Image>any() );
 
     ImageBuilder m = mock( ImageBuilder.class );
 
     Label label = imageBuilderSpy.createWidget( parent );
-    verify( label, times( 1 ) ).setImage( any( Image.class ) );
+    verify( label, times( 1 ) ).setImage( Mockito.<Image>any() );
   }
 }

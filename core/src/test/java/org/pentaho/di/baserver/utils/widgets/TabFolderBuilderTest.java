@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets;
@@ -22,12 +22,15 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
 
 public class TabFolderBuilderTest {
   TabFolderBuilder tabFolderBuilder, tabFolderBuilderSpy;
@@ -43,7 +46,7 @@ public class TabFolderBuilderTest {
   @Test
   public void testCreateWidget() throws Exception {
     CTabFolder cTabFolderMock = mock( CTabFolder.class );
-    doReturn( cTabFolderMock ).when( tabFolderBuilderSpy ).createCTabFolder( any( Composite.class ), anyInt() );
+    doReturn( cTabFolderMock ).when( tabFolderBuilderSpy ).createCTabFolder( Mockito.<Composite>any(), anyInt() );
 
     CTabFolder label = tabFolderBuilderSpy.createWidget( parent );
     assertNotNull( label );

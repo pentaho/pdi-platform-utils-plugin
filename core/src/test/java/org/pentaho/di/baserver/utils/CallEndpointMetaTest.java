@@ -13,13 +13,14 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
@@ -38,8 +39,15 @@ import org.w3c.dom.NodeList;
 import java.util.List;
 
 import static junit.framework.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class CallEndpointMetaTest {
   private CallEndpointMeta callEndpointMeta;
@@ -58,7 +66,7 @@ public class CallEndpointMetaTest {
     final StepDataInterface stepDataInterface = mock( StepDataInterface.class );
     final int cnr = 0;
     final TransMeta transMeta = mock( TransMeta.class );
-    doReturn( stepMeta ).when( transMeta ).findStep( anyString() );
+    doReturn( stepMeta ).when( transMeta ).findStep( any() );
     final Trans trans = mock( Trans.class );
     final StepInterface step = callEndpointMeta.getStep( stepMeta, stepDataInterface, cnr, transMeta, trans );
     assertNotNull( step );
@@ -272,12 +280,12 @@ public class CallEndpointMetaTest {
     final ObjectId id_step = mock( ObjectId.class );
     final List databases = mock( List.class );
 
-    doReturn( 1 ).when( rep ).countNrStepAttributes( eq( id_step ), anyString() );
+    doReturn( 1 ).when( rep ).countNrStepAttributes( eq( id_step ), any() );
     callEndpointMetaSpy.readRep( rep, metaStore, id_step, databases );
 
-    verify( rep, times( 9 ) ).getStepAttributeString( eq( id_step ), anyString() );
-    verify( rep, times( 3 ) ).getStepAttributeString( eq( id_step ), anyInt(), anyString() );
-    verify( rep, times( 3 ) ).getStepAttributeBoolean( eq( id_step ), anyInt(), anyString(), anyBoolean() );
+    verify( rep, times( 9 ) ).getStepAttributeString( eq( id_step ), any() );
+    verify( rep, times( 3 ) ).getStepAttributeString( eq( id_step ), anyInt(), any() );
+    verify( rep, times( 3 ) ).getStepAttributeBoolean( eq( id_step ), anyInt(), any(), anyBoolean() );
     verify( callEndpointMetaSpy ).allocate( anyInt() );
   }
 
@@ -291,11 +299,11 @@ public class CallEndpointMetaTest {
     callEndpointMeta.allocate( 1 );
     callEndpointMeta.saveRep( rep, metaStore, id_transformation, id_step );
 
-    verify( rep, times( 9 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), anyString(), anyString() );
+    verify( rep, times( 9 ) ).saveStepAttribute( eq( id_transformation ), eq( id_step ), any(), any() );
     verify( rep, times( 3 ) )
-        .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyBoolean() );
+        .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), any(), anyBoolean() );
     verify( rep, times( 3 ) )
-        .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), anyString(), anyString() );
+        .saveStepAttribute( eq( id_transformation ), eq( id_step ), anyInt(), any(), any() );
   }
 
   @Test
@@ -312,7 +320,7 @@ public class CallEndpointMetaTest {
     IMetaStore metaStore = mock( IMetaStore.class );
 
     callEndpointMeta.check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository, metaStore );
-    verify( remarks, times( 2 ) ).add( any( CheckResultInterface.class ) );
+    verify( remarks, times( 2 ) ).add( Mockito.<CheckResultInterface>any() );
   }
 
   @Test
@@ -330,6 +338,6 @@ public class CallEndpointMetaTest {
     callEndpointMeta.setResponseTimeField( "rtf" );
     callEndpointMeta.getFields( inputRowMeta, name, info, nextStep, space, repository, metaStore );
 
-    verify( inputRowMeta, times( 3 ) ).addValueMeta( any( ValueMetaInterface.class ) );
+    verify( inputRowMeta, times( 3 ) ).addValueMeta( Mockito.<ValueMetaInterface>any() );
   }
 }

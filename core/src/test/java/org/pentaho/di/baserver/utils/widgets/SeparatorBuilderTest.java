@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets;
@@ -22,12 +22,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
 
 public class SeparatorBuilderTest {
   SeparatorBuilder separatorBuilder, separatorBuilderSpy;
@@ -43,7 +46,7 @@ public class SeparatorBuilderTest {
   @Test
   public void testCreateWidget() throws Exception {
     Label labelMock = mock( Label.class );
-    doReturn( labelMock ).when( separatorBuilderSpy ).createLabel( any( Composite.class ), anyInt() );
+    doReturn( labelMock ).when( separatorBuilderSpy ).createLabel( Mockito.<Composite>any(), anyInt() );
 
     Label label = separatorBuilderSpy.createWidget( parent );
     assertNotNull( label );

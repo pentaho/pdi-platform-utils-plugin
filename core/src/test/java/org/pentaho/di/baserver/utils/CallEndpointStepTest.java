@@ -13,19 +13,23 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2021 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.Matchers;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.di.baserver.utils.inspector.Endpoint;
 import org.pentaho.di.baserver.utils.inspector.Inspector;
 import org.pentaho.di.baserver.utils.web.Http;
@@ -43,10 +47,6 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
 
 import java.util.List;
 
@@ -54,21 +54,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-
-@RunWith( PowerMockRunner.class )
-@PowerMockIgnore( "jdk.internal.reflect.*" )
-@PrepareForTest( { Inspector.class, HttpConnectionHelper.class, PentahoSessionHolder.class } )
+@RunWith( MockitoJUnitRunner.StrictStubs.class )
 public class CallEndpointStepTest {
 
   @Mock
@@ -77,10 +73,6 @@ public class CallEndpointStepTest {
   TransMeta transMeta;
   @Mock
   Trans trans;
-  @Mock
-  Trans parentTrans;
-  @Mock
-  Job job;
   @Mock
   CallEndpointData callEndpointData;
   @Mock
@@ -105,6 +97,10 @@ public class CallEndpointStepTest {
   ArgumentCaptor<List<HttpParameter>> paramListCaptor;
   CallEndpointStep callEndpointStepSpy;
 
+  private MockedStatic<Inspector> inspectorMockedStatic;
+  private MockedStatic<HttpConnectionHelper> httpConnectionHelperMockedStatic;
+  private MockedStatic<PentahoSessionHolder> sessionMockedStatic;
+
   String moduleName = "moduleName";
   String endpointPath = "/test/path";
   String testMethod = "POST";
@@ -120,15 +116,13 @@ public class CallEndpointStepTest {
   public void setUpMocks() throws Exception {
     when( stepMeta.getName() ).thenReturn( "someName" );
     when( transMeta.findStep( "someName" ) ).thenReturn( stepMeta );
-    doReturn( parentTrans ).when( trans ).getParentTrans();
-    when( trans.getParentJob() ).thenReturn( job );
     callEndpointStepSpy = spy( new CallEndpointStep( stepMeta, callEndpointData, 0, transMeta, trans ) );
     doReturn( rowMetaInterface ).when( callEndpointStepSpy ).getInputRowMeta();
     doReturn( rowMetaInterface ).when( rowMetaInterface ).clone();
     doNothing().when( (CallEndpointMeta) smiSpy ).getFields(
-      any( RowMetaInterface.class ), anyString(), Matchers.<RowMetaInterface[]>any(),
-      any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ), any( IMetaStore.class ) );
-    doNothing().when( callEndpointStepSpy ).putRow( any( RowMetaInterface.class ), any( Object[].class ) );
+      Mockito.<RowMetaInterface>any(), any(), ArgumentMatchers.<RowMetaInterface[]>any(),
+      Mockito.<StepMeta>any(), Mockito.<VariableSpace>any(), Mockito.<Repository>any(), Mockito.<IMetaStore>any() );
+    doNothing().when( callEndpointStepSpy ).putRow( Mockito.<RowMetaInterface>any(), Mockito.<Object[]>any() );
     doNothing().when( callEndpointStepSpy ).setOutputDone();
     for ( int i = 0; i < fieldNames.length; i++ ) {
       doReturn( parameterValues[i] ).when( callEndpointStepSpy ).getRowValue( any(), eq( i ) );
@@ -138,12 +132,12 @@ public class CallEndpointStepTest {
 
   @Before
   public void setUpPowerMocks() {
-    PowerMockito.mockStatic( Inspector.class );
-    PowerMockito.mockStatic( HttpConnectionHelper.class );
-    PowerMockito.mockStatic( PentahoSessionHolder.class );
-    PowerMockito.when( Inspector.getInstance() ).thenReturn( inspector );
-    PowerMockito.when( HttpConnectionHelper.getInstance() ).thenReturn( httpConnectionHelper );
-    PowerMockito.when( PentahoSessionHolder.getSession() ).thenReturn( session );
+    inspectorMockedStatic = Mockito.mockStatic( Inspector.class );
+    when( Inspector.getInstance() ).thenReturn( inspector );
+    httpConnectionHelperMockedStatic = Mockito.mockStatic( HttpConnectionHelper.class );
+    when( HttpConnectionHelper.getInstance() ).thenReturn( httpConnectionHelper );
+    sessionMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class );
+    when( PentahoSessionHolder.getSession() ).thenReturn( session );
   }
 
   @Before
@@ -156,6 +150,13 @@ public class CallEndpointStepTest {
     smiSpy.setFieldName( fieldNames );
     smiSpy.setParameter( parameterNames );
     smiSpy.setHttpMethod( testMethod );
+  }
+
+  @After
+  public void afterEach(){
+    inspectorMockedStatic.close();
+    httpConnectionHelperMockedStatic.close();
+    sessionMockedStatic.close();
   }
 
   @Test
@@ -319,10 +320,8 @@ public class CallEndpointStepTest {
   @Test
   public void testInit() throws Exception {
     assertTrue( callEndpointStepSpy.init( smiSpy, callEndpointData ) );
-    PowerMockito.verifyStatic();
-    Inspector.getInstance();
-    PowerMockito.verifyStatic();
-    HttpConnectionHelper.getInstance();
+    inspectorMockedStatic.verify( Inspector::getInstance, times( 1 ) );
+    httpConnectionHelperMockedStatic.verify( HttpConnectionHelper::getInstance, times( 1 ) );
     verify( inspector ).refreshSettings( eq( serverUrl ), eq( username ), eq( password ) );
   }
 

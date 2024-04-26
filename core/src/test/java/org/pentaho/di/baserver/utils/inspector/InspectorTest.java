@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.inspector;
@@ -38,12 +38,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 
 public class InspectorTest {
@@ -77,12 +77,12 @@ public class InspectorTest {
 
   @Test
   public void testCheckServerStatus() throws Exception {
-    doReturn( null ).when( inspectorSpy ).callHttp( anyString() );
+    doReturn( null ).when( inspectorSpy ).callHttp( any() );
     assertEquals( -1, inspectorSpy.checkServerStatus( SERVER_URL, USERNAME, PASSWORD ) );
 
     Response response = mock( Response.class );
     doReturn( 200 ).when( response ).getStatusCode();
-    doReturn( response ).when( inspectorSpy ).callHttp( anyString() );
+    doReturn( response ).when( inspectorSpy ).callHttp( any() );
 
     assertEquals( 200, inspectorSpy.checkServerStatus( SERVER_URL, USERNAME, PASSWORD ) );
   }
@@ -215,20 +215,20 @@ public class InspectorTest {
       applicationWadlEndpoint = SERVER_URL + moduleName + "/application.wadl";
 
     doReturn( "" ).when( inspectorSpy ).getApplicationWadlEndpoint( moduleName );
-    doReturn( null ).when( inspectorSpy ).callHttp( anyString() );
+    doReturn( null ).when( inspectorSpy ).callHttp( any() );
     assertFalse( inspectorSpy.inspectEndpoints( moduleName ) );
 
     Response response = mock( Response.class );
     doReturn( HttpStatus.SC_INTERNAL_SERVER_ERROR ).when( response ).getStatusCode();
-    doReturn( response ).when( inspectorSpy ).callHttp( anyString() );
+    doReturn( response ).when( inspectorSpy ).callHttp( any() );
     assertFalse( inspectorSpy.inspectEndpoints( moduleName ) );
 
     doReturn( HttpStatus.SC_OK ).when( response ).getStatusCode();
-    doReturn( null ).when( inspectorSpy ).getDocument( anyString() );
+    doReturn( null ).when( inspectorSpy ).getDocument( any() );
     assertFalse( inspectorSpy.inspectEndpoints( moduleName ) );
 
     Document doc = mock( Document.class );
-    doReturn( doc ).when( inspectorSpy ).getDocument( anyString() );
+    doReturn( doc ).when( inspectorSpy ).getDocument( any() );
     WadlParser parser = mock( WadlParser.class );
 
     List<Endpoint> endpointList = new ArrayList<Endpoint>();

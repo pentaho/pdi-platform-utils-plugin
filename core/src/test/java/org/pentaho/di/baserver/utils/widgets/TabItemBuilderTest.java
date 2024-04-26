@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets;
@@ -23,13 +23,17 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 
 public class TabItemBuilderTest {
   TabItemBuilder tabItemBuilder, tabItemBuilderSpy;
@@ -46,9 +50,9 @@ public class TabItemBuilderTest {
   public void testCreateWidget() throws Exception {
     String text = "tabitem-text"; //$NON-NLS-1$
     Composite compositeMock = mock( Composite.class );
-    doReturn( compositeMock ).when( tabItemBuilderSpy ).createServerTabItemControl( any( Composite.class ), anyInt() );
+    doReturn( compositeMock ).when( tabItemBuilderSpy ).createServerTabItemControl( Mockito.<Composite>any(), anyInt() );
     CTabItem cTabItemMock = mock( CTabItem.class );
-    doReturn( cTabItemMock ).when( tabItemBuilderSpy ).createCTabItem( any( CTabFolder.class ), anyInt() );
+    doReturn( cTabItemMock ).when( tabItemBuilderSpy ).createCTabItem( Mockito.<CTabFolder>any(), anyInt() );
 
     when( tabItemBuilderSpy.setTopPlacement( anyInt() ) ).thenCallRealMethod();
 
