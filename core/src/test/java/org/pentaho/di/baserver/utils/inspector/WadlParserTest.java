@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.inspector;
@@ -40,8 +40,8 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doReturn;
@@ -120,7 +120,7 @@ public class WadlParserTest {
     Collection<Endpoint> endpointList = wadlParserSpy.getEndpoints( doc );
     Node resources = doc.selectSingleNode( "/application/child::*[local-name() = 'resources' ]" );
 
-    verify( wadlParserSpy, times( 1 ) ).parseResources( eq( resources ), anyString() );
+    verify( wadlParserSpy, times( 1 ) ).parseResources( eq( resources ), any() );
     assertEquals( endpointList.size(), 142 );
 
     Endpoint endpoint = (Endpoint) endpointList.toArray()[ 0 ];
@@ -170,7 +170,7 @@ public class WadlParserTest {
     final String id = "id";
     final Http httpMethod = Http.GET;
     final Node mockNode = createMockNode( id, httpMethod );
-    when( resourceNode.selectNodes( anyString() ) ).thenReturn( new ArrayList() {
+    when( resourceNode.selectNodes( any() ) ).thenReturn( new ArrayList() {
       {
         add( mockNode );
       }

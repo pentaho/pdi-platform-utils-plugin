@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.web;
@@ -34,6 +34,7 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.web.servlet.JAXRSPluginServlet;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -49,9 +50,18 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class HttpConnectionHelperTest {
   HttpConnectionHelper httpConnectionHelper, httpConnectionHelperSpy;
@@ -73,8 +83,8 @@ public class HttpConnectionHelperTest {
 
     Response r = mock( Response.class );
 
-    doReturn( r ).when( httpConnectionHelperSpy ).callHttp( anyString(), anyList(), anyString(),
-        anyString(), anyString() );
+    doReturn( r ).when( httpConnectionHelperSpy ).callHttp( any(), anyList(), any(),
+        any(), any() );
     httpConnectionHelperSpy.invokeEndpoint( serverUrl, userName, password, moduleName, endpointPath, httpMethod,
         httpParameters );
 
@@ -104,9 +114,9 @@ public class HttpConnectionHelperTest {
 
     Response r = mock( Response.class );
 
-    doReturn( r ).when( httpConnectionHelperSpy ).invokePlatformEndpoint( anyString(), anyString(), any( List.class ) );
-    doReturn( r ).when( httpConnectionHelperSpy ).invokePluginEndpoint( anyString(), anyString(), anyString(),
-        any( List.class ) );
+    doReturn( r ).when( httpConnectionHelperSpy ).invokePlatformEndpoint( any(), any(), Mockito.<List>any() );
+    doReturn( r ).when( httpConnectionHelperSpy ).invokePluginEndpoint( any(), any(), any(),
+      Mockito.<List>any() );
 
     httpConnectionHelperSpy.invokeEndpoint( moduleName, endpointPath, httpMethod, httpParameters );
     verify( httpConnectionHelperSpy, times( 1 ) ).invokePlatformEndpoint( endpointPath, httpMethod, httpParameters );
@@ -145,18 +155,18 @@ public class HttpConnectionHelperTest {
     String serverUrl = "http://localhost:8080/pentaho";
     URL url = new URL( serverUrl );
     doReturn( url ).when( httpConnectionHelperSpy ).getUrl();
-    doThrow( new ServletException() ).when( requestDispatcher ).forward( any( InternalHttpServletRequest.class ),
-        any( InternalHttpServletResponse.class ) );
+    doThrow( new ServletException() ).when( requestDispatcher ).forward( Mockito.<InternalHttpServletRequest>any(),
+        Mockito.<InternalHttpServletResponse>any() );
     r = httpConnectionHelperSpy.invokePlatformEndpoint( endpointPath, httpMethod, httpParameters );
     assertTrue( r.getResult().equals( new Response().getResult() ) );
 
-    doThrow( new IOException() ).when( requestDispatcher ).forward( any( InternalHttpServletRequest.class ),
-        any( InternalHttpServletResponse.class ) );
+    doThrow( new IOException() ).when( requestDispatcher ).forward( Mockito.<InternalHttpServletRequest>any(),
+      Mockito.<InternalHttpServletResponse>any() );
     r = httpConnectionHelperSpy.invokePlatformEndpoint( endpointPath, httpMethod, httpParameters );
     assertTrue( r.getResult().equals( new Response().getResult() ) );
 
-    doNothing().when( requestDispatcher ).forward( any( InternalHttpServletRequest.class ),
-        any( InternalHttpServletResponse.class ) );
+    doNothing().when( requestDispatcher ).forward( Mockito.<InternalHttpServletRequest>any(),
+      Mockito.<InternalHttpServletResponse>any() );
     r = httpConnectionHelperSpy.invokePlatformEndpoint( endpointPath, httpMethod, httpParameters );
     assertEquals( r.getStatusCode(), 204 );
 
@@ -288,18 +298,18 @@ public class HttpConnectionHelperTest {
     String serverUrl = "http://localhost:8080/pentaho";
     URL url = new URL( serverUrl );
     doReturn( url ).when( httpConnectionHelperSpy ).getUrl();
-    doThrow( new ServletException() ).when( pluginServlet ).service( any( InternalHttpServletRequest.class ),
-        any( InternalHttpServletResponse.class ) );
+    doThrow( new ServletException() ).when( pluginServlet ).service( Mockito.<InternalHttpServletRequest>any(),
+        Mockito.<InternalHttpServletResponse>any() );
     r = httpConnectionHelperSpy.invokePluginEndpoint( pluginName, endpointPath, httpMethod, httpParameters );
     assertTrue( r.getResult().equals( new Response().getResult() ) );
 
-    doThrow( new IOException() ).when( pluginServlet ).service( any( InternalHttpServletRequest.class ),
-        any( InternalHttpServletResponse.class ) );
+    doThrow( new IOException() ).when( pluginServlet ).service( Mockito.<InternalHttpServletRequest>any(),
+      Mockito.<InternalHttpServletResponse>any() );
     r = httpConnectionHelperSpy.invokePluginEndpoint( pluginName, endpointPath, httpMethod, httpParameters );
     assertTrue( r.getResult().equals( new Response().getResult() ) );
 
-    doNothing().when( pluginServlet ).service( any( InternalHttpServletRequest.class ),
-        any( InternalHttpServletResponse.class ) );
+    doNothing().when( pluginServlet ).service( Mockito.<InternalHttpServletRequest>any(),
+      Mockito.<InternalHttpServletResponse>any() );
     r = httpConnectionHelperSpy.invokePluginEndpoint( pluginName, endpointPath, httpMethod, httpParameters );
     assertEquals( r.getStatusCode(), 404 );
     assertEquals( r.getResponseTime(), 0 );
@@ -319,7 +329,7 @@ public class HttpConnectionHelperTest {
 
     Credentials credentials = mock( Credentials.class );
     doReturn( credentials ).when( httpConnectionHelperSpy ).getCredentials( user, password );
-    doReturn( httpClient ).when( httpConnectionHelperSpy ).getHttpClient( anyString(), anyString() );
+    doReturn( httpClient ).when( httpConnectionHelperSpy ).getHttpClient( any(), any() );
 
     HttpResponse httpResponse = mock( HttpResponse.class );
 
@@ -330,7 +340,7 @@ public class HttpConnectionHelperTest {
     StatusLine statusLine = mock( StatusLine.class );
     doReturn( statusLine ).when( httpResponse ).getStatusLine();
     doReturn( 1 ).when( statusLine ).getStatusCode();
-    doReturn( httpResponse ).when( httpClient ).execute( any( HttpRequestBase.class ) );
+    doReturn( httpResponse ).when( httpClient ).execute( Mockito.<HttpRequestBase>any() );
 
     parameters.add( new HttpParameter( "Content-Type", "content" ) );
     r = httpConnectionHelperSpy.callHttp( url, parameters, method, user, password );

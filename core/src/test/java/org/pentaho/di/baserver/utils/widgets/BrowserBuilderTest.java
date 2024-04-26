@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets;
@@ -24,12 +24,17 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.ui.core.PropsUI;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 
 public class BrowserBuilderTest {
   BrowserBuilder browserBuilder, browserBuilderSpy;
@@ -55,15 +60,15 @@ public class BrowserBuilderTest {
     String text = "browser-text"; //$NON-NLS-1$
 
     Browser browserMock = mock( Browser.class );
-    doReturn( browserMock ).when( browserBuilderSpy ).createBrowser( any( Composite.class ), anyInt() );
+    doReturn( browserMock ).when( browserBuilderSpy ).createBrowser( Mockito.<Composite>any(), anyInt() );
     doReturn( text ).when( browserMock ).getText();
-    doReturn( null ).when( browserBuilderSpy ).createFont( any( Composite.class ), any( FontData.class ) );
+    doReturn( null ).when( browserBuilderSpy ).createFont( Mockito.<Composite>any(), Mockito.<FontData>any() );
 
     browserBuilderSpy.setLabelText( text );
     Browser browser = browserBuilderSpy.createWidget( parent );
 
     assertEquals( text, browser.getText() );
     verify( browser, times( 1 ) ).setText( text );
-    verify( browser, times( 1 ) ).setFont( any( Font.class ) );
+    verify( browser, times( 1 ) ).setFont( Mockito.<Font>any() );
   }
 }

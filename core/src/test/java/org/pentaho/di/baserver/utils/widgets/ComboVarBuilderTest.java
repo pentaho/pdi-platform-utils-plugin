@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets;
@@ -21,15 +21,20 @@ package org.pentaho.di.baserver.utils.widgets;
 import org.eclipse.swt.widgets.Composite;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.ComboVar;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 
 public class ComboVarBuilderTest {
   ComboVarBuilder comboVarBuilder, comboVarBuilderSpy;
@@ -47,8 +52,8 @@ public class ComboVarBuilderTest {
   public void testCreateWidget() throws Exception {
     ComboVar comboVarMock = mock( ComboVar.class );
     doReturn( comboVarMock ).when( comboVarBuilderSpy )
-      .createComboVar( any( VariableSpace.class ), any( Composite.class ), anyInt() );
-    when( comboVarBuilderSpy.addItem( anyString() ) ).thenCallRealMethod();
+      .createComboVar( Mockito.<VariableSpace>any(), Mockito.<Composite>any(), anyInt() );
+    when( comboVarBuilderSpy.addItem( any() ) ).thenCallRealMethod();
 
     ComboVar comboVar = comboVarBuilderSpy.createWidget( parent );
     assertNotNull( comboVar );

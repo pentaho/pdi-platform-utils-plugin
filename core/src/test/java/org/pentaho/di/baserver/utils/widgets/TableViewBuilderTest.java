@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.widgets;
@@ -24,15 +24,19 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.ColumnInfo;
 import org.pentaho.di.ui.core.widget.TableView;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
 
 public class TableViewBuilderTest {
   TableViewBuilder tableViewBuilder, tableViewBuilderSDpy;
@@ -50,9 +54,9 @@ public class TableViewBuilderTest {
   @Test
   public void testCreateWidget() throws Exception {
     TableView tableViewMock = mock( TableView.class );
-    doReturn( tableViewMock ).when( tableViewBuilderSDpy ).createTableView( any( VariableSpace.class ),
-        any( Composite.class ), anyInt(), any( ColumnInfo[].class ), anyInt(), any( ModifyListener.class ),
-        any( PropsUI.class ) );
+    doReturn( tableViewMock ).when( tableViewBuilderSDpy ).createTableView( Mockito.<VariableSpace>any(),
+        Mockito.<Composite>any(), anyInt(), any( ColumnInfo[].class ), anyInt(), Mockito.<ModifyListener>any(),
+        Mockito.<PropsUI>any() );
     Table tableMock = mock( Table.class );
     doReturn( tableMock ).when( tableViewMock ).getTable();
 

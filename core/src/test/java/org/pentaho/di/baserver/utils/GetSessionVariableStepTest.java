@@ -3,7 +3,7 @@ package org.pentaho.di.baserver.utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.job.Job;
@@ -19,7 +19,14 @@ import org.pentaho.metastore.api.IMetaStore;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class GetSessionVariableStepTest {
   GetSessionVariableStep getSessionVariableStep, getSessionVariableStepSpy;
@@ -59,11 +66,11 @@ public class GetSessionVariableStepTest {
         smiSpy = spy( smi );
 
     doNothing().when( (GetSessionVariableMeta) smiSpy ).getFields(
-        any( RowMetaInterface.class ), anyString(), Matchers.<RowMetaInterface[]>any(),
-        any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ), any( IMetaStore.class ) );
+        Mockito.<RowMetaInterface>any(), any(), Mockito.<RowMetaInterface[]>any(),
+        Mockito.<StepMeta>any(), Mockito.<VariableSpace>any(), Mockito.<Repository>any(), Mockito.<IMetaStore>any() );
     doReturn( new String[] {} ).when( (GetSessionVariableMeta) smiSpy ).getFieldName();
 
-    doNothing().when( getSessionVariableStepSpy ).putRow( any( RowMetaInterface.class ), any( Object[].class ) );
+    doNothing().when( getSessionVariableStepSpy ).putRow( Mockito.<RowMetaInterface>any(), Mockito.<Object[]>any() );
     doNothing().when( getSessionVariableStepSpy ).setOutputDone();
 
     assertFalse( getSessionVariableStepSpy.processRow( smiSpy, getSessionVariableData ) );
