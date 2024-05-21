@@ -3,6 +3,7 @@ package org.pentaho.di.baserver.utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -19,7 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 
 public class SetSessionVariableStepTest {
   private static final String SIMULATED_SESSION_PREFIX = "_FAKE_SESSION_";
@@ -45,7 +55,7 @@ public class SetSessionVariableStepTest {
     setSessionVariableStepSpy = spy( setSessionVariableStep );
 
     doReturn( setSessionVariableData ).when( setSessionVariableStepSpy ).getData();
-    doNothing().when( setSessionVariableStepSpy ).logBasic( anyString() );
+    doNothing().when( setSessionVariableStepSpy ).logBasic( any() );
   }
 
   @Test
@@ -71,12 +81,12 @@ public class SetSessionVariableStepTest {
     doReturn( rowMetaInterface ).when( rowMetaInterface ).clone();
     doReturn( rowMetaInterface ).when( setSessionVariableStepSpy ).getInputRowMeta();
 
-    doNothing().when( setSessionVariableStepSpy ).putRow( any( RowMetaInterface.class ), any( Object[].class ) );
-    doNothing().when( setSessionVariableStepSpy ).setValue( anyString(), anyString() );
+    doNothing().when( setSessionVariableStepSpy ).putRow( Mockito.<RowMetaInterface>any(), Mockito.<Object[]>any() );
+    doNothing().when( setSessionVariableStepSpy ).setValue( any(), any() );
     doReturn( "bar" ).when( setSessionVariableStepSpy ).getRowValue( rowData, 0 );
 
     assertTrue( setSessionVariableStepSpy.processRow( smiSpy, setSessionVariableData ) );
-    verify( setSessionVariableStepSpy, times( 1 ) ).setValue( anyString(), anyString() );
+    verify( setSessionVariableStepSpy, times( 1 ) ).setValue( any(), any() );
 
     doReturn( null ).when( setSessionVariableStepSpy ).getRow();
     doReturn( defaultValues[ 0 ] ).when( setSessionVariableStepSpy ).environmentSubstitute( defaultValues[ 0 ] );
@@ -84,7 +94,7 @@ public class SetSessionVariableStepTest {
 
     setSessionVariableStepSpy.first = true;
     assertFalse( setSessionVariableStepSpy.processRow( smiSpy, setSessionVariableData ) );
-    verify( setSessionVariableStepSpy, times( 2 ) ).setValue( anyString(), anyString() );
+    verify( setSessionVariableStepSpy, times( 2 ) ).setValue( any(), any() );
 
     setSessionVariableStepSpy.first = false;
     doReturn( rowData ).when( setSessionVariableStepSpy ).getRow();
@@ -92,12 +102,12 @@ public class SetSessionVariableStepTest {
       setSessionVariableStepSpy.processRow( smiSpy, setSessionVariableData );
       fail();
     } catch ( KettleStepException e ) {
-      verify( setSessionVariableStepSpy, times( 2 ) ).setValue( anyString(), anyString() );
+      verify( setSessionVariableStepSpy, times( 2 ) ).setValue( any(), any() );
     }
 
     doReturn( null ).when( setSessionVariableStepSpy ).getRow();
     assertFalse( setSessionVariableStepSpy.processRow( smiSpy, setSessionVariableData ) );
-    verify( setSessionVariableStepSpy, times( 2 ) ).setValue( anyString(), anyString() );
+    verify( setSessionVariableStepSpy, times( 2 ) ).setValue( any(), any() );
   }
 
   @Test
@@ -172,7 +182,7 @@ public class SetSessionVariableStepTest {
         ArgumentCaptor.forClass( BaseStepData.StepExecutionStatus.class );
 
     setSessionVariableStepSpy.dispose( smi, sdi );
-    verify( sdi, times( 1 ) ).setStatus( any( BaseStepData.StepExecutionStatus.class ) );
+    verify( sdi, times( 1 ) ).setStatus( Mockito.<BaseStepData.StepExecutionStatus>any() );
 
     verify( sdi ).setStatus( argument.capture() );
     assertEquals( BaseStepData.StepExecutionStatus.STATUS_DISPOSED.toString(),

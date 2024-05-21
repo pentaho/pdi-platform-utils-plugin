@@ -48,17 +48,15 @@
     <org.eclipse.swt.gtk.linux.x86_64.version>4.6</org.eclipse.swt.gtk.linux.x86_64.version>
 
     <!-- 'TEST' SCOPED DEPS -->
-    <junit.version>4.10</junit.version>
-    <mockito-all.version>1.10.19</mockito-all.version>
-    <powermock-module-junit4.version>1.6.6</powermock-module-junit4.version>
-    <powermock-api-mockito.version>1.6.6</powermock-api-mockito.version>
-    <powermock-core.version>1.6.6</powermock-core.version>
+    <junit.version>4.13.2</junit.version>
+    <mockito-core.version>5.10.0</mockito-core.version>
     <encoder.version>1.2</encoder.version>
     <jsr311-api.version>1.1.1</jsr311-api.version>
     <jersey-core.version>1.19.1</jersey-core.version>
     <jersey-server.version>1.19.1</jersey-server.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <commons-lang.version>2.6</commons-lang.version>
+    <eclipse.jface.version>3.33.0</eclipse.jface.version>
 
   </properties>
 
@@ -220,34 +218,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>${mockito-all.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock-module-junit4.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock-api-mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-core</artifactId>
-      <version>${powermock-core.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.owasp.encoder</groupId>
       <artifactId>encoder</artifactId>
       <version>${encoder.version}</version>
@@ -258,6 +228,13 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito-core.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <!-- This dependency is needed for testing, despite analysis saying it's unused -->
@@ -371,19 +348,6 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>${commons-lang.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito-all.version}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>

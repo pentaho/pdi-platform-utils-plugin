@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.web;
@@ -27,7 +27,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
 import static junit.framework.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 
 public class InternalHttpServletResponseTest {
   InternalHttpServletResponse response, responseSpy;
