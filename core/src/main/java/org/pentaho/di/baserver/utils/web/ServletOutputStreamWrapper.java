@@ -13,12 +13,13 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.web;
 
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -49,5 +50,15 @@ public class ServletOutputStreamWrapper extends ServletOutputStream {
   public void close() throws IOException {
     super.close();
     this.outputStream.close();
+  }
+
+  @Override
+  public boolean isReady() {
+    return false;
+  }
+
+  @Override
+  public void setWriteListener( WriteListener writeListener ) {
+
   }
 }

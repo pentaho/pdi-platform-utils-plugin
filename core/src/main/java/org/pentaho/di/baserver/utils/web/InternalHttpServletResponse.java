@@ -13,14 +13,14 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2024 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.di.baserver.utils.web;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -112,6 +112,11 @@ public class InternalHttpServletResponse implements HttpServletResponse {
   @Override
   public void setContentLength( int contentLength ) {
     this.contentLength = contentLength;
+  }
+
+  @Override
+  public void setContentLengthLong( long l ) {
+
   }
 
   @Override public String getCharacterEncoding() {
@@ -261,7 +266,6 @@ public class InternalHttpServletResponse implements HttpServletResponse {
 
   }
 
-  @Override
   public void setStatus( int status, String errorMessage ) {
     this.status = status;
     this.errorMessage = errorMessage;
